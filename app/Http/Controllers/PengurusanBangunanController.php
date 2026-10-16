@@ -6,6 +6,7 @@ use App\Http\Requests\SimpanBangunanRequest;
 use App\Models\Aset;
 use App\Models\Bangunan;
 use App\Services\Rujukan;
+use App\Services\KodQr;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -30,10 +31,11 @@ class PengurusanBangunanController extends Controller
 
     public function store(
         SimpanBangunanRequest $request,
-        Rujukan $rujukan
+        Rujukan $rujukan,
+        KodQr $kodQr
     ): RedirectResponse {
         try {
-            DB::transaction(function () use ($request, $rujukan): void {
+            DB::transaction(function () use ($request, $rujukan, $kodQr): void {
                 [$maklumatBangunan, $senaraiPenyewa] = $this->asingkanMaklumat(
                     $request->validated()
                 );
@@ -52,6 +54,11 @@ class PengurusanBangunanController extends Controller
                     ),
                     'created_by' => $request->user()->usr_id,
                 ]);
+
+                $kodQr->jana(
+                    $bangunan,
+                    $request->user()->usr_id
+                );
 
                 $this->simpanPenyewa(
                     $bangunan,

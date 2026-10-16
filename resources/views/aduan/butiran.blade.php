@@ -41,12 +41,37 @@
                     <dt class="col-sm-4">Jenis Kerosakan</dt>
                     <dd class="col-sm-8">{{ $aduan->cmp_damage_type ?? '-' }}</dd>
 
-                    <dt class="col-sm-4">Penyewa</dt>
-                    <dd class="col-sm-8">{{ $aduan->penyewa?->tnt_name ?? 'Orang Awam' }}</dd>
+                    <dt class="col-sm-4">Pengadu</dt>
+                    <dd class="col-sm-8">
+                        {{ $aduan->penyewa?->tnt_name ?? 'Orang Awam' }}
+                    </dd>
 
                     <dt class="col-sm-4">Keterangan</dt>
-                    <dd class="col-sm-8 mb-0">{{ $aduan->cmp_note }}</dd>
+                    <dd class="col-sm-8">{{ $aduan->cmp_note }}</dd>
                 </dl>
+                @if ($aduan->gambar->isNotEmpty())
+                    <hr class="my-4">
+
+                    <h3 class="h6 fw-bold mb-3">Gambar Kerosakan</h3>
+
+                    <div class="row g-3">
+                        @foreach ($aduan->gambar as $gambar)
+                            <div class="col-6">
+                                <a
+                                    href="{{ asset('storage/' . $gambar->cmpimg_path) }}"
+                                    target="_blank"
+                                    class="d-block"
+                                >
+                                    <img
+                                        src="{{ asset('storage/' . $gambar->cmpimg_path) }}"
+                                        alt="Gambar aduan"
+                                        class="img-fluid rounded-3 border gambar-aduan"
+                                    >
+                                </a>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </div>
 

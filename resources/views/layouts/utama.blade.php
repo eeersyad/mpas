@@ -73,6 +73,13 @@
                 'active' => request()->routeIs('pengguna.*'),
             ],
             [
+                'label' => 'Kod QR',
+                'icon' => 'bi-qr-code',
+                'url' => route('kodqr.index'),
+                'roles' => ['SYSTEM', 'BPH'],
+                'active' => request()->routeIs('kodqr.*'),
+            ],
+            [
                 'label' => 'Tetapan',
                 'icon' => 'bi-gear-fill',
                 'url' => route('tetapan.rujukan'),

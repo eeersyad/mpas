@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\TetapanRujukan;
 use App\Models\Bangunan;
 use App\Models\Tanah;
+use App\Models\TetapanRujukan;
+use App\Models\TetapanAduan;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -98,5 +99,54 @@ class TetapanController extends Controller
         }
 
         $tetapan->fill($maklumat)->save();
+    }
+
+    public function aduan(): View
+    {
+        $tetapan = TetapanAduan::query()->first();
+
+        return view('tetapan.aduan', compact('tetapan'));
+    }
+
+    public function kemaskiniAduan(Request $request): RedirectResponse
+    {
+        $data = $request->validate(
+            [
+                'adu_tempoh_papar_selesai' => [
+                    'required',
+                    'integer',
+                    'min:1',
+                    'max:365',
+                ],
+            ],
+            [
+                'adu_tempoh_papar_selesai.required' =>
+                    'Sila masukkan tempoh paparan aduan selesai.',
+                'adu_tempoh_papar_selesai.integer' =>
+                    'Tempoh mesti dalam bentuk nombor.',
+                'adu_tempoh_papar_selesai.min' =>
+                    'Tempoh minimum ialah satu hari.',
+                'adu_tempoh_papar_selesai.max' =>
+                    'Tempoh maksimum ialah 365 hari.',
+            ]
+        );
+
+        $tetapan = TetapanAduan::query()->firstOrNew();
+
+        $tetapan->fill([
+            'adu_tempoh_papar_selesai' =>
+                $data['adu_tempoh_papar_selesai'],
+            'updated_by' => $request->user()->usr_id,
+        ]);
+
+        if (! $tetapan->exists) {
+            $tetapan->created_by = $request->user()->usr_id;
+        }
+
+        $tetapan->save();
+
+        return redirect()
+            ->route('tetapan.aduan')
+            ->with('berjaya', 'Tetapan aduan awam berjaya dikemaskini.');
     }
 }

@@ -27,6 +27,11 @@
                         <span>Nombor Rujukan</span>
                     </a>
 
+                    <a href="{{ route('tetapan.aduan') }}" class="tetapan-pautan">
+                        <i class="bi bi-clipboard2-pulse"></i>
+                        <span>Aduan Awam</span>
+                    </a>
+
                     <span class="tetapan-pautan tidak-aktif">
                         <i class="bi bi-buildings"></i>
                         <span>Maklumat Organisasi</span>

@@ -8,6 +8,8 @@ use App\Http\Controllers\TetapanController;
 use App\Http\Controllers\PengurusanTanahController;
 use App\Http\Controllers\PengurusanBangunanController;
 use App\Http\Controllers\PengurusanAduanController;
+use App\Http\Controllers\PengurusanKodQrController;
+use App\Http\Controllers\AduanAwamController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -17,6 +19,14 @@ Route::get('/', function () {
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'login'])->name('login');
     Route::post('/login', [LoginController::class, 'authenticate'])->name('authenticate');
+
+    Route::middleware('throttle:20,1')->group(function () {
+        Route::get('/laporan/{kod}', [AduanAwamController::class, 'create'])
+            ->name('aduan.awam.create');
+
+        Route::post('/laporan/{kod}', [AduanAwamController::class, 'store'])
+            ->name('aduan.awam.store');
+    });
 });
 
 //KUMPULAN SYSTEM, BPH
@@ -38,6 +48,15 @@ Route::middleware('peranan:SYSTEM,BPH')->group(function () {
 
     Route::delete('/pengguna/{pengguna}', [PengurusanPenggunaController::class, 'destroy'])
         ->name('pengguna.destroy');
+
+    Route::get('/kod-qr', [PengurusanKodQrController::class, 'index'])
+        ->name('kodqr.index');
+
+    Route::get('/kod-qr/{bangunan}', [PengurusanKodQrController::class, 'show'])
+        ->name('kodqr.show');
+
+    Route::put('/kod-qr/{bangunan}/status', [PengurusanKodQrController::class, 'kemaskiniStatus'])
+        ->name('kodqr.status');
 });
 
 //KUMPULAN AUTH
@@ -58,6 +77,12 @@ Route::middleware('auth')->group(function () {
 
         Route::put('/tetapan/rujukan', [TetapanController::class, 'kemaskiniRujukan'])
             ->name('tetapan.rujukan.kemaskini');
+
+        Route::get('/tetapan/aduan', [TetapanController::class, 'aduan'])
+            ->name('tetapan.aduan');
+
+        Route::put('/tetapan/aduan', [TetapanController::class, 'kemaskiniAduan'])
+            ->name('tetapan.aduan.kemaskini');
     });
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -118,4 +143,6 @@ Route::middleware('auth')->group(function () {
     )
         ->middleware('peranan:SYSTEM,KJ')
         ->name('aduan.penyelenggaraan');
+
+    
 });

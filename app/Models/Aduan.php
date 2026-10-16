@@ -26,6 +26,7 @@ class Aduan extends Model
         'cmp_accepted_at',
         'cmp_maintenance_date',
         'cmp_maintained_by',
+        'cmp_completed_at',
         'cmp_completion_note',
         'created_by',
         'updated_by',
@@ -37,6 +38,7 @@ class Aduan extends Model
             'cmp_received_date' => 'datetime',
             'cmp_accepted_at' => 'datetime',
             'cmp_maintenance_date' => 'date',
+            'cmp_completed_at' => 'datetime',
         ];
     }
 

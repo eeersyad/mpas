@@ -123,10 +123,13 @@ class PengurusanAduanController extends Controller
             );
         }
 
+        $status = $request->string('cmp_status')->toString();
+
         $aduan->update([
-            'cmp_status' => $request->string('cmp_status')->toString(),
+            'cmp_status' => $status,
             'cmp_maintenance_date' => $request->input('cmp_maintenance_date'),
             'cmp_completion_note' => $request->input('cmp_completion_note'),
+            'cmp_completed_at' => $status === 'SELESAI' ? now() : null,
             'cmp_maintained_by' => $request->user()->usr_id,
             'updated_by' => $request->user()->usr_id,
         ]);
