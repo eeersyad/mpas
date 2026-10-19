@@ -17,9 +17,86 @@
         </a>
     </div>
 
+    <form method="GET" class="panel-penapis mb-4">
+        <input type="hidden" name="had" value="{{ request('had', 15) }}">
+
+        <div class="row g-3 align-items-end">
+            <div class="col-12 col-xl-5">
+                <label for="cariPengguna" class="label-penapis">
+                    <i class="bi bi-search"></i> Carian Pengguna
+                </label>
+
+                <input
+                    type="search"
+                    id="cariPengguna"
+                    name="cari"
+                    value="{{ request('cari') }}"
+                    class="form-control kawalan-penapis"
+                    placeholder="Nama pengguna..."
+                >
+            </div>
+
+            <div class="col-12 col-md-6 col-xl-2">
+                <label for="perananPengguna" class="label-penapis">
+                    <i class="bi bi-person-badge"></i> Peranan
+                </label>
+
+                <select
+                    id="perananPengguna"
+                    name="peranan"
+                    class="form-select kawalan-penapis"
+                >
+                    <option value="">Semua Peranan</option>
+
+                    @foreach (['BPH', 'BP', 'KJ'] as $peranan)
+                        <option value="{{ $peranan }}" @selected(request('peranan') === $peranan)>
+                            {{ $peranan }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-12 col-md-6 col-xl-2">
+                <label for="statusPengguna" class="label-penapis">
+                    <i class="bi bi-toggle-on"></i> Status Akaun
+                </label>
+
+                <select
+                    id="statusPengguna"
+                    name="status"
+                    class="form-select kawalan-penapis"
+                >
+                    <option value="">Semua Status</option>
+                    <option value="ACTIVE" @selected(request('status') === 'ACTIVE')>
+                        Aktif
+                    </option>
+                    <option value="INACTIVE" @selected(request('status') === 'INACTIVE')>
+                        Tidak Aktif
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-12 col-xl-3">
+                <div class="d-flex gap-2 tindakan-penapis">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search me-1"></i>Cari
+                    </button>
+
+                    <a
+                        href="{{ route('pengguna.index') }}"
+                        class="btn btn-outline-secondary"
+                    >
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>
+                        Tetapkan Semula
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+
     <div class="kad-data">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+            <table class="table table-hover align-middle mb-0 jadual-sistem">
                 <thead>
                     <tr>
                         <th>Bil.</th>
@@ -105,10 +182,6 @@
             </table>
         </div>
 
-        @if ($pengguna->hasPages())
-            <div class="p-3 border-top">
-                {{ $pengguna->links() }}
-            </div>
-        @endif
+        <x-jadual :paginator="$pengguna" />
     </div>
 @endsection

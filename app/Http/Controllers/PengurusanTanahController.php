@@ -6,6 +6,8 @@ use App\Http\Requests\SimpanTanahRequest;
 use App\Models\Aset;
 use App\Models\Tanah;
 use App\Services\Rujukan;
+use App\Support\Jadual;
+use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -13,12 +15,35 @@ use RuntimeException;
 
 class PengurusanTanahController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
+        $had = Jadual::had($request);
+
+        $cari = trim((string) $request->input('cari', ''));
+        $statusHakmilik = $request->input('status_hakmilik');
+        $jenisHakmilik = $request->input('jenis_hakmilik');
+
         $tanah = Tanah::query()
             ->with('aset')
+            ->when($cari !== '', function ($query) use ($cari): void {
+                $query->where(function ($query) use ($cari): void {
+                    $query->where('asl_ref_no', 'like', "%{$cari}%")
+                        ->orWhere('asl_lot_no', 'like', "%{$cari}%")
+                        ->orWhere('asl_location', 'like', "%{$cari}%")
+                        ->orWhere('asl_hakmilik_no', 'like', "%{$cari}%");
+                });
+            })
+            ->when(
+                $statusHakmilik,
+                fn ($query, $status) => $query->where('asl_status_hakmilik', $status)
+            )
+            ->when(
+                $jenisHakmilik,
+                fn ($query, $jenis) => $query->where('asl_hakmilik_type', $jenis)
+            )
             ->latest('asl_id')
-            ->paginate(10);
+            ->paginate($had)
+            ->withQueryString();
 
         return view('tanah.senarai', compact('tanah'));
     }
@@ -57,6 +82,13 @@ class PengurusanTanahController extends Controller
         return redirect()
             ->route('tanah.index')
             ->with('berjaya', 'Aset tanah berjaya didaftarkan.');
+    }
+
+    public function butiran(Tanah $tanah): View
+    {
+        $tanah->load('aset');
+
+        return view('tanah.butiran', compact('tanah'));
     }
 
     public function edit(Tanah $tanah): View

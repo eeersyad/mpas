@@ -5,21 +5,49 @@ namespace App\Http\Controllers;
 use App\Http\Requests\SimpanBangunanRequest;
 use App\Models\Aset;
 use App\Models\Bangunan;
+use App\Models\DokumenBangunan;
 use App\Services\Rujukan;
 use App\Services\KodQr;
+use App\Support\Jadual;
+use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use RuntimeException;
 
 class PengurusanBangunanController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
+        $had = Jadual::had($request);
+
+        $cari = trim((string) $request->input('cari', ''));
+        $statusPremis = $request->input('status_premis');
+        $statusPenyelenggaraan = $request->input('status_penyelenggaraan');
+
         $bangunan = Bangunan::query()
             ->with('penyewa')
+            ->when($cari !== '', function ($query) use ($cari): void {
+                $query->where(function ($query) use ($cari): void {
+                    $query->where('asb_ref_no', 'like', "%{$cari}%")
+                        ->orWhere('asb_name', 'like', "%{$cari}%")
+                        ->orWhere('asb_city', 'like', "%{$cari}%")
+                        ->orWhere('asb_category', 'like', "%{$cari}%");
+                });
+            })
+            ->when(
+                $statusPremis,
+                fn ($query, $status) => $query->where('asb_premise_status', $status)
+            )
+            ->when(
+                $statusPenyelenggaraan,
+                fn ($query, $status) => $query->where('asb_maintenance_status', $status)
+            )
             ->latest('asb_id')
-            ->paginate(10);
+            ->paginate($had)
+            ->withQueryString();
 
         return view('bangunan.senarai', compact('bangunan'));
     }
@@ -36,7 +64,7 @@ class PengurusanBangunanController extends Controller
     ): RedirectResponse {
         try {
             DB::transaction(function () use ($request, $rujukan, $kodQr): void {
-                [$maklumatBangunan, $senaraiPenyewa] = $this->asingkanMaklumat(
+                [$maklumatBangunan, $senaraiPenyewa, $senaraiDokumen] = $this->asingkanMaklumat(
                     $request->validated()
                 );
 
@@ -65,6 +93,12 @@ class PengurusanBangunanController extends Controller
                     $senaraiPenyewa,
                     $request->user()->usr_id
                 );
+
+                $this->simpanDokumen(
+                    $bangunan,
+                    $senaraiDokumen,
+                    $request->user()->usr_id
+                );
             });
         } catch (RuntimeException $exception) {
             return back()
@@ -79,9 +113,24 @@ class PengurusanBangunanController extends Controller
             ->with('berjaya', 'Aset bangunan berjaya didaftarkan.');
     }
 
+    public function butiran(Bangunan $bangunan): View
+    {
+        $bangunan->load([
+            'penyewa',
+            'kod',
+            'dokumen.dimuatNaikOleh',
+            'aduan' => fn ($query) => $query->latest('cmp_received_date')->limit(5),
+        ]);
+
+        return view('bangunan.butiran', compact('bangunan'));
+    }
+
     public function edit(Bangunan $bangunan): View
     {
-        $bangunan->load('penyewa');
+        $bangunan->load([
+            'penyewa',
+            'dokumen.dimuatNaikOleh',
+        ]);
 
         return view('bangunan.kemaskini', compact('bangunan'));
     }
@@ -91,7 +140,7 @@ class PengurusanBangunanController extends Controller
         Bangunan $bangunan
     ): RedirectResponse {
         DB::transaction(function () use ($request, $bangunan): void {
-            [$maklumatBangunan, $senaraiPenyewa] = $this->asingkanMaklumat(
+            [$maklumatBangunan, $senaraiPenyewa, $senaraiDokumen] = $this->asingkanMaklumat(
                 $request->validated()
             );
 
@@ -109,6 +158,12 @@ class PengurusanBangunanController extends Controller
                 $senaraiPenyewa,
                 $request->user()->usr_id
             );
+
+            $this->simpanDokumen(
+                $bangunan,
+                $senaraiDokumen,
+                $request->user()->usr_id
+            );
         });
 
         return redirect()
@@ -119,20 +174,18 @@ class PengurusanBangunanController extends Controller
     private function asingkanMaklumat(array $data): array
     {
         $senaraiPenyewa = $data['penyewa'] ?? [];
+        $senaraiDokumen = $data['dokumen'] ?? [];
 
-        unset($data['penyewa']);
+        unset($data['penyewa'], $data['dokumen']);
 
         $kosAsal = $data['asb_kos_siap_bina_asal'] ?? null;
         $kosTambahan = $data['asb_kos_tambahan'] ?? null;
 
-        $data['asb_total_kos'] = $kosAsal !== null || $kosTambahan !== null
-            ? (float) ($kosAsal ?? 0) + (float) ($kosTambahan ?? 0)
-            : null;
-
+        $data['asb_total_kos'] = $kosAsal !== null || $kosTambahan !== null ? (float) ($kosAsal ?? 0) + (float) ($kosTambahan ?? 0) : null;
         $data['asb_total_block'] = $data['asb_total_block'] ?? 0;
         $data['asb_total_ext_structure'] = $data['asb_total_ext_structure'] ?? 0;
 
-        return [$data, $senaraiPenyewa];
+        return [$data, $senaraiPenyewa, $senaraiDokumen];
     }
 
     private function simpanPenyewa(
@@ -188,5 +241,56 @@ class PengurusanBangunanController extends Controller
                 'updated_by' => $userId,
             ]);
         }
+    }
+
+    private function simpanDokumen(
+        Bangunan $bangunan,
+        array $senaraiDokumen,
+        int $userId
+    ): void {
+        foreach ($senaraiDokumen as $maklumat) {
+            $fail = $maklumat['fail'] ?? null;
+            $jenis = $maklumat['jenis'] ?? null;
+
+            if (! $fail || ! $jenis) {
+                continue;
+            }
+
+            $path = $fail->store(
+                'dokumen/bangunan/' . $bangunan->asb_id,
+                'public'
+            );
+
+            $bangunan->dokumen()->create([
+                'asbdoc_type' => $jenis,
+                'asbdoc_name' => Str::limit(
+                    $fail->getClientOriginalName(),
+                    255,
+                    ''
+                ),
+                'asbdoc_path' => $path,
+                'uploaded_by' => $userId,
+                'uploaded_at' => now(),
+            ]);
+        }
+    }
+
+    public function hapusDokumen(
+        Bangunan $bangunan,
+        DokumenBangunan $dokumen
+    ): RedirectResponse {
+        abort_unless(
+            $dokumen->asb_id === $bangunan->asb_id,
+            404
+        );
+
+        Storage::disk('public')->delete($dokumen->asbdoc_path);
+
+        $dokumen->delete();
+
+        return back()->with(
+            'berjaya',
+            'Dokumen aset bangunan berjaya dipadam.'
+        );
     }
 }

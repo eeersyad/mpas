@@ -10,6 +10,8 @@ use App\Http\Controllers\PengurusanBangunanController;
 use App\Http\Controllers\PengurusanAduanController;
 use App\Http\Controllers\PengurusanKodQrController;
 use App\Http\Controllers\AduanAwamController;
+use App\Http\Controllers\PengurusanLaporanController;
+use App\Http\Controllers\NotifikasiController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -20,13 +22,15 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'login'])->name('login');
     Route::post('/login', [LoginController::class, 'authenticate'])->name('authenticate');
 
-    Route::middleware('throttle:20,1')->group(function () {
-        Route::get('/laporan/{kod}', [AduanAwamController::class, 'create'])
-            ->name('aduan.awam.create');
+    
+});
 
-        Route::post('/laporan/{kod}', [AduanAwamController::class, 'store'])
-            ->name('aduan.awam.store');
-    });
+Route::middleware('throttle:20,1')->group(function () {
+    Route::get('/laporan/{kod}', [AduanAwamController::class, 'create'])
+        ->name('aduan.awam.create');
+
+    Route::post('/laporan/{kod}', [AduanAwamController::class, 'store'])
+        ->name('aduan.awam.store');
 });
 
 //KUMPULAN SYSTEM, BPH
@@ -65,6 +69,31 @@ Route::middleware('auth')->group(function () {
         ->middleware('peranan:SYSTEM,BPH,BP,KJ')
         ->name('dashboard');
 
+    Route::get('/laporan-sistem', [PengurusanLaporanController::class, 'index'])
+        ->middleware('peranan:SYSTEM,BPH,BP,KJ')
+        ->name('laporan.index');
+
+    Route::get(
+        '/laporan-sistem/{jenis}/excel',
+        [PengurusanLaporanController::class, 'excel']
+    )
+        ->middleware('peranan:SYSTEM,BPH,BP,KJ')
+        ->name('laporan.excel');
+
+    Route::get(
+        '/laporan-sistem/{jenis}/pdf',
+        [PengurusanLaporanController::class, 'pdf']
+    )
+        ->middleware('peranan:SYSTEM,BPH,BP,KJ')
+        ->name('laporan.pdf');
+
+    Route::get(
+        '/laporan-sistem/{jenis}',
+        [PengurusanLaporanController::class, 'papar']
+    )
+        ->middleware('peranan:SYSTEM,BPH,BP,KJ')
+        ->name('laporan.papar');
+
     Route::get('/profil', [ProfilController::class, 'edit'])
         ->name('profil.edit');
 
@@ -97,6 +126,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/aset-tanah', [PengurusanTanahController::class, 'store'])
             ->name('tanah.store');
 
+        Route::get('/aset-tanah/{tanah}/butiran', [PengurusanTanahController::class, 'butiran'])
+            ->name('tanah.butiran');
+
         Route::get('/aset-tanah/{tanah}/kemaskini', [PengurusanTanahController::class, 'edit'])
             ->name('tanah.edit');
 
@@ -114,12 +146,29 @@ Route::middleware('auth')->group(function () {
         Route::post('/aset-bangunan', [PengurusanBangunanController::class, 'store'])
             ->name('bangunan.store');
 
+        Route::get('/aset-bangunan/{bangunan}/butiran', [PengurusanBangunanController::class, 'butiran'])
+            ->name('bangunan.butiran');
+
         Route::get('/aset-bangunan/{bangunan}/kemaskini', [PengurusanBangunanController::class, 'edit'])
             ->name('bangunan.edit');
 
         Route::put('/aset-bangunan/{bangunan}', [PengurusanBangunanController::class, 'update'])
             ->name('bangunan.update');
+
+        Route::delete(
+            '/aset-bangunan/{bangunan}/dokumen/{dokumen}',
+            [PengurusanBangunanController::class, 'hapusDokumen']
+        )->name('bangunan.dokumen.hapus');
     });
+
+    Route::get('/notifikasi', [NotifikasiController::class, 'index'])
+        ->name('notifikasi.index');
+
+    Route::put('/notifikasi/baca-semua', [NotifikasiController::class, 'bacaSemua'])
+        ->name('notifikasi.baca-semua');
+
+    Route::put('/notifikasi/{notifikasi}/baca', [NotifikasiController::class, 'baca'])
+        ->name('notifikasi.baca');
 
     Route::middleware('peranan:SYSTEM,BPH,KJ')->group(function () {
         Route::get('/aduan', [PengurusanAduanController::class, 'index'])

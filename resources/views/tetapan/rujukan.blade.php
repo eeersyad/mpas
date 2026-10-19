@@ -8,58 +8,27 @@
         $bangunan = $tetapan->get('BANGUNAN');
     @endphp
 
-    <div class="mb-4">
+    <div class="hero-tetapan mb-4">
         <p class="teks-kecil mb-1">PENGURUSAN SISTEM</p>
         <h1 class="tajuk-halaman mb-2">Tetapan</h1>
-        <p class="teks-penerangan mb-0">
-            Konfigurasikan tetapan sistem dan nombor rujukan aset.
-        </p>
     </div>
 
-    <div class="row g-4">
+    <div class="row g-4 pusat-tetapan">
         <div class="col-12 col-lg-3">
-            <div class="tetapan-sisi">
-                <p class="tetapan-sisi-tajuk">TETAPAN SISTEM</p>
-
-                <nav class="nav flex-column gap-1">
-                    <a href="{{ route('tetapan.rujukan') }}" class="tetapan-pautan aktif">
-                        <i class="bi bi-upc-scan"></i>
-                        <span>Nombor Rujukan</span>
-                    </a>
-
-                    <a href="{{ route('tetapan.aduan') }}" class="tetapan-pautan">
-                        <i class="bi bi-clipboard2-pulse"></i>
-                        <span>Aduan Awam</span>
-                    </a>
-
-                    <span class="tetapan-pautan tidak-aktif">
-                        <i class="bi bi-buildings"></i>
-                        <span>Maklumat Organisasi</span>
-                        <small>Akan Datang</small>
-                    </span>
-
-                    <span class="tetapan-pautan tidak-aktif">
-                        <i class="bi bi-image"></i>
-                        <span>Logo Sistem</span>
-                        <small>Akan Datang</small>
-                    </span>
-
-                    <span class="tetapan-pautan tidak-aktif">
-                        <i class="bi bi-palette-fill"></i>
-                        <span>Paparan Sistem</span>
-                        <small>Akan Datang</small>
-                    </span>
-                </nav>
-            </div>
+            @include('tetapan.menu')
         </div>
 
         <div class="col-12 col-lg-9">
-            <form method="POST" action="{{ route('tetapan.rujukan.kemaskini') }}">
+            <form
+                method="POST"
+                action="{{ route('tetapan.rujukan.kemaskini') }}"
+                class="borang-tetapan"
+            >
                 @csrf
                 @method('PUT')
 
-                <div class="kad-data mb-4">
-                    <div class="p-4 border-bottom">
+                <div class="kad-data kad-tetapan mb-4">
+                    <div class="kepala-kad-tetapan">
                         <div class="d-flex align-items-center gap-3">
                             <div class="ikon-tetapan tanah">
                                 <i class="bi bi-map-fill"></i>
@@ -86,7 +55,7 @@
                         </div>
                     </div>
 
-                    <div class="p-4">
+                    <div class="isi-kad-tetapan">
                         <div class="row g-3">
                             <div class="col-12 col-md-5">
                                 <label for="tanah_awalan" class="form-label fw-semibold">
@@ -159,8 +128,8 @@
                     </div>
                 </div>
 
-                <div class="kad-data">
-                    <div class="p-4 border-bottom">
+                <div class="kad-data kad-tetapan">
+                    <div class="kepala-kad-tetapan">
                         <div class="d-flex align-items-center gap-3">
                             <div class="ikon-tetapan bangunan">
                                 <i class="bi bi-buildings-fill"></i>
@@ -187,7 +156,7 @@
                         </div>
                     </div>
 
-                    <div class="p-4">
+                    <div class="isi-kad-tetapan">
                         <div class="row g-3">
                             <div class="col-12 col-md-5">
                                 <label for="bangunan_awalan" class="form-label fw-semibold">
@@ -261,7 +230,7 @@
                 </div>
 
                 <div class="d-flex justify-content-end mt-4">
-                    <button type="submit" class="btn btn-primary px-4">
+                    <button type="submit" class="btn btn-utama butang-simpan-tetapan">
                         <i class="bi bi-check-lg me-2"></i>Simpan Tetapan
                     </button>
                 </div>

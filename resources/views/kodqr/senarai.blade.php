@@ -11,9 +11,72 @@
         </p>
     </div>
 
+    <form method="GET" class="panel-penapis mb-4">
+        <input type="hidden" name="had" value="{{ request('had', 15) }}">
+
+        <div class="row g-3 align-items-end">
+            <div class="col-12 col-lg-6">
+                <label for="cariQr" class="label-penapis">
+                    <i class="bi bi-search"></i> Carian Aset Bangunan
+                </label>
+
+                <input
+                    type="search"
+                    id="cariQr"
+                    name="cari"
+                    value="{{ request('cari') }}"
+                    class="form-control kawalan-penapis"
+                    placeholder="No. rujukan atau nama bangunan..."
+                >
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <label for="statusQr" class="label-penapis">
+                    <i class="bi bi-qr-code"></i> Status Kod QR
+                </label>
+
+                <select
+                    id="statusQr"
+                    name="status_qr"
+                    class="form-select kawalan-penapis"
+                >
+                    <option value="">Semua Status</option>
+
+                    <option value="ACTIVE" @selected(request('status_qr') === 'ACTIVE')>
+                        Aktif
+                    </option>
+
+                    <option value="INACTIVE" @selected(request('status_qr') === 'INACTIVE')>
+                        Tidak Aktif
+                    </option>
+
+                    <option value="TIADA" @selected(request('status_qr') === 'TIADA')>
+                        Belum Dijana
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="d-flex gap-2 tindakan-penapis">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search me-1"></i>Cari
+                    </button>
+
+                    <a
+                        href="{{ route('kodqr.index') }}"
+                        class="btn btn-outline-secondary"
+                    >
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>
+                        Tetapkan Semula
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+
     <div class="kad-data">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+            <table class="table table-hover align-middle mb-0 jadual-sistem">
                 <thead>
                     <tr>
                         <th>Bil.</th>
@@ -77,10 +140,6 @@
             </table>
         </div>
 
-        @if ($bangunan->hasPages())
-            <div class="p-3 border-top">
-                {{ $bangunan->links() }}
-            </div>
-        @endif
+        <x-jadual :paginator="$bangunan" />
     </div>
 @endsection

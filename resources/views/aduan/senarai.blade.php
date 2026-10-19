@@ -3,31 +3,96 @@
 @section('tajuk', 'Aduan')
 
 @section('kandungan')
-    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
-        <div>
-            <p class="teks-kecil mb-1">PENGURUSAN ADUAN</p>
-            <h1 class="tajuk-halaman mb-2">Aduan Aset Bangunan</h1>
-            <p class="teks-penerangan mb-0">
-                Senarai aduan kerosakan aset bangunan.
-            </p>
-        </div>
-
-        <form method="GET" class="d-flex gap-2">
-            <select name="status" class="form-select" onchange="this.form.submit()">
-                <option value="">Semua Status</option>
-
-                @foreach (['BARU', 'DITERIMA', 'DALAM_PENYELENGGARAAN', 'SELESAI'] as $status)
-                    <option value="{{ $status }}" @selected(request('status') === $status)>
-                        {{ str_replace('_', ' ', $status) }}
-                    </option>
-                @endforeach
-            </select>
-        </form>
+    <div class="mb-4">
+        <p class="teks-kecil mb-1">PENGURUSAN ADUAN</p>
+        <h1 class="tajuk-halaman mb-2">Aduan Aset Bangunan</h1>
+        <p class="teks-penerangan mb-0">
+            Senarai aduan kerosakan aset bangunan.
+        </p>
     </div>
+
+    <form method="GET" class="panel-penapis mb-4">
+        <input type="hidden" name="had" value="{{ request('had', 15) }}">
+
+        <div class="row g-3 align-items-end">
+            <div class="col-12 col-xl-4">
+                <label for="cariAduan" class="label-penapis">
+                    <i class="bi bi-search"></i> Carian Aduan
+                </label>
+
+                <input
+                    type="search"
+                    id="cariAduan"
+                    name="cari"
+                    value="{{ request('cari') }}"
+                    class="form-control kawalan-penapis"
+                    placeholder="Aset, rujukan, kerosakan atau catatan..."
+                >
+            </div>
+
+            <div class="col-12 col-md-6 col-xl-2">
+                <label for="statusAduan" class="label-penapis">
+                    <i class="bi bi-clipboard-check"></i> Status
+                </label>
+
+                <select
+                    id="statusAduan"
+                    name="status"
+                    class="form-select kawalan-penapis"
+                >
+                    <option value="">Semua Status</option>
+
+                    @foreach (['BARU', 'DITERIMA', 'DALAM_PENYELENGGARAAN', 'SELESAI'] as $status)
+                        <option value="{{ $status }}" @selected(request('status') === $status)>
+                            {{ \App\Support\Paparan::label($status) }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-12 col-md-6 col-xl-2">
+                <label for="jenisPengadu" class="label-penapis">
+                    <i class="bi bi-people"></i> Pengadu
+                </label>
+
+                <select
+                    id="jenisPengadu"
+                    name="jenis_pengadu"
+                    class="form-select kawalan-penapis"
+                >
+                    <option value="">Semua Pengadu</option>
+
+                    <option value="PENYEWA" @selected(request('jenis_pengadu') === 'PENYEWA')>
+                        Penyewa
+                    </option>
+
+                    <option value="AWAM" @selected(request('jenis_pengadu') === 'AWAM')>
+                        Orang Awam
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-12 col-xl-4">
+                <div class="d-flex gap-2 tindakan-penapis">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search me-1"></i>Cari
+                    </button>
+
+                    <a
+                        href="{{ route('aduan.index') }}"
+                        class="btn btn-outline-secondary"
+                    >
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>
+                        Tetapkan Semula
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
 
     <div class="kad-data">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+            <table class="table table-hover align-middle mb-0 jadual-sistem">
                 <thead>
                     <tr>
                         <th>Bil.</th>
@@ -70,11 +135,13 @@
                                 </small>
                             </td>
 
-                            <td>{{ $item->cmp_damage_type ?? '-' }}</td>
+                            <td>
+                                {{ \App\Support\Paparan::label($item->cmp_damage_type) }}
+                            </td>
 
                             <td>
                                 <span class="badge {{ $warnaStatus }}">
-                                    {{ str_replace('_', ' ', $item->cmp_status) }}
+                                    {{ \App\Support\Paparan::label($item->cmp_status) }}
                                 </span>
                             </td>
 
@@ -102,10 +169,6 @@
             </table>
         </div>
 
-        @if ($aduan->hasPages())
-            <div class="p-3 border-top">
-                {{ $aduan->links() }}
-            </div>
-        @endif
+        <x-jadual :paginator="$aduan" />
     </div>
 @endsection

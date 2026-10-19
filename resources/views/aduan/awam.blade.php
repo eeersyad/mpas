@@ -14,71 +14,148 @@
         ];
     @endphp
 
-    <div class="awam-jenama text-center mb-4">
-        <div class="awam-ikon mb-3">
-            <i class="bi bi-buildings-fill"></i>
+    <header class="awam-hero mb-4">
+        <div class="awam-logo mb-3">
+            <img
+                src="{{ asset('images/logo-mpas-2.png') }}"
+                alt="Logo MPAS"
+            >
         </div>
 
-        <p class="teks-kecil mb-1">MARANG PROPERTY ASSET SYSTEM</p>
-        <h1 class="h3 fw-bold mb-2">Aduan Aset Bangunan</h1>
-        <p class="text-secondary mb-0">
-            {{ $bangunan->asb_name }}
-        </p>
-        <small class="text-secondary">{{ $bangunan->asb_ref_no }}</small>
-    </div>
+        <div class="maklumat-aset-awam">
+            <h1>{{ $bangunan->asb_name }}</h1>
+
+            <span class="rujukan-aset-awam">
+                <i class="bi bi-upc-scan"></i>
+                {{ $bangunan->asb_ref_no }}
+            </span>
+        </div>
+    </header>
 
     @if ($progressAduan->isNotEmpty())
-        <section class="kad-awam mb-4">
-            <h2 class="h6 fw-bold mb-3">
-                <i class="bi bi-activity me-2 text-success"></i>
-                Status Aduan Semasa
-            </h2>
+        <section class="kad-awam mb-4 rekod-aduan-awam">
+            <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+                <div>
+                    <p class="teks-kecil mb-1">STATUS ADUAN ASET</p>
+                    <h2 class="h6 fw-bold mb-1">
+                        <i class="bi bi-activity me-2 text-success"></i>
+                        Rekod Aduan Semasa
+                    </h2>
+                    <p class="text-secondary small mb-0 penerangan-rekod-aduan">
+                        Aduan terbaru dipaparkan di hadapan.
+                    </p>
+                </div>
 
-            <div class="vstack gap-3">
-                @foreach ($progressAduan as $item)
-                    @php
-                        $maklumatStatus = $status[$item->cmp_status];
-                    @endphp
+                <span class="jumlah-rekod-aduan">
+                    {{ $progressAduan->count() }} rekod
+                </span>
+            </div>
 
-                    <div class="progress-aduan">
-                        <div class="d-flex justify-content-between gap-3 mb-2">
-                            <div>
-                                <strong class="d-block">
+            <div class="gelangsar-aduan" data-gelangsar-aduan>
+                <div class="dek-aduan" data-dek-aduan>
+                    @foreach ($progressAduan as $item)
+                        @php
+                            $maklumatStatus = $status[$item->cmp_status];
+                            $kelasKad = match ($loop->iteration) {
+                                1 => 'aktif',
+                                2 => 'kedua',
+                                3 => 'ketiga',
+                                default => 'tersembunyi',
+                            };
+                        @endphp
+
+                        <article
+                            class="kad-susun-aduan {{ $kelasKad }}"
+                            data-kad-aduan
+                            data-indeks="{{ $loop->index }}"
+                            aria-hidden="{{ $loop->first ? 'false' : 'true' }}"
+                        >
+                            <div class="d-flex align-items-start justify-content-between gap-3">
+                                <div class="kad-aduan-ikon {{ strtolower($item->cmp_status) }}">
+                                    <i class="bi bi-tools"></i>
+                                </div>
+
+                                <span class="badge text-bg-{{ $maklumatStatus['warna'] }}">
+                                    {{ $maklumatStatus['label'] }}
+                                </span>
+                            </div>
+
+                            <div class="mt-3">
+                                <strong class="d-block tajuk-kad-aduan">
                                     {{ $item->cmp_damage_type }}
                                 </strong>
 
-                                <small class="text-secondary">
-                                    {{ $item->cmp_received_date?->format('d/m/Y') }}
-                                </small>
+                                <p class="text-secondary small mb-2">
+                                    Aduan direkodkan pada
+                                    {{ $item->cmp_received_date?->format('d/m/Y, h:i A') }}
+                                </p>
+
+                                @if ($item->cmp_note)
+                                    <p class="nota-kad-aduan mb-3">
+                                        {{ $item->cmp_note }}
+                                    </p>
+                                @endif
+
+                                <div class="progress" role="progressbar">
+                                    <div
+                                        class="progress-bar bg-{{ $maklumatStatus['warna'] }}"
+                                        style="width: {{ $maklumatStatus['peratus'] }}%"
+                                    ></div>
+                                </div>
                             </div>
+                        </article>
+                    @endforeach
+                </div>
 
-                            <span class="badge text-bg-{{ $maklumatStatus['warna'] }} align-self-start">
-                                {{ $maklumatStatus['label'] }}
-                            </span>
+                @if ($progressAduan->count() > 1)
+                    <div class="kawalan-gelongsar-aduan">
+                        <button
+                            type="button"
+                            class="butang-gelongsar-aduan"
+                            data-sebelum-aduan
+                            aria-label="Lihat aduan sebelumnya"
+                        >
+                            <i class="bi bi-arrow-left"></i>
+                        </button>
+
+                        <div class="penunjuk-gelongsar-aduan" data-penunjuk-aduan>
+                            @foreach ($progressAduan as $item)
+                                <button
+                                    type="button"
+                                    class="titik-gelongsar-aduan {{ $loop->first ? 'aktif' : '' }}"
+                                    data-pilih-aduan="{{ $loop->index }}"
+                                    aria-label="Lihat aduan {{ $loop->iteration }}"
+                                ></button>
+                            @endforeach
                         </div>
 
-                        <div class="progress" role="progressbar">
-                            <div
-                                class="progress-bar bg-{{ $maklumatStatus['warna'] }}"
-                                style="width: {{ $maklumatStatus['peratus'] }}%"
-                            ></div>
-                        </div>
+                        <button
+                            type="button"
+                            class="butang-gelongsar-aduan"
+                            data-seterusnya-aduan
+                            aria-label="Lihat aduan seterusnya"
+                        >
+                            <i class="bi bi-arrow-right"></i>
+                        </button>
                     </div>
-                @endforeach
+                @endif
             </div>
-
-            <p class="text-secondary small mt-3 mb-0">
-                Aduan selesai dipaparkan selama {{ $tempohHari }} hari.
-            </p>
         </section>
     @endif
 
-    <section class="kad-awam">
-        <div class="mb-4">
-            <h2 class="h5 fw-bold mb-1">Buat Aduan Baharu</h2>
-            <p class="text-secondary small mb-0">
-                Sila isi maklumat di bawah untuk melaporkan kerosakan.
-            </p>
+    <section class="kad-awam borang-awam">
+        <div class="kepala-borang-awam mb-4">
+            <span class="ikon-borang-awam">
+                <i class="bi bi-pencil-square"></i>
+            </span>
+
+            <div>
+                <p class="teks-kecil mb-1">BORANG ADUAN</p>
+                <h2 class="h5 fw-bold mb-1">Buat Aduan Baharu</h2>
+                <p class="text-secondary small mb-0">
+                    Lengkapkan maklumat kerosakan untuk tindakan pihak MDM.
+                </p>
+            </div>
         </div>
 
         <form
@@ -224,14 +301,15 @@
                 @enderror
             </div>
 
-            <button type="submit" class="btn btn-utama w-100 py-3">
+            <button type="submit" class="btn btn-utama butang-hantar-aduan w-100 py-3">
                 <i class="bi bi-send-fill me-2"></i>
                 Hantar Aduan
             </button>
         </form>
     </section>
 
-    <p class="text-center text-secondary small mt-4 mb-0">
+    <p class="footer-awam text-center small mt-4 mb-0">
+        <i class="bi bi-shield-check me-1"></i>
         MPAS · Sistem Aset Tak Alih Majlis Daerah Marang
     </p>
 
@@ -280,6 +358,135 @@
                 }
             });
         });
+
+        const gelangsarAduan = document.querySelector('[data-gelangsar-aduan]');
+
+        if (gelangsarAduan) {
+            const dekAduan = gelangsarAduan.querySelector('[data-dek-aduan]');
+            const kadAduan = [...gelangsarAduan.querySelectorAll('[data-kad-aduan]')];
+            const penunjukAduan = [
+                ...gelangsarAduan.querySelectorAll('[data-pilih-aduan]'),
+            ];
+
+            let indeksSemasa = 0;
+            let sedangBergerak = false;
+            let mulaX = 0;
+
+            const kemaskiniDekAduan = () => {
+                kadAduan.forEach((kad, indeks) => {
+                    const jarak = (indeks - indeksSemasa + kadAduan.length)
+                        % kadAduan.length;
+
+                    kad.classList.remove(
+                        'aktif',
+                        'kedua',
+                        'ketiga',
+                        'tersembunyi',
+                        'keluar-kiri',
+                        'keluar-kanan'
+                    );
+
+                    kad.classList.add(
+                        jarak === 0
+                            ? 'aktif'
+                            : jarak === 1
+                                ? 'kedua'
+                                : jarak === 2
+                                    ? 'ketiga'
+                                    : 'tersembunyi'
+                    );
+
+                    kad.setAttribute(
+                        'aria-hidden',
+                        jarak === 0 ? 'false' : 'true'
+                    );
+                });
+
+                penunjukAduan.forEach((titik, indeks) => {
+                    titik.classList.toggle('aktif', indeks === indeksSemasa);
+                });
+            };
+
+            const tukarAduan = (sasaran, arah = 'seterusnya') => {
+                if (
+                    sedangBergerak ||
+                    sasaran < 0 ||
+                    sasaran >= kadAduan.length ||
+                    sasaran === indeksSemasa
+                ) {
+                    return;
+                }
+
+                sedangBergerak = true;
+
+                kadAduan[indeksSemasa].classList.add(
+                    arah === 'seterusnya' ? 'keluar-kiri' : 'keluar-kanan'
+                );
+
+                window.setTimeout(() => {
+                    indeksSemasa = sasaran;
+                    kemaskiniDekAduan();
+                    sedangBergerak = false;
+                }, 230);
+            };
+
+            gelangsarAduan
+                .querySelector('[data-seterusnya-aduan]')
+                ?.addEventListener('click', () => {
+                    tukarAduan(
+                        (indeksSemasa + 1) % kadAduan.length,
+                        'seterusnya'
+                    );
+                });
+
+            gelangsarAduan
+                .querySelector('[data-sebelum-aduan]')
+                ?.addEventListener('click', () => {
+                    tukarAduan(
+                        (indeksSemasa - 1 + kadAduan.length) % kadAduan.length,
+                        'sebelumnya'
+                    );
+                });
+
+            penunjukAduan.forEach((titik) => {
+                titik.addEventListener('click', () => {
+                    const sasaran = Number(titik.dataset.pilihAduan);
+
+                    tukarAduan(
+                        sasaran,
+                        sasaran > indeksSemasa ? 'seterusnya' : 'sebelumnya'
+                    );
+                });
+            });
+
+            dekAduan?.addEventListener('pointerdown', (event) => {
+                mulaX = event.clientX;
+            });
+
+            dekAduan?.addEventListener('pointerup', (event) => {
+                const jarak = event.clientX - mulaX;
+
+                if (Math.abs(jarak) < 45) {
+                    return;
+                }
+
+                if (jarak < 0) {
+                    tukarAduan(
+                        (indeksSemasa + 1) % kadAduan.length,
+                        'seterusnya'
+                    );
+
+                    return;
+                }
+
+                tukarAduan(
+                    (indeksSemasa - 1 + kadAduan.length) % kadAduan.length,
+                    'sebelumnya'
+                );
+            });
+
+            kemaskiniDekAduan();
+        }
 
     </script>
 @endsection

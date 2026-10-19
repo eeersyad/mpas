@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\TolakAduanRequest;
 use App\Http\Requests\KemaskiniAduanRequest;
 use App\Models\Aduan;
+use App\Support\Jadual;
+use App\Services\NotifikasiAduan;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -15,6 +17,11 @@ class PengurusanAduanController extends Controller
     {
         $user = $request->user();
 
+        $had = Jadual::had($request);
+
+        $cari = trim((string) $request->input('cari', ''));
+        $jenisPengadu = $request->input('jenis_pengadu');
+
         $aduan = Aduan::query()
             ->with([
                 'bangunan',
@@ -22,6 +29,18 @@ class PengurusanAduanController extends Controller
                 'diterimaOleh',
                 'disenggaraOleh',
             ])
+            ->when($cari !== '', function ($query) use ($cari): void {
+                $query->where(function ($query) use ($cari): void {
+                    $query->where('cmp_damage_type', 'like', "%{$cari}%")
+                        ->orWhere('cmp_note', 'like', "%{$cari}%")
+                        ->orWhereHas('bangunan', function ($query) use ($cari): void {
+                            $query->where('asb_name', 'like', "%{$cari}%")
+                                ->orWhere('asb_ref_no', 'like', "%{$cari}%");
+                        });
+                });
+            })
+            ->when($jenisPengadu === 'PENYEWA', fn ($query) => $query->whereNotNull('tnt_id'))
+            ->when($jenisPengadu === 'AWAM', fn ($query) => $query->whereNull('tnt_id'))
             ->when(
                 $user->usr_level === 'KJ',
                 fn ($query) => $query->whereNotNull('cmp_accepted_by')
@@ -34,7 +53,7 @@ class PengurusanAduanController extends Controller
                 )
             )
             ->latest('cmp_received_date')
-            ->paginate(10)
+            ->paginate($had)
             ->withQueryString();
 
         return view('aduan.senarai', compact('aduan'));
@@ -59,7 +78,7 @@ class PengurusanAduanController extends Controller
         return view('aduan.butiran', compact('aduan'));
     }
 
-    public function terima(Request $request, Aduan $aduan): RedirectResponse
+    public function terima(Request $request, Aduan $aduan, NotifikasiAduan $notifikasiAduan): RedirectResponse
     {
         if ($aduan->cmp_status !== 'BARU') {
             return back()->with(
@@ -74,6 +93,8 @@ class PengurusanAduanController extends Controller
             'cmp_accepted_at' => now(),
             'updated_by' => $request->user()->usr_id,
         ]);
+
+        $notifikasiAduan->aduanDiterima($aduan);
 
         return back()->with(
             'berjaya',
@@ -106,8 +127,9 @@ class PengurusanAduanController extends Controller
     }
 
     public function kemaskiniPenyelenggaraan(
-        KemaskiniAduanRequest $request,
-        Aduan $aduan
+        Request $request,
+        Aduan $aduan,
+        NotifikasiAduan $notifikasiAduan
     ): RedirectResponse {
         if ($aduan->cmp_accepted_by === null) {
             return back()->with(
@@ -133,6 +155,11 @@ class PengurusanAduanController extends Controller
             'cmp_maintained_by' => $request->user()->usr_id,
             'updated_by' => $request->user()->usr_id,
         ]);
+
+        $notifikasiAduan->aduanDikemaskini(
+            $aduan,
+            $request->input('cmp_status')
+        );
 
         return back()->with(
             'berjaya',

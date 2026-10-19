@@ -33,6 +33,275 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /*
     |--------------------------------------------------------------------------
+    | Menu telefon
+    |--------------------------------------------------------------------------
+    */
+    const toggleMenuTelefon = document.querySelector('#toggleMenuTelefon');
+    const menuTelefon = document.querySelector('#menuTelefon');
+    const tutupMenuTelefon = document.querySelector('[data-tutup-menu-telefon]');
+
+    if (toggleMenuTelefon && menuTelefon) {
+        const latarMenuTelefon = document.createElement('div');
+        latarMenuTelefon.className = 'latar-menu-telefon';
+
+        document.body.appendChild(latarMenuTelefon);
+
+        const bukaMenuTelefon = () => {
+            menuTelefon.classList.add('terbuka');
+            latarMenuTelefon.classList.add('aktif');
+            document.body.classList.add('menu-telefon-terbuka');
+
+            menuTelefon.setAttribute('aria-hidden', 'false');
+            toggleMenuTelefon.setAttribute('aria-expanded', 'true');
+
+            tutupMenuTelefon?.focus();
+        };
+
+        const tutupMenu = () => {
+            menuTelefon.classList.remove('terbuka');
+            latarMenuTelefon.classList.remove('aktif');
+            document.body.classList.remove('menu-telefon-terbuka');
+
+            menuTelefon.setAttribute('aria-hidden', 'true');
+            toggleMenuTelefon.setAttribute('aria-expanded', 'false');
+
+            toggleMenuTelefon.focus();
+        };
+
+        toggleMenuTelefon.addEventListener('click', bukaMenuTelefon);
+        tutupMenuTelefon?.addEventListener('click', tutupMenu);
+        latarMenuTelefon.addEventListener('click', tutupMenu);
+
+        menuTelefon
+            .querySelectorAll('[data-pautan-menu-telefon]')
+            .forEach((pautan) => {
+                pautan.addEventListener('click', tutupMenu);
+            });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && menuTelefon.classList.contains('terbuka')) {
+                tutupMenu();
+            }
+        });
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Notifikasi
+    |--------------------------------------------------------------------------
+    */
+    const panelNotifikasi = document.querySelector('[data-panel-notifikasi]');
+    const senaraiNotifikasi = document.querySelector('[data-senarai-notifikasi]');
+    const lencanaNotifikasi = document.querySelector('[data-lencana-notifikasi]');
+    const tokenCsrf = document
+        .querySelector('meta[name="csrf-token"]')
+        ?.getAttribute('content');
+
+    if (panelNotifikasi && senaraiNotifikasi && aplikasi) {
+        const kemaskiniLencana = (jumlah) => {
+            const jumlahNombor = Number(jumlah) || 0;
+            const adaNotifikasi = jumlahNombor > 0;
+
+            lencanaNotifikasi.hidden = !adaNotifikasi;
+            lencanaNotifikasi.textContent = jumlahNombor > 9 ? '9+' : jumlahNombor;
+
+            lencanaNotifikasi.setAttribute(
+                'aria-label',
+                adaNotifikasi
+                    ? `${jumlahNombor} notifikasi belum dibaca`
+                    : 'Tiada notifikasi belum dibaca'
+            );
+        };
+
+        const paparkanKosong = (mesej = 'Tiada notifikasi buat masa ini.') => {
+            senaraiNotifikasi.replaceChildren();
+
+            const ruang = document.createElement('div');
+            ruang.className = 'notifikasi-kosong';
+            ruang.innerHTML = '<i class="bi bi-bell-slash"></i>';
+
+            const teks = document.createElement('p');
+            teks.textContent = mesej;
+
+            ruang.appendChild(teks);
+            senaraiNotifikasi.appendChild(ruang);
+        };
+
+        const binaItemNotifikasi = (notifikasi, sisipkanDiAtas = false) => {
+            const butang = document.createElement('button');
+            butang.type = 'button';
+            butang.className = `item-notifikasi${notifikasi.dibaca ? '' : ' belum-dibaca'}`;
+            butang.dataset.id = notifikasi.id;
+            butang.dataset.url = notifikasi.url || '';
+
+            const ikon = document.createElement('span');
+            ikon.className = 'ikon-notifikasi';
+            ikon.innerHTML = `<i class="bi ${notifikasi.ikon || 'bi-bell-fill'}"></i>`;
+
+            const kandungan = document.createElement('span');
+            kandungan.className = 'kandungan-notifikasi';
+
+            const tajuk = document.createElement('strong');
+            tajuk.textContent = notifikasi.tajuk || 'Notifikasi MPAS';
+
+            const mesej = document.createElement('p');
+            mesej.textContent = notifikasi.mesej || '';
+
+            const masa = document.createElement('small');
+            masa.textContent = notifikasi.masa || 'Sekarang';
+
+            kandungan.append(tajuk, mesej, masa);
+            butang.append(ikon, kandungan);
+
+            if (!notifikasi.dibaca) {
+                const titik = document.createElement('span');
+                titik.className = 'titik-belum-baca';
+                butang.appendChild(titik);
+            }
+
+            if (sisipkanDiAtas) {
+                senaraiNotifikasi.prepend(butang);
+            } else {
+                senaraiNotifikasi.appendChild(butang);
+            }
+        };
+
+        const muatkanNotifikasi = async () => {
+            try {
+                const respons = await fetch(panelNotifikasi.dataset.urlSenarai, {
+                    headers: {
+                        Accept: 'application/json',
+                    },
+                });
+
+                if (!respons.ok) {
+                    throw new Error('Notifikasi tidak dapat dimuatkan.');
+                }
+
+                const data = await respons.json();
+
+                senaraiNotifikasi.replaceChildren();
+
+                if (!data.notifikasi?.length) {
+                    paparkanKosong();
+                } else {
+                    data.notifikasi.forEach((notifikasi) => {
+                        binaItemNotifikasi(notifikasi);
+                    });
+                }
+
+                kemaskiniLencana(data.jumlah_belum_baca);
+            } catch {
+                paparkanKosong('Notifikasi tidak dapat dimuatkan.');
+            }
+        };
+
+        const tandakanDibaca = async (id) => {
+            await fetch(`${panelNotifikasi.dataset.urlBaca}/${id}/baca`, {
+                method: 'PUT',
+                headers: {
+                    Accept: 'application/json',
+                    'X-CSRF-TOKEN': tokenCsrf,
+                },
+            });
+        };
+
+        senaraiNotifikasi.addEventListener('click', async (event) => {
+            const item = event.target.closest('[data-id]');
+
+            if (!item) {
+                return;
+            }
+
+            if (item.classList.contains('belum-dibaca')) {
+                await tandakanDibaca(item.dataset.id);
+
+                item.classList.remove('belum-dibaca');
+                item.querySelector('.titik-belum-baca')?.remove();
+
+                kemaskiniLencana(
+                    senaraiNotifikasi.querySelectorAll(
+                        '.item-notifikasi.belum-dibaca'
+                    ).length
+                );
+            }
+
+            if (item.dataset.url) {
+                window.location.href = item.dataset.url;
+            }
+        });
+
+        document.querySelector('[data-baca-semua]')?.addEventListener('click', async () => {
+            await fetch(panelNotifikasi.dataset.urlBacaSemua, {
+                method: 'PUT',
+                headers: {
+                    Accept: 'application/json',
+                    'X-CSRF-TOKEN': tokenCsrf,
+                },
+            });
+
+            senaraiNotifikasi.querySelectorAll('.item-notifikasi').forEach((item) => {
+                item.classList.remove('belum-dibaca');
+                item.querySelector('.titik-belum-baca')?.remove();
+            });
+
+            kemaskiniLencana(0);
+        });
+
+        panelNotifikasi.closest('.dropdown')?.addEventListener(
+            'show.bs.dropdown',
+            muatkanNotifikasi
+        );
+
+        const userId = aplikasi.dataset.userId;
+
+        if (window.Echo && userId) {
+            window.Echo
+                .private(`App.Models.User.${userId}`)
+                .notification((notifikasi) => {
+                    let maklumat = notifikasi.data ?? notifikasi;
+
+                    if (typeof maklumat === 'string') {
+                        maklumat = JSON.parse(maklumat);
+                    }
+
+                    const data = {
+                        ...maklumat,
+                        id: notifikasi.id ?? maklumat.id,
+                        dibaca: false,
+                        masa: 'Sekarang',
+                    };
+
+                    if (senaraiNotifikasi.querySelector('.notifikasi-kosong')) {
+                        senaraiNotifikasi.replaceChildren();
+                    }
+
+                    binaItemNotifikasi(data, true);
+
+                    kemaskiniLencana(
+                        senaraiNotifikasi.querySelectorAll(
+                            '.item-notifikasi.belum-dibaca'
+                        ).length
+                    );
+
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'info',
+                        title: data.tajuk || 'Notifikasi baharu',
+                        text: data.mesej || 'Terdapat kemas kini baharu dalam sistem MPAS.',
+                        showConfirmButton: false,
+                        timer: 4500,
+                        timerProgressBar: true,
+                    });
+                });
+        }
+
+        muatkanNotifikasi();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | Padam pengguna
     |--------------------------------------------------------------------------
     */
@@ -186,6 +455,186 @@ document.addEventListener('DOMContentLoaded', () => {
         kemaskiniPaparan();
     }
 
+        /*
+    |--------------------------------------------------------------------------
+    | Modal butiran aset
+    |--------------------------------------------------------------------------
+    */
+    const modalButiranAset = document.querySelector('#modalButiranAset');
+    const kandunganModalAset = modalButiranAset?.querySelector(
+        '[data-kandungan-modal]'
+    );
+
+    document.querySelectorAll('[data-buka-butiran]').forEach((butang) => {
+        butang.addEventListener('click', async () => {
+            if (!modalButiranAset || !kandunganModalAset) {
+                return;
+            }
+
+            kandunganModalAset.innerHTML = `
+                <div class="modal-body text-center py-5">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="text-secondary mt-3 mb-0">
+                        Memuatkan butiran aset...
+                    </p>
+                </div>
+            `;
+
+            const modal = bootstrap.Modal.getOrCreateInstance(modalButiranAset);
+            modal.show();
+
+            try {
+                const respons = await fetch(butang.dataset.url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                });
+
+                if (!respons.ok) {
+                    throw new Error('Butiran aset tidak dapat dimuatkan.');
+                }
+
+                kandunganModalAset.innerHTML = await respons.text();
+            } catch (ralat) {
+                kandunganModalAset.innerHTML = `
+                    <div class="modal-body text-center py-5">
+                        <i class="bi bi-exclamation-circle text-danger fs-1"></i>
+                        <h5 class="mt-3">Butiran tidak dapat dimuatkan</h5>
+                        <p class="text-secondary mb-0">
+                            Sila cuba semula sebentar lagi.
+                        </p>
+                    </div>
+                `;
+            }
+        });
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Kod QR
+    |--------------------------------------------------------------------------
+    */
+    const butangSalinPautan = document.querySelector('[data-salin-pautan]');
+
+    butangSalinPautan?.addEventListener('click', async () => {
+        try {
+            await navigator.clipboard.writeText(butangSalinPautan.dataset.pautan);
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Pautan berjaya disalin',
+                text: 'Pautan borang aduan kini boleh dikongsi.',
+                confirmButtonColor: '#168A7E',
+                timer: 1800,
+                timerProgressBar: true,
+            });
+        } catch {
+            Swal.fire({
+                icon: 'error',
+                title: 'Pautan tidak dapat disalin',
+                text: 'Sila salin pautan secara manual.',
+                confirmButtonColor: '#168A7E',
+            });
+        }
+    });
+
+    const borangStatusQr = document.querySelector('[data-borang-status-qr]');
+
+    borangStatusQr?.addEventListener('submit', (event) => {
+        if (borangStatusQr.dataset.disahkan) {
+            return;
+        }
+
+        event.preventDefault();
+
+        const status = borangStatusQr.querySelector('[name="qr_status"]').value;
+        const aktif = status === 'ACTIVE';
+
+        Swal.fire({
+            icon: 'question',
+            title: aktif ? 'Aktifkan kod QR?' : 'Nyahaktifkan kod QR?',
+            text: aktif
+                ? 'Orang awam boleh membuat aduan melalui pautan ini.'
+                : 'Orang awam tidak lagi boleh membuat aduan melalui pautan ini.',
+            showCancelButton: true,
+            confirmButtonText: aktif ? 'Ya, aktifkan' : 'Ya, nyahaktifkan',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: aktif ? '#168A7E' : '#6c757d',
+            cancelButtonColor: '#6c757d',
+            reverseButtons: true,
+        }).then((hasil) => {
+            if (hasil.isConfirmed) {
+                borangStatusQr.dataset.disahkan = 'ya';
+                borangStatusQr.submit();
+            }
+        });
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Tindakan butiran aduan
+    |--------------------------------------------------------------------------
+    */
+    const borangTerimaAduan = document.querySelector('[data-terima-aduan]');
+    const borangTolakAduan = document.querySelector('[data-tolak-aduan]');
+    const borangKemaskiniAduan = document.querySelector('[data-kemaskini-aduan]');
+
+    const sahkanTindakanAduan = (borang, tetapan) => {
+        borang?.addEventListener('submit', (event) => {
+            if (borang.dataset.disahkan) {
+                return;
+            }
+
+            event.preventDefault();
+
+            if (!borang.checkValidity()) {
+                borang.reportValidity();
+                return;
+            }
+
+            Swal.fire({
+                icon: tetapan.icon,
+                title: tetapan.tajuk,
+                text: tetapan.teks,
+                showCancelButton: true,
+                confirmButtonText: tetapan.sahkan,
+                cancelButtonText: 'Batal',
+                confirmButtonColor: tetapan.warna,
+                cancelButtonColor: '#6c757d',
+                reverseButtons: true,
+            }).then((hasil) => {
+                if (hasil.isConfirmed) {
+                    borang.dataset.disahkan = 'ya';
+                    borang.submit();
+                }
+            });
+        });
+    };
+
+    sahkanTindakanAduan(borangTerimaAduan, {
+        icon: 'question',
+        tajuk: 'Terima aduan ini?',
+        teks: 'Aduan akan dihantar kepada Jabatan Kejuruteraan untuk tindakan lanjut.',
+        sahkan: 'Ya, terima',
+        warna: '#168A7E',
+    });
+
+    sahkanTindakanAduan(borangTolakAduan, {
+        icon: 'warning',
+        tajuk: 'Tolak aduan ini?',
+        teks: 'Aduan akan ditandakan sebagai selesai dan tidak dihantar kepada KJ.',
+        sahkan: 'Ya, tolak',
+        warna: '#dc3545',
+    });
+
+    sahkanTindakanAduan(borangKemaskiniAduan, {
+        icon: 'question',
+        tajuk: 'Simpan kemaskini penyelenggaraan?',
+        teks: 'Maklumat tindakan KJ akan direkodkan pada aduan ini.',
+        sahkan: 'Ya, simpan',
+        warna: '#168A7E',
+    });
+
     /*
     |--------------------------------------------------------------------------
     | Borang aset bangunan
@@ -235,7 +684,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (kemajuanBangunan) {
-            const peratus = ((langkahBangunanSemasa - 1) / 5) * 100;
+            const jumlahPeralihan = Math.max(panelBangunan.length -1, 1);
+            const peratus = ((langkahBangunanSemasa -1) / jumlahPeralihan) * 100;
             kemajuanBangunan.style.width = `${peratus}%`;
         }
     };
@@ -440,6 +890,131 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 180);
         });
     });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Dokumen bangunan dinamik
+    |--------------------------------------------------------------------------
+    */
+    const senaraiDokumen = borangBangunan.querySelector(
+        '[data-senarai-dokumen]'
+    );
+
+    const butangTambahDokumen = borangBangunan.querySelector(
+        '[data-tambah-dokumen]'
+    );
+
+    const templatDokumen = document.querySelector('#templatDokumen');
+
+    const kemaskiniMesejDokumen = () => {
+        if (!senaraiDokumen) {
+            return;
+        }
+
+        const mesej = senaraiDokumen.querySelector('[data-mesej-dokumen]');
+        const jumlahDokumen = senaraiDokumen.querySelectorAll(
+            '[data-dokumen]'
+        ).length;
+
+        if (jumlahDokumen === 0 && !mesej) {
+            senaraiDokumen.insertAdjacentHTML(
+                'beforeend',
+                `
+                    <div class="col-12" data-mesej-dokumen>
+                        <div class="kad-kosong py-4">
+                            <div class="ilustrasi-kosong">
+                                <i class="bi bi-folder2-open"></i>
+                            </div>
+                            <h3>Tiada dokumen baharu</h3>
+                            <p>Tekan “Tambah Dokumen” jika ada dokumen untuk dimuat naik.</p>
+                        </div>
+                    </div>
+                `
+            );
+        }
+
+        if (jumlahDokumen > 0 && mesej) {
+            mesej.remove();
+        }
+    };
+
+    butangTambahDokumen?.addEventListener('click', () => {
+        if (!senaraiDokumen || !templatDokumen) {
+            return;
+        }
+
+        const indeks = Number(
+            senaraiDokumen.dataset.indeksSeterusnya || 0
+        );
+
+        const kandungan = templatDokumen.innerHTML.replaceAll(
+            '__INDEX__',
+            indeks
+        );
+
+        senaraiDokumen.insertAdjacentHTML('beforeend', kandungan);
+        senaraiDokumen.dataset.indeksSeterusnya = indeks + 1;
+
+        kemaskiniMesejDokumen();
+    });
+
+    senaraiDokumen?.addEventListener('click', (event) => {
+        const butangBuang = event.target.closest('[data-buang-dokumen]');
+
+        if (!butangBuang) {
+            return;
+        }
+
+        const kadDokumen = butangBuang.closest('[data-dokumen]');
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Buang dokumen baharu?',
+            text: 'Dokumen ini tidak akan dimuat naik.',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, buang',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            reverseButtons: true,
+        }).then((hasil) => {
+            if (!hasil.isConfirmed || !kadDokumen) {
+                return;
+            }
+
+            kadDokumen.style.opacity = '0';
+            kadDokumen.style.transform = 'translateY(-8px)';
+
+            window.setTimeout(() => {
+                kadDokumen.remove();
+                kemaskiniMesejDokumen();
+            }, 180);
+        });
+    });
+
+    document.querySelectorAll('[data-padam-dokumen]').forEach((form) => {
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Padam dokumen?',
+                html: `Dokumen <strong>${form.dataset.namaDokumen}</strong> akan dipadam secara kekal.`,
+                showCancelButton: true,
+                confirmButtonText: 'Ya, padam',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                reverseButtons: true,
+            }).then((hasil) => {
+                if (hasil.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+
+    kemaskiniMesejDokumen();
 
     /*
     |--------------------------------------------------------------------------

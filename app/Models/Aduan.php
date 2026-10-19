@@ -15,6 +15,11 @@ class Aduan extends Model
 
     protected $primaryKey = 'cmp_id';
 
+    public function getRouteKeyName(): string
+    {
+        return 'cmp_id';
+    }
+
     protected $fillable = [
         'asb_id',
         'tnt_id',

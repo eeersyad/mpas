@@ -6,6 +6,7 @@ use App\Http\Requests\SimpanAduanAwamRequest;
 use App\Models\Aduan;
 use App\Models\KodBangunan;
 use App\Models\TetapanAduan;
+use App\Services\NotifikasiAduan;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -47,7 +48,8 @@ class AduanAwamController extends Controller
                         ->where('cmp_completed_at', '>=', $tarikhHad);
                 });
             })
-            ->latest('cmp_received_date')
+            ->orderByDesc('cmp_received_date')
+            ->orderByDesc('cmp_id')
             ->get();
 
         return view('aduan.awam', compact(
@@ -59,7 +61,8 @@ class AduanAwamController extends Controller
 
     public function store(
         SimpanAduanAwamRequest $request,
-        string $kod
+        string $kod,
+        NotifikasiAduan $notifikasiAduan
     ): RedirectResponse {
         $kodBangunan = KodBangunan::query()
             ->with('bangunan')
@@ -85,12 +88,12 @@ class AduanAwamController extends Controller
             }
         }
 
-        DB::transaction(function () use (
+        $aduan = DB::transaction(function () use (
             $request,
             $kodBangunan,
             $data,
             $tenantId
-        ): void {
+        ): Aduan {
             $aduan = Aduan::create([
                 'asb_id' => $kodBangunan->asb_id,
                 'tnt_id' => $tenantId,
@@ -119,7 +122,11 @@ class AduanAwamController extends Controller
                     'cmpimg_path' => $laluan,
                 ]);
             }
+
+            return $aduan;
         });
+        
+        $notifikasiAduan->aduanBaharu($aduan);
 
         return redirect()
             ->route('aduan.awam.create', $kod)

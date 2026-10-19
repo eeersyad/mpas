@@ -75,6 +75,20 @@ class SimpanBangunanRequest extends FormRequest
             'penyewa.*.tnt_start_date' => ['nullable', 'date'],
             'penyewa.*.tnt_end_date' => ['nullable', 'date', 'after_or_equal:penyewa.*.tnt_start_date'],
             'penyewa.*.tnt_status' => ['nullable', 'in:AKTIF,TIDAK_AKTIF'],
+
+            'dokumen' => ['nullable', 'array', 'max:10'],
+            'dokumen.*.jenis' => [
+                'nullable',
+                'required_with:dokumen.*.fail',
+                'in:GERAN,PELAN,SURAT_KELULUSAN,PERJANJIAN_SEWA,LAPORAN_PENILAIAN,GAMBAR,LAIN_LAIN',
+            ],
+            'dokumen.*.fail' => [
+                'nullable',
+                'required_with:dokumen.*.jenis',
+                'file',
+                'mimes:pdf,jpg,jpeg,png,webp',
+                'max:10240',
+            ],
         ];
     }
 
@@ -90,6 +104,12 @@ class SimpanBangunanRequest extends FormRequest
             'penyewa.*.tnt_name.required_with' => 'Sila masukkan nama penyewa.',
             'penyewa.*.tnt_end_date.after_or_equal' =>
                 'Tarikh tamat sewaan tidak boleh lebih awal daripada tarikh mula sewaan.',
+            'dokumen.max' => 'Maksimum 10 dokumen boleh dimuat naik dalam satu masa.',
+            'dokumen.*.jenis.required_with' => 'Sila pilih jenis dokumen.',
+            'dokumen.*.jenis.in' => 'Jenis dokumen yang dipilih tidak sah.',
+            'dokumen.*.fail.required_with' => 'Sila pilih fail untuk dokumen ini.',
+            'dokumen.*.fail.mimes' => 'Dokumen mestilah dalam format PDF, JPG, JPEG, PNG atau WEBP.',
+            'dokumen.*.fail.max' => 'Saiz setiap dokumen tidak boleh melebihi 10MB.',
         ];
     }
 }

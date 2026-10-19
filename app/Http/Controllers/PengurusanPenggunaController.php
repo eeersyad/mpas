@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Support\Jadual;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -10,13 +11,32 @@ use Illuminate\View\View;
 
 class PengurusanPenggunaController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
+        $had = Jadual::had($request);
+
+        $cari = trim((string) $request->input('cari', ''));
+        $peranan = $request->input('peranan');
+        $status = $request->input('status');
+
         $pengguna = User::query()
             ->whereIn('usr_level', $this->perananDibenarkan())
+            ->when(
+                $cari !== '',
+                fn ($query) => $query->where('usr_name', 'like', "%{$cari}%")
+            )
+            ->when(
+                $peranan,
+                fn ($query, $nilai) => $query->where('usr_level', $nilai)
+            )
+            ->when(
+                $status,
+                fn ($query, $nilai) => $query->where('usr_status', $nilai)
+            )
             ->orderBy('usr_level')
             ->orderBy('usr_name')
-            ->paginate(10);
+            ->paginate($had)
+            ->withQueryString();
 
         return view('pengguna.senarai', compact('pengguna'));
     }

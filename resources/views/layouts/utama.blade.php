@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>@yield('tajuk', 'Dashboard') | MPAS</title>
 
@@ -22,6 +23,7 @@
         rel="stylesheet"
     >
 
+    @stack('gaya')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
@@ -80,6 +82,13 @@
                 'active' => request()->routeIs('kodqr.*'),
             ],
             [
+                'label' => 'Laporan',
+                'icon' => 'bi-bar-chart-line-fill',
+                'url' => route('laporan.index'),
+                'roles' => ['SYSTEM', 'BPH', 'BP', 'KJ'],
+                'active' => request()->routeIs('laporan.*'),
+            ],
+            [
                 'label' => 'Tetapan',
                 'icon' => 'bi-gear-fill',
                 'url' => route('tetapan.rujukan'),
@@ -89,17 +98,22 @@
         ];
     @endphp
 
-    <div class="d-flex min-vh-100" id="aplikasi">
+    <div
+        class="d-flex min-vh-100"
+        id="aplikasi"
+        data-user-id="{{ $user->usr_id }}"
+    >
         <aside class="sidebar d-none d-lg-flex flex-column">
-            <a href="{{ route('dashboard') }}" class="jenama text-decoration-none">
-                <span class="jenama-ikon">
-                    <i class="bi bi-buildings-fill"></i>
-                </span>
-
-                <span>
-                    <strong>MPAS</strong>
-                    <small>Sistem Aset Tak Alih</small>
-                </span>
+            <a
+                href="{{ route('dashboard') }}"
+                class="jenama jenama-logo text-decoration-none"
+                aria-label="Dashboard MPAS"
+            >
+                <img
+                    src="{{ asset('images/logo-mpas.png') }}"
+                    alt="Logo MPAS"
+                    class="logo-sidebar"
+                >
             </a>
 
             <p class="menu-label">MENU UTAMA</p>
@@ -143,19 +157,63 @@
                     <button
                         class="btn butang-menu d-lg-none"
                         type="button"
-                        data-bs-toggle="offcanvas"
-                        data-bs-target="#menuTelefon"
+                        id="toggleMenuTelefon"
                         aria-label="Buka menu"
+                        aria-controls="menuTelefon"
+                        aria-expanded="false"
                     >
                         <i class="bi bi-list"></i>
                     </button>
                 </div>
 
                 <div class="d-flex align-items-center gap-3">
-                    <button class="butang-ikon" type="button" data-notifikasi aria-label="Notifikasi">
-                        <i class="bi bi-bell"></i>
-                        <span class="bulatan-notifikasi"></span>
-                    </button>
+                    <div class="dropdown">
+                        <button
+                            class="butang-ikon"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            data-bs-auto-close="outside"
+                            aria-expanded="false"
+                            aria-label="Buka notifikasi"
+                        >
+                            <i class="bi bi-bell"></i>
+
+                            <span
+                                class="bulatan-notifikasi"
+                                data-lencana-notifikasi
+                                hidden
+                            ></span>
+                        </button>
+
+                        <div
+                            class="dropdown-menu dropdown-menu-end panel-notifikasi"
+                            data-panel-notifikasi
+                            data-url-senarai="{{ route('notifikasi.index') }}"
+                            data-url-baca="{{ url('/notifikasi') }}"
+                            data-url-baca-semua="{{ route('notifikasi.baca-semua') }}"
+                        >
+                            <div class="kepala-notifikasi">
+                                <div>
+                                    <strong>Notifikasi</strong>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    class="butang-baca-semua"
+                                    data-baca-semua
+                                >
+                                    Tandakan semua dibaca
+                                </button>
+                            </div>
+
+                            <div class="senarai-notifikasi" data-senarai-notifikasi>
+                                <div class="notifikasi-kosong">
+                                    <i class="bi bi-bell-slash"></i>
+                                    <p>Memuatkan notifikasi...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="dropdown">
                         <button
@@ -202,20 +260,28 @@
         </div>
     </div>
 
-    <div class="offcanvas offcanvas-start menu-telefon" tabindex="-1" id="menuTelefon">
+    <aside
+        class="menu-telefon"
+        id="menuTelefon"
+        aria-labelledby="tajukMenuTelefon"
+        aria-hidden="true"
+    >
         <div class="offcanvas-header">
-            <span class="jenama">
-                <span class="jenama-ikon">
-                    <i class="bi bi-buildings-fill"></i>
-                </span>
-
-                <span>
-                    <strong>MPAS</strong>
-                    <small>Sistem Aset Tak Alih</small>
-                </span>
+            <h2 id="tajukMenuTelefon" class="visually-hidden">Menu navigasi</h2>
+            <span class="jenama jenama-logo">
+                <img
+                    src="{{ asset('images/logo-mpas-2.png') }}"
+                    alt="Logo MPAS"
+                    class="logo-sidebar"
+                >
             </span>
 
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Tutup"></button>
+            <button
+                type="button"
+                class="btn-close"
+                data-tutup-menu-telefon
+                aria-label="Tutup"
+            ></button>
         </div>
 
         <div class="offcanvas-body">
@@ -225,7 +291,7 @@
                         <a
                             href="{{ $item['url'] }}"
                             class="menu-pautan {{ $item['active'] ? 'aktif' : '' }}"
-                            data-bs-dismiss="offcanvas"
+                            data-pautan-menu-telefon
                         >
                             <i class="bi {{ $item['icon'] }}"></i>
                             <span>{{ $item['label'] }}</span>
@@ -234,7 +300,7 @@
                 @endforeach
             </nav>
         </div>
-    </div>
+    </aside>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -263,16 +329,7 @@
         </script>
     @endif
 
-    <script>
-        document.querySelector('[data-notifikasi]')?.addEventListener('click', () => {
-            Swal.fire({
-                icon: 'info',
-                title: 'Tiada notifikasi baharu',
-                text: 'Notifikasi sistem akan dipaparkan di sini.',
-                confirmButtonText: 'Faham',
-                confirmButtonColor: '#168A7E',
-            });
-        });
-    </script>
+    
+    @stack('skrip')
 </body>
 </html>

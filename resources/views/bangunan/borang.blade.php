@@ -4,7 +4,7 @@
 @endphp
 
 <div class="kad-data">
-    <form method="POST" action="{{ $action }}" data-borang-bangunan>
+    <form method="POST" action="{{ $action }}" data-borang-bangunan enctype="multipart/form-data">
         @csrf
         @if ($errors->any())
             <div class="alert alert-danger mx-4 mx-md-5 mt-4 mb-0">
@@ -37,6 +37,7 @@
                     'Kos & Penilaian',
                     'Status & Pengesahan',
                     'Penyewa',
+                    'Dokumen',
                 ] as $nombor => $label)
                     <div
                         class="penunjuk-item {{ $nombor === 0 ? 'aktif' : '' }}"
@@ -652,6 +653,177 @@
                         <i class="bi bi-arrow-left me-1"></i> Sebelum
                     </button>
 
+                    <button type="button" class="btn btn-utama" data-seterusnya>
+                        Seterusnya <i class="bi bi-arrow-right ms-1"></i>
+                    </button>
+                </div>
+            </section>
+            <section class="langkah-borang" data-langkkah="7" data-langkah="7">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+                    <div>
+                        <h2 class="h5 fw-bold mb-1">Dokumen Aset Bangunan</h2>
+                        <p class="text-secondary small mb-0">
+                            Muat naik dokumen berkaitan seperti geran, pelan, surat kelulusan,
+                            perjanjian sewa atau gambar bangunan.
+                        </p>
+                    </div>
+
+                    <button type="button" class="btn btn-utama" data-tambah-dokumen>
+                        <i class="bi bi-file-earmark-plus me-1"></i>Tambah Dokumen
+                    </button>
+                </div>
+
+                <div class="alert alert-light border small mb-4">
+                    <i class="bi bi-info-circle me-1 text-primary"></i>
+                    Dokumen adalah pilihan. Format dibenarkan: PDF, JPG, JPEG, PNG dan WEBP.
+                    Saiz maksimum setiap fail ialah 10MB.
+                </div>
+
+                <div class="row g-3" data-senarai-dokumen data-indeks-seterusnya="0">
+                    <div class="col-12" data-mesej-dokumen>
+                        <div class="kad-kosong py-4">
+                            <div class="ilustrasi-kosong">
+                                <i class="bi bi-folder2-open"></i>
+                            </div>
+
+                            <h3>Tiada dokumen baharu</h3>
+                            <p>Tekan “Tambah Dokumen” jika ada dokumen untuk dimuat naik.</p>
+                        </div>
+                    </div>
+                </div>
+
+                @if ($bangunan && $bangunan->dokumen->isNotEmpty())
+                    <div class="mt-4 pt-4 border-top">
+                        <h3 class="subtajuk-seksyen mb-3">
+                            Dokumen Sedia Ada
+                        </h3>
+
+                        <div class="row g-3">
+                            @foreach ($bangunan->dokumen as $dokumen)
+                                <div class="col-12 col-md-6">
+                                    <div class="kad-dokumen">
+                                        <div class="d-flex gap-3 align-items-start">
+                                            <div class="ikon-dokumen">
+                                                <i class="bi bi-file-earmark-text"></i>
+                                            </div>
+
+                                            <div class="flex-grow-1 min-w-0">
+                                                <span class="lencana-dokumen">
+                                                    {{ str_replace('_', ' ', $dokumen->asbdoc_type) }}
+                                                </span>
+
+                                                <p class="fw-semibold text-truncate mb-1 mt-2">
+                                                    {{ $dokumen->asbdoc_name }}
+                                                </p>
+
+                                                <small class="text-secondary d-block">
+                                                    Dimuat naik:
+                                                    {{ $dokumen->uploaded_at?->format('d/m/Y, h:i A') ?? '-' }}
+                                                </small>
+
+                                                <div class="d-flex gap-2 mt-3">
+                                                    <a
+                                                        href="{{ asset('storage/' . $dokumen->asbdoc_path) }}"
+                                                        target="_blank"
+                                                        rel="noopener"
+                                                        class="btn btn-sm btn-outline-primary"
+                                                    >
+                                                        <i class="bi bi-eye me-1"></i>Lihat
+                                                    </a>
+
+                                                    <a
+                                                        href="{{ asset('storage/' . $dokumen->asbdoc_path) }}"
+                                                        download="{{ $dokumen->asbdoc_name }}"
+                                                        class="btn btn-sm btn-outline-secondary"
+                                                    >
+                                                        <i class="bi bi-download"></i>
+                                                    </a>
+
+                                                    <button
+                                                        type="submit"
+                                                        form="formPadamDokumen{{ $dokumen->asbdoc_id }}"
+                                                        class="btn btn-sm btn-outline-danger"
+                                                        title="Padam dokumen"
+                                                    >
+                                                        <i class="bi bi-trash3"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
+                <template id="templatDokumen">
+                    <div class="col-12" data-dokumen>
+                        <div class="kad-dokumen-baharu">
+                            <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+                                <h3 class="subtajuk-seksyen mb-0">
+                                    <i class="bi bi-file-earmark-arrow-up me-2"></i>
+                                    Dokumen Baharu
+                                </h3>
+
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-outline-danger"
+                                    data-buang-dokumen
+                                >
+                                    <i class="bi bi-trash3 me-1"></i>Buang
+                                </button>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-12 col-md-4">
+                                    <label class="form-label">
+                                        Jenis Dokumen <span class="text-danger">*</span>
+                                    </label>
+
+                                    <select
+                                        name="dokumen[__INDEX__][jenis]"
+                                        class="form-select"
+                                        required
+                                    >
+                                        <option value="">-- Pilih Jenis --</option>
+                                        <option value="GERAN">Geran / Hak Milik</option>
+                                        <option value="PELAN">Pelan Bangunan</option>
+                                        <option value="SURAT_KELULUSAN">Surat Kelulusan</option>
+                                        <option value="PERJANJIAN_SEWA">Perjanjian Sewa</option>
+                                        <option value="LAPORAN_PENILAIAN">Laporan Penilaian</option>
+                                        <option value="GAMBAR">Gambar Bangunan</option>
+                                        <option value="LAIN_LAIN">Lain-lain</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-12 col-md-8">
+                                    <label class="form-label">
+                                        Fail Dokumen <span class="text-danger">*</span>
+                                    </label>
+
+                                    <input
+                                        type="file"
+                                        name="dokumen[__INDEX__][fail]"
+                                        class="form-control"
+                                        accept=".pdf,.jpg,.jpeg,.png,.webp"
+                                        required
+                                    >
+
+                                    <div class="form-text">
+                                        PDF, JPG, JPEG, PNG atau WEBP. Maksimum 10MB.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+                <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                    <button type="button" class="btn btn-outline-secondary" data-sebelum>
+                        <i class="bi bi-arrow-left me-1"></i>Sebelum
+                    </button>
+
                     <button type="submit" class="btn btn-utama">
                         <i class="bi bi-check2-circle me-1"></i>
                         {{ $bangunan ? 'Kemaskini Aset Bangunan' : 'Simpan Aset Bangunan' }}
@@ -659,4 +831,18 @@
                 </div>
             </section>
     </form>
+    @if ($bangunan)
+        @foreach ($bangunan->dokumen as $dokumen)
+            <form
+                id="formPadamDokumen{{ $dokumen->asbdoc_id }}"
+                method="POST"
+                action="{{ route('bangunan.dokumen.hapus', [$bangunan, $dokumen]) }}"
+                data-padam-dokumen
+                data-nama-dokumen="{{ $dokumen->asbdoc_name }}"
+            >
+                @csrf
+                @method('DELETE')
+            </form>
+        @endforeach
+    @endif
 </div>
