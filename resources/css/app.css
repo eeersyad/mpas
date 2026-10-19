@@ -3696,3 +3696,15 @@ body.menu-telefon-terbuka {
         width: 100%;
     }
 }
+
+.panel-notifikasi {
+    overflow: hidden;
+}
+
+.senarai-notifikasi {
+    max-height: calc(
+        min(520px, calc(100vh - 7rem)) - 74px
+    );
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
