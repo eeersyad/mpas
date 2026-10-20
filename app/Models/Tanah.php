@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Tanah extends Model
 {
@@ -51,5 +52,10 @@ class Tanah extends Model
     public function aset(): BelongsTo
     {
         return $this->belongsTo(Aset::class, 'ast_id', 'ast_id');
+    }
+
+    public function dokumen(): HasMany
+    {
+        return $this->hasMany(DokumenTanah::class, 'asl_id', 'asl_id');
     }
 }

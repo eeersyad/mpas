@@ -32,6 +32,20 @@ class SimpanTanahRequest extends FormRequest
             'asl_land_skp' => ['nullable', 'numeric', 'min:0'],
             'asl_cukaiT' => ['nullable', 'numeric', 'min:0'],
             'asl_status_cukaiT' => ['nullable', 'string', 'max:100'],
+
+            'dokumen' => ['nullable', 'array', 'max:4'],
+            'dokumen.*.jenis' => [
+                'nullable',
+                'required_with:dokumen.*.fail',
+                'in:GERAN,PELAN_LOKASI,SURAT_KELULUSAN,RESIT_CUKAI,GAMBAR,LAIN_LAIN',
+            ],
+            'dokumen.*.fail' => [
+                'nullable',
+                'required_with:dokumen.*.jenis',
+                'file',
+                'mimes:pdf,jpg,jpeg,png,webp',
+                'max:10240',
+            ],
         ];
     }
 
@@ -47,6 +61,13 @@ class SimpanTanahRequest extends FormRequest
             'asl_longitude.between' => 'Longitud mesti berada antara -180 hingga 180.',
             'asl_tarikh_serah_balik_hakmilik.after_or_equal' =>
                 'Tarikh serah balik tidak boleh lebih awal daripada tarikh terima hakmilik.',
+            
+            'dokumen.max' => 'Maksimum 4 dokumen boleh dimuat naik bagi satu aset tanah.',
+            'dokumen.*.jenis.required_with' => 'Sila pilih jenis dokumen.',
+            'dokumen.*.jenis.in' => 'Jenis dokumen yang dipilih tidak sah.',
+            'dokumen.*.fail.required_with' => 'Sila pilih fail dokumen.',
+            'dokumen.*.fail.mimes' => 'Dokumen mestilah dalam format PDF, JPG, JPEG, PNG atau WEBP.',
+            'dokumen.*.fail.max' => 'Saiz setiap dokumen tidak boleh melebihi 10MB.',
         ];
     }
 }
