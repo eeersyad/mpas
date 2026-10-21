@@ -21,6 +21,9 @@ class PengurusanAduanController extends Controller
 
         $cari = trim((string) $request->input('cari', ''));
         $jenisPengadu = $request->input('jenis_pengadu');
+        $statusAduanAktif = $user->usr_level === 'KJ'
+            ? ['DITERIMA', 'DALAM_PENYELENGGARAAN']
+            : ['BARU', 'DITERIMA', 'DALAM_PENYELENGGARAAN'];
 
         $aduan = Aduan::query()
             ->with([
@@ -44,6 +47,10 @@ class PengurusanAduanController extends Controller
             ->when(
                 $user->usr_level === 'KJ',
                 fn ($query) => $query->whereNotNull('cmp_accepted_by')
+            )
+            ->when(
+                $request->boolean('aktif'),
+                fn ($query) => $query->whereIn('cmp_status', $statusAduanAktif)
             )
             ->when(
                 $request->filled('status'),

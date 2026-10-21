@@ -3,7 +3,7 @@
     $penyewaAktif = $bangunan?->penyewa?->where('tnt_status', 'AKTIF')->values() ?? collect();
 @endphp
 
-<div class="kad-data">
+<div class="kad-data borang-aset">
     <form method="POST" action="{{ $action }}" data-borang-bangunan enctype="multipart/form-data">
         @csrf
         @if ($errors->any())

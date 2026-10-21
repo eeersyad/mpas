@@ -1,3 +1,8 @@
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+window.L = L;
+
 import './bootstrap';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -395,6 +400,178 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
+        /*
+        |--------------------------------------------------------------------------
+        | Dokumen tanah dinamik
+        |--------------------------------------------------------------------------
+        */
+        const senaraiDokumenTanah = borangTanah.querySelector(
+            '[data-senarai-dokumen-tanah]'
+        );
+
+        const butangTambahDokumenTanah = borangTanah.querySelector(
+            '[data-tambah-dokumen-tanah]'
+        );
+
+        const templatDokumenTanah = document.querySelector(
+            '#templatDokumenTanah'
+        );
+
+        const jumlahDokumenTanahBaharu = () =>
+            senaraiDokumenTanah?.querySelectorAll('[data-dokumen-tanah]')
+                .length ?? 0;
+
+        const jumlahDokumenTanahSediaAda = Number(
+            senaraiDokumenTanah?.dataset.dokumenSediaAda || 0
+        );
+
+        const kemaskiniMesejDokumenTanah = () => {
+            if (!senaraiDokumenTanah) {
+                return;
+            }
+
+            const mesej = senaraiDokumenTanah.querySelector(
+                '[data-mesej-dokumen-tanah]'
+            );
+
+            const jumlahBaharu = jumlahDokumenTanahBaharu();
+            const jumlahKeseluruhan =
+                jumlahDokumenTanahSediaAda + jumlahBaharu;
+
+            if (jumlahBaharu === 0 && !mesej) {
+                senaraiDokumenTanah.insertAdjacentHTML(
+                    'beforeend',
+                    `
+                        <div class="col-12" data-mesej-dokumen-tanah>
+                            <div class="kad-kosong py-4">
+                                <div class="ilustrasi-kosong">
+                                    <i class="bi bi-folder2-open"></i>
+                                </div>
+                                <h3>Tiada dokumen baharu</h3>
+                                <p>Tekan “Tambah Dokumen” jika ada dokumen untuk dimuat naik.</p>
+                            </div>
+                        </div>
+                    `
+                );
+            }
+
+            if (jumlahBaharu > 0 && mesej) {
+                mesej.remove();
+            }
+
+            if (butangTambahDokumenTanah) {
+                const hadPenuh = jumlahKeseluruhan >= 4;
+
+                butangTambahDokumenTanah.disabled = hadPenuh;
+                butangTambahDokumenTanah.title = hadPenuh
+                    ? 'Had maksimum 4 dokumen telah dicapai.'
+                    : 'Tambah dokumen baharu';
+            }
+        };
+
+        butangTambahDokumenTanah?.addEventListener('click', () => {
+            if (!senaraiDokumenTanah || !templatDokumenTanah) {
+                return;
+            }
+
+            if (
+                jumlahDokumenTanahSediaAda +
+                    jumlahDokumenTanahBaharu() >=
+                4
+            ) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Had dokumen dicapai',
+                    text: 'Setiap aset tanah hanya boleh mempunyai maksimum 4 dokumen.',
+                    confirmButtonColor: '#168A7E',
+                });
+
+                return;
+            }
+
+            const indeks = Number(
+                senaraiDokumenTanah.dataset.indeksSeterusnya || 0
+            );
+
+            const kandungan = templatDokumenTanah.innerHTML.replaceAll(
+                '__INDEX__',
+                indeks
+            );
+
+            senaraiDokumenTanah.insertAdjacentHTML(
+                'beforeend',
+                kandungan
+            );
+
+            senaraiDokumenTanah.dataset.indeksSeterusnya = indeks + 1;
+
+            kemaskiniMesejDokumenTanah();
+        });
+
+        senaraiDokumenTanah?.addEventListener('click', (event) => {
+            const butangBuang = event.target.closest(
+                '[data-buang-dokumen-tanah]'
+            );
+
+            if (!butangBuang) {
+                return;
+            }
+
+            const kadDokumen = butangBuang.closest(
+                '[data-dokumen-tanah]'
+            );
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Buang dokumen baharu?',
+                text: 'Dokumen ini tidak akan dimuat naik.',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, buang',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                reverseButtons: true,
+            }).then((hasil) => {
+                if (!hasil.isConfirmed || !kadDokumen) {
+                    return;
+                }
+
+                kadDokumen.style.opacity = '0';
+                kadDokumen.style.transform = 'translateY(-8px)';
+
+                window.setTimeout(() => {
+                    kadDokumen.remove();
+                    kemaskiniMesejDokumenTanah();
+                }, 180);
+            });
+        });
+
+        document
+            .querySelectorAll('[data-padam-dokumen-tanah]')
+            .forEach((form) => {
+                form.addEventListener('submit', (event) => {
+                    event.preventDefault();
+
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Padam dokumen?',
+                        html: `Dokumen <strong>${form.dataset.namaDokumen}</strong> akan dipadam secara kekal.`,
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, padam',
+                        cancelButtonText: 'Batal',
+                        confirmButtonColor: '#dc3545',
+                        cancelButtonColor: '#6c757d',
+                        reverseButtons: true,
+                    }).then((hasil) => {
+                        if (hasil.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
+
+        kemaskiniMesejDokumenTanah();
+
         const sahkanBorangTanah = () => {
         const medanTidakSah = [
             ...borangTanah.querySelectorAll('input, select, textarea'),
@@ -634,6 +811,49 @@ document.addEventListener('DOMContentLoaded', () => {
         sahkan: 'Ya, simpan',
         warna: '#168A7E',
     });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Penapis automatik halaman senarai
+    |--------------------------------------------------------------------------
+    */
+    document
+        .querySelectorAll('[data-penapis-automatik]')
+        .forEach((borang) => {
+            let pemasaCarian;
+
+            const hantarCarian = () => {
+                window.clearTimeout(pemasaCarian);
+                borang.submit();
+            };
+
+            const medanCarian = borang.querySelector(
+                'input[type="search"][name="cari"]'
+            );
+
+            const dropdownPenapis = borang.querySelectorAll(
+                'select.kawalan-penapis'
+            );
+
+            dropdownPenapis.forEach((dropdown) => {
+                dropdown.addEventListener('change', hantarCarian);
+            });
+
+            medanCarian?.addEventListener('input', () => {
+                window.clearTimeout(pemasaCarian);
+
+                pemasaCarian = window.setTimeout(() => {
+                    borang.submit();
+                }, 400);
+            });
+
+            medanCarian?.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    hantarCarian();
+                }
+            });
+        });
 
     /*
     |--------------------------------------------------------------------------

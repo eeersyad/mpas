@@ -134,6 +134,9 @@ Route::middleware('auth')->group(function () {
 
         Route::put('/aset-tanah/{tanah}', [PengurusanTanahController::class, 'update'])
             ->name('tanah.update');
+
+        Route::delete('/aset-tanah/{tanah}/dokumen/{dokumen}', [PengurusanTanahController::class, 'hapusDokumen'])
+            ->name('tanah.dokumen.hapus');
     });
 
     Route::middleware('peranan:SYSTEM,BPH')->group(function () {

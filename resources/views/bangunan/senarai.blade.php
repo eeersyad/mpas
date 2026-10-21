@@ -17,7 +17,11 @@
         </a>
     </div>
 
-    <form method="GET" class="panel-penapis mb-4">
+    <form
+        method="GET"
+        class="panel-penapis mb-4"
+        data-penapis-automatik
+    >
         <input type="hidden" name="had" value="{{ request('had', 15) }}">
 
         <div class="panel-penapis-kepala">
@@ -91,10 +95,6 @@
 
             <div class="col-12 col-xl-2">
                 <div class="d-flex gap-2 tindakan-penapis">
-                    <button type="submit" class="btn btn-primary flex-grow-1">
-                        <i class="bi bi-search me-1"></i>Cari
-                    </button>
-
                     <a
                         href="{{ route('bangunan.index') }}"
                         class="btn btn-outline-secondary"

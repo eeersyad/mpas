@@ -17,7 +17,11 @@
         </a>
     </div>
 
-    <form method="GET" class="panel-penapis mb-4">
+    <form
+        method="GET"
+        class="panel-penapis mb-4"
+        data-penapis-automatik
+    >
         <input type="hidden" name="had" value="{{ request('had', 15) }}">
 
         <div class="row g-3 align-items-end">
@@ -78,16 +82,14 @@
 
             <div class="col-12 col-xl-4">
                 <div class="d-flex gap-2 tindakan-penapis">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-search me-1"></i>Cari
-                    </button>
-
                     <a
                         href="{{ route('tanah.index') }}"
                         class="btn btn-outline-secondary"
+                        title="Tetapkan semula penapis"
+                        aria-label="Tetapkan semula penapis"
                     >
-                        <i class="bi bi-arrow-counterclockwise me-1"></i>
-                        Tetapkan Semula
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                        <span class="d-xl-none">Semula</span>
                     </a>
                 </div>
             </div>

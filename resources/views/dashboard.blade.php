@@ -2,13 +2,7 @@
 
 @section('tajuk', 'Dashboard')
 
-@push('gaya')
-    <link
-        rel="stylesheet"
-        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        crossorigin=""
-    >
-@endpush
+
 
 @section('kandungan')
     <div class="mb-4">
@@ -24,94 +18,130 @@
     <div class="row g-3 g-md-4">
         @if (in_array($user->usr_level, ['SYSTEM', 'BPH']))
             <div class="col-12 col-md-6 col-xl-3">
-                <div class="kad-ringkasan">
-                    <div class="ikon-ringkasan hijau">
-                        <i class="bi bi-buildings-fill"></i>
-                    </div>
+                <a
+                    href="{{ route('bangunan.index') }}"
+                    class="kad-ringkasan-pautan"
+                    aria-label="Lihat senarai aset bangunan"
+                >
+                    <div class="kad-ringkasan">
+                        <div class="ikon-ringkasan hijau">
+                            <i class="bi bi-buildings-fill"></i>
+                        </div>
 
-                    <div>
-                        <p class="label-ringkasan">Aset Bangunan</p>
-                        <h2 class="nilai-ringkasan">{{ $ringkasan['bangunan'] }}</h2>
-                        <span class="teks-status">Jumlah berdaftar</span>
+                        <div>
+                            <p class="label-ringkasan">Aset Bangunan</p>
+                            <h2 class="nilai-ringkasan">{{ $ringkasan['bangunan'] }}</h2>
+                            <span class="teks-status">Jumlah berdaftar</span>
+                        </div>
                     </div>
-                </div>
+                </a>
             </div>
         @endif
 
         @if (in_array($user->usr_level, ['SYSTEM', 'BPH', 'BP']))
             <div class="col-12 col-md-6 col-xl-3">
-                <div class="kad-ringkasan">
-                    <div class="ikon-ringkasan biru">
-                        <i class="bi bi-map-fill"></i>
-                    </div>
+                <a
+                    href="{{ route('tanah.index') }}"
+                    class="kad-ringkasan-pautan"
+                    aria-label="Lihat senarai aset tanah"
+                >
+                    <div class="kad-ringkasan">
+                        <div class="ikon-ringkasan biru">
+                            <i class="bi bi-map-fill"></i>
+                        </div>
 
-                    <div>
-                        <p class="label-ringkasan">Aset Tanah</p>
-                        <h2 class="nilai-ringkasan">{{ $ringkasan['tanah'] }}</h2>
-                        <span class="teks-status">Jumlah berdaftar</span>
+                        <div>
+                            <p class="label-ringkasan">Aset Tanah</p>
+                            <h2 class="nilai-ringkasan">{{ $ringkasan['tanah'] }}</h2>
+                            <span class="teks-status">Jumlah berdaftar</span>
+                        </div>
                     </div>
-                </div>
+                </a>
             </div>
         @endif
 
         @if (in_array($user->usr_level, ['SYSTEM', 'BPH', 'KJ']))
             <div class="col-12 col-md-6 col-xl-3">
-                <div class="kad-ringkasan">
-                    <div class="ikon-ringkasan jingga">
-                        <i class="bi bi-tools"></i>
-                    </div>
+                <a
+                    href="{{ route('aduan.index', ['aktif' => 1]) }}"
+                    class="kad-ringkasan-pautan"
+                    aria-label="Lihat aduan aktif"
+                >
+                    <div class="kad-ringkasan">
+                        <div class="ikon-ringkasan jingga">
+                            <i class="bi bi-tools"></i>
+                        </div>
 
-                    <div>
-                        <p class="label-ringkasan">Aduan Aktif</p>
-                        <h2 class="nilai-ringkasan">{{ $ringkasan['aduan'] }}</h2>
-                        <span class="teks-status">Menunggu tindakan</span>
+                        <div>
+                            <p class="label-ringkasan">Aduan Aktif</p>
+                            <h2 class="nilai-ringkasan">{{ $ringkasan['aduan'] }}</h2>
+                            <span class="teks-status">Menunggu tindakan</span>
+                        </div>
                     </div>
-                </div>
+                </a>
             </div>
         @endif
 
         @if (in_array($user->usr_level, ['SYSTEM', 'BPH']))
             <div class="col-12 col-md-6 col-xl-3">
-                <div class="kad-ringkasan">
-                    <div class="ikon-ringkasan ungu">
-                        <i class="bi bi-people-fill"></i>
-                    </div>
+                <a
+                    href="{{ route('pengguna.index', ['status' => 'ACTIVE']) }}"
+                    class="kad-ringkasan-pautan"
+                    aria-label="Lihat pengguna aktif"
+                >
+                    <div class="kad-ringkasan">
+                        <div class="ikon-ringkasan ungu">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
 
-                    <div>
-                        <p class="label-ringkasan">Pengguna Aktif</p>
-                        <h2 class="nilai-ringkasan">{{ $ringkasan['pengguna'] }}</h2>
-                        <span class="teks-status">Dalam sistem</span>
+                        <div>
+                            <p class="label-ringkasan">Pengguna Aktif</p>
+                            <h2 class="nilai-ringkasan">{{ $ringkasan['pengguna'] }}</h2>
+                            <span class="teks-status">Dalam sistem</span>
+                        </div>
                     </div>
-                </div>
+                </a>
             </div>
         @endif
         @if ($user->usr_level === 'KJ')
             <div class="col-12 col-md-6 col-xl-3">
-                <div class="kad-ringkasan">
-                    <div class="ikon-ringkasan biru">
-                        <i class="bi bi-inbox-fill"></i>
-                    </div>
+                <a
+                    href="{{ route('aduan.index', ['status' => 'DITERIMA']) }}"
+                    class="kad-ringkasan-pautan"
+                    aria-label="Lihat aduan diterima"
+                >
+                    <div class="kad-ringkasan">
+                        <div class="ikon-ringkasan biru">
+                            <i class="bi bi-inbox-fill"></i>
+                        </div>
 
-                    <div>
-                        <p class="label-ringkasan">Aduan Diterima</p>
-                        <h2 class="nilai-ringkasan">{{ $ringkasan['diterima'] }}</h2>
-                        <span class="teks-status">Menunggu tindakan KJ</span>
+                        <div>
+                            <p class="label-ringkasan">Aduan Diterima</p>
+                            <h2 class="nilai-ringkasan">{{ $ringkasan['diterima'] }}</h2>
+                            <span class="teks-status">Menunggu tindakan KJ</span>
+                        </div>
                     </div>
-                </div>
+                </a>
             </div>
 
             <div class="col-12 col-md-6 col-xl-3">
-                <div class="kad-ringkasan">
-                    <div class="ikon-ringkasan jingga">
-                        <i class="bi bi-tools"></i>
-                    </div>
+                <a
+                    href="{{ route('aduan.index', ['status' => 'DALAM_PENYELENGGARAAN']) }}"
+                    class="kad-ringkasan-pautan"
+                    aria-label="Lihat aduan dalam penyelenggaraan"
+                >
+                    <div class="kad-ringkasan">
+                        <div class="ikon-ringkasan jingga">
+                            <i class="bi bi-tools"></i>
+                        </div>
 
-                    <div>
-                        <p class="label-ringkasan">Dalam Penyelenggaraan</p>
-                        <h2 class="nilai-ringkasan">{{ $ringkasan['penyelenggaraan'] }}</h2>
-                        <span class="teks-status">Kerja sedang berjalan</span>
+                        <div>
+                            <p class="label-ringkasan">Dalam Penyelenggaraan</p>
+                            <h2 class="nilai-ringkasan">{{ $ringkasan['penyelenggaraan'] }}</h2>
+                            <span class="teks-status">Kerja sedang berjalan</span>
+                        </div>
                     </div>
-                </div>
+                </a>
             </div>
         @endif
     </div>
@@ -390,10 +420,7 @@
 @push('skrip')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <script
-        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        crossorigin=""
-    ></script>
+    
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -404,11 +431,42 @@
             const dataStatusTanah = @json($cartaStatusTanah);
             const dataJenisHakmilikTanah = @json($cartaJenisHakmilikTanah);
             const dataAduanKj = @json($cartaAduanKj);
+            const warnaStatusAset = {
+                Sewa: '#6FC7BD',
+                'Tidak Disewa': '#EFA1B3',
+                Pajak: '#B9A3F5',
+                'Tidak Dipajak': '#F6D58B',
+                'Kegunaan MDM': '#8FB7F7',
+                Dilupus: '#B8C2C1',
+                Kekal: '#A7D8A4',
+            };
 
-            const binaCartaBar = (id, data, warna) => {
+            const warnaMengikutStatus = (data) =>
+                (data.label ?? []).map(
+                    (label) => warnaStatusAset[label] || '#B8C2C1'
+                );
+
+            const pautanBangunan = @json(route('bangunan.index'));
+            const pautanTanah = @json(route('tanah.index'));
+
+            const nilaiPenapisStatus = {
+                Sewa: 'SEWA',
+                'Tidak Disewa': 'TIDAK_DISEWA',
+                Pajak: 'PAJAK',
+                'Tidak Dipajak': 'TIDAK_DIPAJAK',
+                'Kegunaan MDM': 'KEGUNAAN_MDM',
+                Dilupus: 'DILUPUS',
+                Kekal: 'KEKAL',
+            };
+
+            const binaCartaBar = (id, data, warna, tetapanKlik = null) => {
                 const elemen = document.querySelector(id);
 
-                if (!elemen) {
+                if (
+                    !elemen ||
+                    !Array.isArray(data.label) ||
+                    data.label.length === 0
+                ) {
                     return;
                 }
 
@@ -431,6 +489,33 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+
+                        onClick: (_event, elemenDipilih) => {
+                            const indeks = elemenDipilih[0]?.index;
+                            const label = data.label?.[indeks];
+                            const nilai = nilaiPenapisStatus[label];
+
+                            if (!tetapanKlik || !nilai) {
+                                return;
+                            }
+
+                            const parameter = new URLSearchParams({
+                                [tetapanKlik.namaPenapis]: nilai,
+                            });
+
+                            window.location.href =
+                                `${tetapanKlik.pautan}?${parameter.toString()}`;
+                        },
+
+                        onHover: (event, elemenDipilih) => {
+                            const kanvas = event.native?.target;
+
+                            if (kanvas) {
+                                kanvas.style.cursor =
+                                    elemenDipilih.length > 0 ? 'pointer' : 'default';
+                            }
+                        },
+
                         plugins: {
                             legend: {
                                 display: false,
@@ -463,26 +548,21 @@
             binaCartaBar(
                 '#cartaBangunan',
                 dataBangunan,
-                [
-                    '#6FC7BD',
-                    '#8FB7F7',
-                    '#B9A3F5',
-                    '#F6D58B',
-                    '#F4B183',
-                    '#EFA1B3',
-                ]
+                warnaMengikutStatus(dataBangunan),
+                {
+                    pautan: pautanBangunan,
+                    namaPenapis: 'status_premis',
+                }
             );
 
             binaCartaBar(
                 '#cartaTanah',
                 dataTanah,
-                [
-                    '#8FB7F7',
-                    '#B9A3F5',
-                    '#F6D58B',
-                    '#6FC7BD',
-                    '#EFA1B3',
-                ]
+                warnaMengikutStatus(dataTanah),
+                {
+                    pautan: pautanTanah,
+                    namaPenapis: 'jenis_hakmilik',
+                }
             );
             binaCartaBar(
                 '#cartaStatusTanah',
@@ -498,13 +578,7 @@
             binaCartaBar(
                 '#cartaJenisHakmilikTanah',
                 dataJenisHakmilikTanah,
-                [
-                    '#F4B183',
-                    '#6FC7BD',
-                    '#8FB7F7',
-                    '#B9A3F5',
-                    '#EFA1B3',
-                ]
+                warnaMengikutStatus(dataJenisHakmilikTanah)
             );
 
             const elemenCartaSkor = document.querySelector('#cartaSkorAset');

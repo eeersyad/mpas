@@ -2,8 +2,8 @@
     $tanah = $tanah ?? null;
 @endphp
 
-<div class="kad-data">
-    <form method="POST" action="{{ $action }}" data-borang-tanah novalidate>
+<div class="kad-data borang-aset">
+    <form method="POST" action="{{ $action }}" enctype="multipart/form-data" data-borang-tanah novalidate>
         @csrf
 
         @if ($method === 'PUT')
@@ -36,6 +36,10 @@
                 <div class="penunjuk-item" data-penunjuk-item="4">
                     <span>4</span>
                     <strong>Nilai & Cukai</strong>
+                </div>
+                <div class="penunjuk-item" data-penunjuk-item="5">
+                    <span>5</span>
+                    <strong>Dokumen</strong>
                 </div>
             </div>
 
@@ -353,11 +357,206 @@
                         <i class="bi bi-arrow-left me-2"></i>Sebelumnya
                     </button>
 
-                    <button type="submit" class="btn btn-primary px-4" data-simpan-tanah>
+                    <button type="button" class="btn btn-primary px-4" data-seterusnya>
+                        Seterusnya <i class="bi bi-arrow-right ms-2"></i>
+                    </button>
+                </div>
+            </section>
+            <section class="langkah-borang" data-langkah="5">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+                    <div>
+                        <h2 class="h5 fw-bold mb-1">Dokumen Aset Tanah</h2>
+                        <p class="text-secondary small mb-0">
+                            Muat naik dokumen seperti geran, pelan lokasi, resit cukai atau gambar tanah.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        class="btn btn-primary px-4"
+                        data-tambah-dokumen-tanah
+                    >
+                        <i class="bi bi-file-earmark-plus me-1"></i>Tambah Dokumen
+                    </button>
+                </div>
+
+                <div class="alert alert-light border small mb-4">
+                    <i class="bi bi-info-circle me-1 text-primary"></i>
+                    Dokumen adalah pilihan. Maksimum <strong>4 dokumen</strong> bagi satu aset tanah.
+                    Format dibenarkan: PDF, JPG, JPEG, PNG dan WEBP. Saiz maksimum setiap fail ialah 10MB.
+                </div>
+
+                @error('dokumen')
+                    <div class="alert alert-danger small">{{ $message }}</div>
+                @enderror
+
+                <div
+                    class="row g-3"
+                    data-senarai-dokumen-tanah
+                    data-indeks-seterusnya="0"
+                    data-dokumen-sedia-ada="{{ $tanah?->dokumen->count() ?? 0 }}"
+                >
+                    <div class="col-12" data-mesej-dokumen-tanah>
+                        <div class="kad-kosong py-4">
+                            <div class="ilustrasi-kosong">
+                                <i class="bi bi-folder2-open"></i>
+                            </div>
+
+                            <h3>Tiada dokumen baharu</h3>
+                            <p>Tekan “Tambah Dokumen” jika ada dokumen untuk dimuat naik.</p>
+                        </div>
+                    </div>
+                </div>
+
+                @if ($tanah && $tanah->dokumen->isNotEmpty())
+                    <div class="mt-4 pt-4 border-top">
+                        <h3 class="subtajuk-seksyen mb-3">
+                            Dokumen Sedia Ada ({{ $tanah->dokumen->count() }}/4)
+                        </h3>
+
+                        <div class="row g-3">
+                            @foreach ($tanah->dokumen as $dokumen)
+                                <div class="col-12 col-md-6">
+                                    <div class="kad-dokumen">
+                                        <div class="d-flex gap-3 align-items-start">
+                                            <div class="ikon-dokumen">
+                                                <i class="bi bi-file-earmark-text"></i>
+                                            </div>
+
+                                            <div class="flex-grow-1 min-w-0">
+                                                <span class="lencana-dokumen">
+                                                    {{ str_replace('_', ' ', $dokumen->asldoc_type) }}
+                                                </span>
+
+                                                <p class="fw-semibold text-truncate mb-1 mt-2">
+                                                    {{ $dokumen->asldoc_name }}
+                                                </p>
+
+                                                <small class="text-secondary d-block">
+                                                    Dimuat naik:
+                                                    {{ $dokumen->uploaded_at?->format('d/m/Y, h:i A') ?? '-' }}
+                                                </small>
+
+                                                <div class="d-flex gap-2 mt-3">
+                                                    <a
+                                                        href="{{ asset('storage/' . $dokumen->asldoc_path) }}"
+                                                        target="_blank"
+                                                        rel="noopener"
+                                                        class="btn btn-sm btn-outline-primary"
+                                                    >
+                                                        <i class="bi bi-eye me-1"></i>Lihat
+                                                    </a>
+
+                                                    <a
+                                                        href="{{ asset('storage/' . $dokumen->asldoc_path) }}"
+                                                        download="{{ $dokumen->asldoc_name }}"
+                                                        class="btn btn-sm btn-outline-secondary"
+                                                    >
+                                                        <i class="bi bi-download"></i>
+                                                    </a>
+
+                                                    <button
+                                                        type="submit"
+                                                        form="formPadamDokumenTanah{{ $dokumen->asldoc_id }}"
+                                                        class="btn btn-sm btn-outline-danger"
+                                                        title="Padam dokumen"
+                                                    >
+                                                        <i class="bi bi-trash3"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
+                <template id="templatDokumenTanah">
+                    <div class="col-12" data-dokumen-tanah>
+                        <div class="kad-dokumen-baharu">
+                            <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+                                <h3 class="subtajuk-seksyen mb-0">
+                                    <i class="bi bi-file-earmark-arrow-up me-2"></i>Dokumen Baharu
+                                </h3>
+
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-outline-danger"
+                                    data-buang-dokumen-tanah
+                                >
+                                    <i class="bi bi-trash3 me-1"></i>Buang
+                                </button>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-12 col-md-4">
+                                    <label class="form-label">
+                                        Jenis Dokumen <span class="text-danger">*</span>
+                                    </label>
+
+                                    <select
+                                        name="dokumen[__INDEX__][jenis]"
+                                        class="form-select"
+                                        required
+                                    >
+                                        <option value="">-- Pilih Jenis --</option>
+                                        <option value="GERAN">Geran / Hak Milik</option>
+                                        <option value="PELAN_LOKASI">Pelan Lokasi</option>
+                                        <option value="SURAT_KELULUSAN">Surat Kelulusan</option>
+                                        <option value="RESIT_CUKAI">Resit Cukai Tanah</option>
+                                        <option value="GAMBAR">Gambar Tanah</option>
+                                        <option value="LAIN_LAIN">Lain-lain</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-12 col-md-8">
+                                    <label class="form-label">
+                                        Fail Dokumen <span class="text-danger">*</span>
+                                    </label>
+
+                                    <input
+                                        type="file"
+                                        name="dokumen[__INDEX__][fail]"
+                                        class="form-control"
+                                        accept=".pdf,.jpg,.jpeg,.png,.webp"
+                                        required
+                                    >
+
+                                    <div class="form-text">
+                                        PDF, JPG, JPEG, PNG atau WEBP. Maksimum 10MB.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+                <div class="d-flex justify-content-between mt-5">
+                    <button type="button" class="btn btn-light px-4" data-sebelumnya>
+                        <i class="bi bi-arrow-left me-2"></i>Sebelumnya
+                    </button>
+
+                    <button type="submit" class="btn btn-primary px-4">
                         <i class="bi bi-check-lg me-2"></i>{{ $butang }}
                     </button>
                 </div>
             </section>
         </div>
     </form>
+    @if ($tanah)
+        @foreach ($tanah->dokumen as $dokumen)
+            <form
+                id="formPadamDokumenTanah{{ $dokumen->asldoc_id }}"
+                method="POST"
+                action="{{ route('tanah.dokumen.hapus', [$tanah, $dokumen]) }}"
+                data-padam-dokumen-tanah
+                data-nama-dokumen="{{ $dokumen->asldoc_name }}"
+            >
+                @csrf
+                @method('DELETE')
+            </form>
+        @endforeach
+    @endif
 </div>
