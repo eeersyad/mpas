@@ -114,9 +114,35 @@
                     </div>
 
                     <div class="col-12 col-md-3">
-                        <label class="form-label fw-semibold">Mukim</label>
-                        <input type="text" name="asb_mukim" class="form-control"
-                            value="{{ old('asb_mukim', $bangunan?->asb_mukim) }}">
+                        <label for="asbMukim" class="form-label fw-semibold">Mukim</label>
+
+                        <select
+                            id="asbMukim"
+                            name="asb_mukim"
+                            class="form-select @error('asb_mukim') is-invalid @enderror"
+                        >
+                            <option value="">Pilih Mukim</option>
+
+                            @foreach ([
+                                'Alor Limbat',
+                                'Bukit Payung',
+                                'Jerong',
+                                'Merchang',
+                                'Pulau Kerengga',
+                                'Rusila',
+                            ] as $mukim)
+                                <option
+                                    value="{{ $mukim }}"
+                                    @selected(old('asb_mukim', $bangunan?->asb_mukim) === $mukim)
+                                >
+                                    {{ $mukim }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        @error('asb_mukim')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <div class="col-12 col-md-3">

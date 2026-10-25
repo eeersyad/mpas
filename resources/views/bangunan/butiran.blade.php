@@ -36,12 +36,12 @@
 
         <div class="col-md-4">
             <small class="teks-kecil d-block">Kategori</small>
-            <span>{{ $bangunan->asb_category ? str_replace('_', ' ', $bangunan->asb_category) : '-' }}</span>
+            <span>{{ $bangunan->asb_category ? \App\Support\Paparan::label($bangunan->asb_category) : '-' }}</span>
         </div>
 
         <div class="col-md-4">
             <small class="teks-kecil d-block">Status Premis</small>
-            <span>{{ str_replace('_', ' ', $bangunan->asb_premise_status) }}</span>
+            <span>{{ \App\Support\Paparan::label($bangunan->asb_premise_status) }}</span>
         </div>
 
         <div class="col-md-4">

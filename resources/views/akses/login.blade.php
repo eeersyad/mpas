@@ -3,7 +3,7 @@
 @section('tajuk', 'Log Masuk')
 
 @section('kandungan')
-    <main class="min-vh-100 d-flex align-items-center justify-content-center p-3 position-relative overflow-hidden">
+    <main class="halaman-login min-vh-100 d-flex align-items-center justify-content-center p-3 position-relative overflow-hidden">
         <div class="w-100" style="max-width: 420px;">
             <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
                 <div class="card-body p-4 p-md-5">

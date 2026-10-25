@@ -118,7 +118,14 @@
                             };
                         @endphp
 
-                        <tr>
+                        <tr
+                            class="baris-boleh-klik"
+                            data-baris-pautan
+                            data-url="{{ route('aduan.show', $item) }}"
+                            tabindex="0"
+                            role="link"
+                            aria-label="Lihat butiran aduan"
+                        >
                             <td>{{ $aduan->firstItem() + $loop->index }}</td>
 
                             <td>

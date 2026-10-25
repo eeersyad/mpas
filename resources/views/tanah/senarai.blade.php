@@ -114,7 +114,13 @@
 
                 <tbody>
                     @forelse ($tanah as $item)
-                        <tr>
+                        <tr
+                            class="baris-boleh-klik"
+                            data-baris-butiran
+                            tabindex="0"
+                            role="button"
+                            aria-label="Lihat butiran {{ $item->asl_ref_no }}"
+                        >
                             <td>{{ $tanah->firstItem() + $loop->index }}</td>
                             <td class="fw-semibold">{{ $item->asl_ref_no }}</td>
                             <td>{{ $item->asl_lot_no }}</td>

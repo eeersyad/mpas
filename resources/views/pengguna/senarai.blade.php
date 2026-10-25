@@ -112,7 +112,13 @@
 
                 <tbody>
                     @forelse ($pengguna as $item)
-                        <tr>
+                        <tr
+                            class="baris-boleh-klik"
+                            data-baris-butiran-pengguna
+                            tabindex="0"
+                            role="button"
+                            aria-label="Lihat butiran pengguna {{ $item->usr_name }}"
+                        >
                             <td>{{ $pengguna->firstItem() + $loop->index }}</td>
 
                             <td>
@@ -143,6 +149,18 @@
 
                             <td class="text-end">
                                 <div class="d-inline-flex gap-2">
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-outline-secondary"
+                                        data-buka-butiran-pengguna
+                                        data-nama="{{ $item->usr_name }}"
+                                        data-peranan="{{ $item->usr_level }}"
+                                        data-status="{{ $item->usr_status === 'ACTIVE' ? 'Aktif' : 'Tidak Aktif' }}"
+                                        data-tarikh="{{ $item->created_at?->format('d/m/Y, h:i A') ?? '-' }}"
+                                        title="Lihat butiran pengguna"
+                                    >
+                                        <i class="bi bi-eye"></i>
+                                    </button>
                                     <a
                                         href="{{ route('pengguna.edit', $item) }}"
                                         class="btn btn-sm btn-outline-primary"
@@ -185,5 +203,34 @@
         </div>
 
         <x-jadual :paginator="$pengguna" />
+    </div>
+    <div
+        class="modal fade"
+        id="modalButiranPengguna"
+        tabindex="-1"
+        aria-labelledby="tajukModalButiranPengguna"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <div>
+                        <p class="teks-kecil mb-1">MAKLUMAT PENGGUNA</p>
+                        <h5 class="modal-title" id="tajukModalButiranPengguna">
+                            Butiran Pengguna
+                        </h5>
+                    </div>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Tutup"
+                    ></button>
+                </div>
+
+                <div class="modal-body" data-kandungan-butiran-pengguna></div>
+            </div>
+        </div>
     </div>
 @endsection

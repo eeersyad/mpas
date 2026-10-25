@@ -686,6 +686,114 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    const pemilihTindakanJadual = 'a, button, input, select, textarea, label, form';
+
+    const aktifkanBarisJadual = (baris, tindakan) => {
+        baris.addEventListener('click', (event) => {
+            if (event.target.closest(pemilihTindakanJadual)) {
+                return;
+            }
+
+            tindakan();
+        });
+
+        baris.addEventListener('keydown', (event) => {
+            if (event.key !== 'Enter' && event.key !== ' ') {
+                return;
+            }
+
+            event.preventDefault();
+            tindakan();
+        });
+    };
+
+    document.querySelectorAll('[data-baris-butiran]').forEach((baris) => {
+        aktifkanBarisJadual(baris, () => {
+            baris.querySelector('[data-buka-butiran]')?.click();
+        });
+    });
+
+    document.querySelectorAll('[data-baris-pautan]').forEach((baris) => {
+        aktifkanBarisJadual(baris, () => {
+            window.location.href = baris.dataset.url;
+        });
+    });
+
+    const modalButiranPengguna = document.querySelector(
+        '#modalButiranPengguna'
+    );
+
+    const kandunganButiranPengguna = modalButiranPengguna?.querySelector(
+        '[data-kandungan-butiran-pengguna]'
+    );
+
+    const teksSelamat = (nilai) =>
+        String(nilai ?? '-').replace(/[&<>"']/g, (aksara) => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;',
+        })[aksara]);
+
+    const bukaButiranPengguna = (butang) => {
+        if (!modalButiranPengguna || !kandunganButiranPengguna) {
+            return;
+        }
+
+        kandunganButiranPengguna.innerHTML = `
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div class="avatar-pengguna">
+                    ${teksSelamat(butang.dataset.nama).charAt(0).toUpperCase()}
+                </div>
+
+                <div>
+                    <h5 class="mb-1">${teksSelamat(butang.dataset.nama)}</h5>
+                    <span class="text-secondary">Rekod pengguna sistem</span>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-6">
+                    <div class="border rounded-3 p-3 bg-light h-100">
+                        <small class="text-secondary d-block mb-1">Peranan</small>
+                        <strong>${teksSelamat(butang.dataset.peranan)}</strong>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="border rounded-3 p-3 bg-light h-100">
+                        <small class="text-secondary d-block mb-1">Status Akaun</small>
+                        <strong>${teksSelamat(butang.dataset.status)}</strong>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="border rounded-3 p-3 bg-light">
+                        <small class="text-secondary d-block mb-1">Tarikh Daftar</small>
+                        <strong>${teksSelamat(butang.dataset.tarikh)}</strong>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        bootstrap.Modal
+            .getOrCreateInstance(modalButiranPengguna)
+            .show();
+    };
+
+    document.querySelectorAll('[data-buka-butiran-pengguna]').forEach((butang) => {
+        butang.addEventListener('click', () => {
+            bukaButiranPengguna(butang);
+        });
+    });
+
+    document.querySelectorAll('[data-baris-butiran-pengguna]').forEach((baris) => {
+        aktifkanBarisJadual(baris, () => {
+            baris.querySelector('[data-buka-butiran-pengguna]')?.click();
+        });
+    });
+
     /*
     |--------------------------------------------------------------------------
     | Kod QR

@@ -44,12 +44,12 @@
 
         <div class="col-md-6">
             <small class="teks-kecil d-block">Status Hakmilik</small>
-            <span>{{ $tanah->asl_status_hakmilik ? str_replace('_', ' ', $tanah->asl_status_hakmilik) : '-' }}</span>
+            <span>{{ $tanah->asl_status_hakmilik ? \App\Support\Paparan::label($tanah->asl_status_hakmilik) : '-' }}</span>
         </div>
 
         <div class="col-md-4">
             <small class="teks-kecil d-block">Jenis Hakmilik</small>
-            <span>{{ $tanah->asl_hakmilik_type ? str_replace('_', ' ', $tanah->asl_hakmilik_type) : '-' }}</span>
+            <span>{{ $tanah->asl_hakmilik_type ? \App\Support\Paparan::label($tanah->asl_hakmilik_type) : '-' }}</span>
         </div>
 
         <div class="col-md-4">

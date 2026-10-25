@@ -16,6 +16,10 @@
     </div>
 
     <div class="row g-3 g-md-4">
+        @php
+            // Tukar kepada false selepas selesai screenshot.
+            $paparCartaDemo = false;
+        @endphp
         @if (in_array($user->usr_level, ['SYSTEM', 'BPH']))
             <div class="col-12 col-md-6 col-xl-3">
                 <a
@@ -148,49 +152,89 @@
 
     @if (in_array($user->usr_level, ['SYSTEM', 'BPH']))
         <div class="row g-3 g-md-4 mt-1">
-            <div class="col-12 col-xl-6">
-                <div class="kad-dashboard h-100">
-                    <div class="d-flex flex-column flex-sm-row justify-content-between gap-2 mb-4">
-                        <div>
-                            <p class="teks-kecil mb-1">ASET BANGUNAN</p>
-                            <h2 class="tajuk-kad-dashboard mb-0">
-                                Status Premis Bangunan
-                            </h2>
+            @if ($paparCartaDemo)
+                {{-- Carta demo sementara untuk screenshot --}}
+                <div class="col-12 col-xl-6">
+                    <div class="kad-dashboard h-100">
+                        <div class="d-flex flex-column flex-sm-row justify-content-between gap-2 mb-4">
+                            <div>
+                                <p class="teks-kecil mb-1">ASET BANGUNAN</p>
+                                <h2 class="tajuk-kad-dashboard mb-0">Status Premis Bangunan</h2>
+                            </div>
+
+                            <span class="lencana-dashboard">
+                                <i class="bi bi-buildings-fill"></i>
+                                701 aset
+                            </span>
                         </div>
 
-                        <span class="lencana-dashboard">
-                            <i class="bi bi-buildings-fill"></i>
-                            {{ $ringkasan['bangunan'] }} aset
-                        </span>
-                    </div>
-
-                    <div class="ruang-carta-bar">
-                        <canvas id="cartaBangunan"></canvas>
+                        <div class="ruang-carta-bar">
+                            <canvas id="cartaBangunanDemo"></canvas>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="col-12 col-xl-6">
-                <div class="kad-dashboard h-100">
-                    <div class="d-flex flex-column flex-sm-row justify-content-between gap-2 mb-4">
-                        <div>
-                            <p class="teks-kecil mb-1">ASET TANAH</p>
-                            <h2 class="tajuk-kad-dashboard mb-0">
-                                Jenis Hakmilik Tanah
-                            </h2>
+                <div class="col-12 col-xl-6">
+                    <div class="kad-dashboard h-100">
+                        <div class="d-flex flex-column flex-sm-row justify-content-between gap-2 mb-4">
+                            <div>
+                                <p class="teks-kecil mb-1">ASET TANAH</p>
+                                <h2 class="tajuk-kad-dashboard mb-0">Jenis Hakmilik Tanah</h2>
+                            </div>
+
+                            <span class="lencana-dashboard">
+                                <i class="bi bi-map-fill"></i>
+                                112 aset
+                            </span>
                         </div>
 
-                        <span class="lencana-dashboard">
-                            <i class="bi bi-map-fill"></i>
-                            {{ $ringkasan['tanah'] }} aset
-                        </span>
-                    </div>
-
-                    <div class="ruang-carta-bar">
-                        <canvas id="cartaTanah"></canvas>
+                        <div class="ruang-carta-bar">
+                            <canvas id="cartaTanahDemo"></canvas>
+                        </div>
                     </div>
                 </div>
-            </div>
+            @else
+                {{-- Carta sebenar daripada database --}}
+                <div class="col-12 col-xl-6">
+                    <div class="kad-dashboard h-100">
+                        <div class="d-flex flex-column flex-sm-row justify-content-between gap-2 mb-4">
+                            <div>
+                                <p class="teks-kecil mb-1">ASET BANGUNAN</p>
+                                <h2 class="tajuk-kad-dashboard mb-0">Status Premis Bangunan</h2>
+                            </div>
+
+                            <span class="lencana-dashboard">
+                                <i class="bi bi-buildings-fill"></i>
+                                {{ $ringkasan['bangunan'] }} aset
+                            </span>
+                        </div>
+
+                        <div class="ruang-carta-bar">
+                            <canvas id="cartaBangunan"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-xl-6">
+                    <div class="kad-dashboard h-100">
+                        <div class="d-flex flex-column flex-sm-row justify-content-between gap-2 mb-4">
+                            <div>
+                                <p class="teks-kecil mb-1">ASET TANAH</p>
+                                <h2 class="tajuk-kad-dashboard mb-0">Jenis Hakmilik Tanah</h2>
+                            </div>
+
+                            <span class="lencana-dashboard">
+                                <i class="bi bi-map-fill"></i>
+                                {{ $ringkasan['tanah'] }} aset
+                            </span>
+                        </div>
+
+                        <div class="ruang-carta-bar">
+                            <canvas id="cartaTanah"></canvas>
+                        </div>
+                    </div>
+                </div>
+            @endif
 
             <div class="col-12 col-xl-5 align-self-start">
                 <div class="kad-dashboard">
@@ -426,6 +470,15 @@
         document.addEventListener('DOMContentLoaded', () => {
             const dataBangunan = @json($cartaBangunan);
             const dataTanah = @json($cartaTanah);
+            const dataBangunanDemo = {
+                label: ['Sewa', 'Tidak Disewa', 'Kegunaan MDM', 'Dilupus'],
+                nilai: [600, 76, 10, 15],
+            };
+
+            const dataTanahDemo = {
+                label: ['Sewa', 'Tidak Disewa', 'Pajak', 'Tidak Dipajak', 'Kegunaan MDM'],
+                nilai: [80, 11, 4, 5, 12],
+            };
             const dataSkor = @json($skorAset);
             const lokasiAset = @json($lokasiAset);
             const dataStatusTanah = @json($cartaStatusTanah);
@@ -512,7 +565,7 @@
 
                             if (kanvas) {
                                 kanvas.style.cursor =
-                                    elemenDipilih.length > 0 ? 'pointer' : 'default';
+                                    tetapanKlik && elemenDipilih.length > 0 ? 'pointer' : 'default';
                             }
                         },
 
@@ -545,25 +598,39 @@
                 });
             };
 
-            binaCartaBar(
-                '#cartaBangunan',
-                dataBangunan,
-                warnaMengikutStatus(dataBangunan),
-                {
-                    pautan: pautanBangunan,
-                    namaPenapis: 'status_premis',
-                }
-            );
+            @if ($paparCartaDemo)
+                binaCartaBar(
+                    '#cartaBangunanDemo',
+                    dataBangunanDemo,
+                    warnaMengikutStatus(dataBangunanDemo)
+                );
 
-            binaCartaBar(
-                '#cartaTanah',
-                dataTanah,
-                warnaMengikutStatus(dataTanah),
-                {
-                    pautan: pautanTanah,
-                    namaPenapis: 'jenis_hakmilik',
-                }
-            );
+                binaCartaBar(
+                    '#cartaTanahDemo',
+                    dataTanahDemo,
+                    warnaMengikutStatus(dataTanahDemo)
+                );
+            @else
+                binaCartaBar(
+                    '#cartaBangunan',
+                    dataBangunan,
+                    warnaMengikutStatus(dataBangunan),
+                    {
+                        pautan: pautanBangunan,
+                        namaPenapis: 'status_premis',
+                    }
+                );
+
+                binaCartaBar(
+                    '#cartaTanah',
+                    dataTanah,
+                    warnaMengikutStatus(dataTanah),
+                    {
+                        pautan: pautanTanah,
+                        namaPenapis: 'jenis_hakmilik',
+                    }
+                );
+            @endif
             binaCartaBar(
                 '#cartaStatusTanah',
                 dataStatusTanah,

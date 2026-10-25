@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class SimpanBangunanRequest extends FormRequest
 {
@@ -28,7 +29,18 @@ class SimpanBangunanRequest extends FormRequest
             'asb_add2' => ['nullable', 'string', 'max:255'],
             'asb_postcode' => ['nullable', 'string', 'max:10'],
             'asb_distinct' => ['nullable', 'string', 'max:100'],
-            'asb_mukim' => ['nullable', 'string', 'max:100'],
+            'asb_mukim' => [
+                'nullable',
+                'string',
+                Rule::in([
+                    'Alor Limbat',
+                    'Bukit Payung',
+                    'Jerong',
+                    'Merchang',
+                    'Pulau Kerengga',
+                    'Rusila',
+                ]),
+            ],
             'asb_city' => ['nullable', 'string', 'max:100'],
             'asb_state' => ['nullable', 'string', 'max:100'],
             'asb_country' => ['nullable', 'string', 'max:100'],

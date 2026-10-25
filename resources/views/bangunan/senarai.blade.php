@@ -125,7 +125,13 @@
 
                 <tbody>
                     @forelse ($bangunan as $item)
-                        <tr>
+                        <tr
+                            class="baris-boleh-klik"
+                            data-baris-butiran
+                            tabindex="0"
+                            role="button"
+                            aria-label="Lihat butiran {{ $item->asb_name }}"
+                        >
                             <td>{{ $bangunan->firstItem() + $loop->index }}</td>
 
                             <td class="fw-semibold">{{ $item->asb_ref_no }}</td>

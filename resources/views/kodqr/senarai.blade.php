@@ -92,7 +92,14 @@
 
                 <tbody>
                     @forelse ($bangunan as $item)
-                        <tr>
+                        <tr
+                            class="baris-boleh-klik"
+                            data-baris-pautan
+                            data-url="{{ route('kodqr.show', $item) }}"
+                            tabindex="0"
+                            role="link"
+                            aria-label="Lihat kod QR {{ $item->asb_name }}"
+                        >
                             <td>{{ $bangunan->firstItem() + $loop->index }}</td>
 
                             <td class="fw-semibold">{{ $item->asb_ref_no }}</td>
