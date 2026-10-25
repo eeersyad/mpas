@@ -8,6 +8,7 @@ use App\Models\DokumenTanah;
 use App\Models\Tanah;
 use App\Services\Rujukan;
 use App\Support\Jadual;
+use App\Support\Susunan;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -27,6 +28,20 @@ class PengurusanTanahController extends Controller
         $statusHakmilik = $request->input('status_hakmilik');
         $jenisHakmilik = $request->input('jenis_hakmilik');
 
+        [$kolumSusunan, $arahSusunan] = Susunan::dapatkan(
+            $request,
+            [
+                'rujukan' => 'asl_ref_no',
+                'lot' => 'asl_lot_no',
+                'lokasi' => 'asl_location',
+                'keluasan' => 'asl_land_size',
+                'status_hakmilik' => 'asl_status_hakmilik',
+                'jenis_hakmilik' => 'asl_hakmilik_type',
+                'terkini' => 'asl_id',
+            ],
+            'terkini'
+        );
+
         $tanah = Tanah::query()
             ->with('aset')
             ->when($cari !== '', function ($query) use ($cari): void {
@@ -45,7 +60,7 @@ class PengurusanTanahController extends Controller
                 $jenisHakmilik,
                 fn ($query, $jenis) => $query->where('asl_hakmilik_type', $jenis)
             )
-            ->latest('asl_id')
+            ->orderBy($kolumSusunan, $arahSusunan)
             ->paginate($had)
             ->withQueryString();
 

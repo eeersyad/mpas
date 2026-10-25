@@ -88,15 +88,21 @@ class AduanAwamController extends Controller
             }
         }
 
+        $reporterName = $data['jenis_pengadu'] === 'ORANG_AWAM'
+            ? $data['cmp_reporter_name']
+            : null;
+
         $aduan = DB::transaction(function () use (
             $request,
             $kodBangunan,
             $data,
-            $tenantId
+            $tenantId,
+            $reporterName
         ): Aduan {
             $aduan = Aduan::create([
                 'asb_id' => $kodBangunan->asb_id,
                 'tnt_id' => $tenantId,
+                'cmp_reporter_name' => $reporterName,
                 'cmp_received_date' => now(),
                 'cmp_note' => $data['cmp_note'],
                 'cmp_damage_type' => $data['cmp_damage_type'],
@@ -110,7 +116,11 @@ class AduanAwamController extends Controller
                 'BELAKANG',
             ];
 
-            foreach ($request->file('gambar', []) as $indeks => $gambar) {
+            $gambarDimuatNaik = collect($request->file('gambar', []))
+                ->filter()
+                ->values();
+
+            foreach ($gambarDimuatNaik as $indeks => $gambar) {
                 $laluan = $gambar->store(
                     'aduan/' . $aduan->cmp_id,
                     'public'

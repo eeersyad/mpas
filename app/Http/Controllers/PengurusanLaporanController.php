@@ -8,6 +8,7 @@ use App\Models\Bangunan;
 use App\Models\Tanah;
 use App\Support\Jadual;
 use App\Support\Paparan;
+use App\Support\Susunan;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -91,6 +92,19 @@ class PengurusanLaporanController extends Controller
     {
         $cari = trim((string) $request->input('cari', ''));
 
+        [$kolumSusunan, $arahSusunan] = Susunan::dapatkan(
+            $request,
+            [
+                'rujukan' => 'asb_ref_no',
+                'nama' => 'asb_name',
+                'status_premis' => 'asb_premise_status',
+                'penyelenggaraan' => 'asb_maintenance_status',
+                'penyewa' => 'penyewa_aktif_count',
+                'terkini' => 'asb_id',
+            ],
+            'terkini'
+        );
+
         return Bangunan::query()
             ->withCount([
                 'penyewa as penyewa_aktif_count' => fn ($query) => $query
@@ -117,12 +131,26 @@ class PengurusanLaporanController extends Controller
                     $request->string('status_penyelenggaraan')->toString()
                 )
             )
-            ->latest('asb_id');
+            ->orderBy($kolumSusunan, $arahSusunan);
     }
 
     private function queryTanah(Request $request)
     {
         $cari = trim((string) $request->input('cari', ''));
+
+        [$kolumSusunan, $arahSusunan] = Susunan::dapatkan(
+            $request,
+            [
+                'rujukan' => 'asl_ref_no',
+                'lot' => 'asl_lot_no',
+                'lokasi' => 'asl_location',
+                'status_hakmilik' => 'asl_status_hakmilik',
+                'jenis_hakmilik' => 'asl_hakmilik_type',
+                'keluasan' => 'asl_land_size',
+                'terkini' => 'asl_id',
+            ],
+            'terkini'
+        );
 
         return Tanah::query()
             ->when($cari !== '', function ($query) use ($cari): void {
@@ -147,12 +175,25 @@ class PengurusanLaporanController extends Controller
                     $request->string('jenis_hakmilik')->toString()
                 )
             )
-            ->latest('asl_id');
+            ->orderBy($kolumSusunan, $arahSusunan);
     }
 
     private function queryAduan(Request $request, bool $penyelenggaraan)
     {
         $cari = trim((string) $request->input('cari', ''));
+
+        [$kolumSusunan, $arahSusunan] = Susunan::dapatkan(
+            $request,
+            [
+                'tarikh' => 'cmp_received_date',
+                'aset' => 'aset_bangunan',
+                'kerosakan' => 'cmp_damage_type',
+                'pengadu' => 'nama_pengadu',
+                'status' => 'cmp_status',
+                'terkini' => 'cmp_received_date',
+            ],
+            'terkini'
+        );
 
         return Aduan::query()
             ->with(['bangunan', 'penyewa'])
@@ -209,7 +250,32 @@ class PengurusanLaporanController extends Controller
                     $request->input('tarikh_tamat')
                 )
             )
-            ->latest('cmp_received_date');
+            ->when(
+                $kolumSusunan === 'aset_bangunan',
+                fn ($query) => $query->orderBy(
+                    Bangunan::select('asb_name')
+                        ->whereColumn('assets_building.asb_id', 'complaint.asb_id'),
+                    $arahSusunan
+                )
+            )
+            ->when(
+                $kolumSusunan === 'nama_pengadu',
+                fn ($query) => $query->orderByRaw(
+                    "COALESCE(
+                        (
+                            SELECT tnt_name
+                            FROM asb_tenant
+                            WHERE asb_tenant.tnt_id = complaint.tnt_id
+                        ),
+                        complaint.cmp_reporter_name,
+                        'Orang Awam'
+                    ) {$arahSusunan}"
+                )
+            )
+            ->when(
+                ! in_array($kolumSusunan, ['aset_bangunan', 'nama_pengadu'], true),
+                fn ($query) => $query->orderBy($kolumSusunan, $arahSusunan)
+            );
     }
 
     private function dataEksport(string $jenis, Collection $rekod): array
@@ -274,7 +340,9 @@ class PengurusanLaporanController extends Controller
                     $item->bangunan?->asb_name ?? '-',
                     $item->bangunan?->asb_ref_no ?? '-',
                     Paparan::label($item->cmp_damage_type),
-                    $item->tnt_id ? 'Penyewa' : 'Orang Awam',
+                    $item->penyewa?->tnt_name
+                        ?? $item->cmp_reporter_name
+                        ?? 'Orang Awam',
                     Paparan::label($item->cmp_status),
                     $item->cmp_maintenance_date?->format('d/m/Y') ?? '-',
                 ])->all(),
@@ -374,7 +442,7 @@ class PengurusanLaporanController extends Controller
                     'DITERIMA',
                     'DALAM_PENYELENGGARAAN',
                 ])->count(),
-                'label_jumlah' => 'aduan aktif',
+                'label_jumlah' => 'aduan dalam penyelenggaraan',
             ];
         }
 

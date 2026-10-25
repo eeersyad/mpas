@@ -102,12 +102,12 @@
                 <thead>
                     <tr>
                         <th>Bil.</th>
-                        <th>No. Rujukan</th>
-                        <th>No. Lot</th>
-                        <th>Lokasi</th>
-                        <th>Keluasan</th>
-                        <th>Status Hakmilik</th>
-                        <th>Jenis Hakmilik</th>
+                        <th><x-susun medan="rujukan" label="No. Rujukan" /></th>
+                        <th><x-susun medan="lot" label="No. Lot" /></th>
+                        <th><x-susun medan="lokasi" label="Lokasi" /></th>
+                        <th><x-susun medan="keluasan" label="Keluasan" /></th>
+                        <th><x-susun medan="status_hakmilik" label="Status Hakmilik" /></th>
+                        <th><x-susun medan="jenis_hakmilik" label="Jenis Hakmilik" /></th>
                         <th class="text-end">Tindakan</th>
                     </tr>
                 </thead>
@@ -125,7 +125,7 @@
                             <td class="fw-semibold">{{ $item->asl_ref_no }}</td>
                             <td>{{ $item->asl_lot_no }}</td>
                             <td>{{ $item->asl_location }}</td>
-                            <td>{{ number_format($item->asl_land_size, 2) }}</td>
+                            <td>{{ number_format($item->asl_land_size, 2) }} m²</td>
                             <td>
                                 <span class="lencana-jadual biru">
                                     {{ \App\Support\Paparan::label($item->asl_status_hakmilik) }}

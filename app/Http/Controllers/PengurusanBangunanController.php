@@ -9,6 +9,7 @@ use App\Models\DokumenBangunan;
 use App\Services\Rujukan;
 use App\Services\KodQr;
 use App\Support\Jadual;
+use App\Support\Susunan;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
@@ -27,8 +28,25 @@ class PengurusanBangunanController extends Controller
         $statusPremis = $request->input('status_premis');
         $statusPenyelenggaraan = $request->input('status_penyelenggaraan');
 
+        [$kolumSusunan, $arahSusunan] = Susunan::dapatkan(
+            $request,
+            [
+                'rujukan' => 'asb_ref_no',
+                'nama' => 'asb_name',
+                'kategori' => 'asb_category',
+                'status_premis' => 'asb_premise_status',
+                'penyelenggaraan' => 'asb_maintenance_status',
+                'penyewa' => 'penyewa_aktif_count',
+                'terkini' => 'asb_id',
+            ],
+            'terkini'
+        );
+
         $bangunan = Bangunan::query()
-            ->with('penyewa')
+            ->withCount([
+                'penyewa as penyewa_aktif_count' => fn ($query) => $query
+                    ->where('tnt_status', 'AKTIF'),
+            ])
             ->when($cari !== '', function ($query) use ($cari): void {
                 $query->where(function ($query) use ($cari): void {
                     $query->where('asb_ref_no', 'like', "%{$cari}%")
@@ -45,7 +63,7 @@ class PengurusanBangunanController extends Controller
                 $statusPenyelenggaraan,
                 fn ($query, $status) => $query->where('asb_maintenance_status', $status)
             )
-            ->latest('asb_id')
+            ->orderBy($kolumSusunan, $arahSusunan)
             ->paginate($had)
             ->withQueryString();
 
@@ -177,6 +195,9 @@ class PengurusanBangunanController extends Controller
         $senaraiDokumen = $data['dokumen'] ?? [];
 
         unset($data['penyewa'], $data['dokumen']);
+        
+        $data['asb_distinct'] = 'Marang';
+        $data['asb_state'] = 'Terengganu';
 
         $kosAsal = $data['asb_kos_siap_bina_asal'] ?? null;
         $kosTambahan = $data['asb_kos_tambahan'] ?? null;

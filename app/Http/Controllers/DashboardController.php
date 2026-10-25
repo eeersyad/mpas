@@ -207,6 +207,30 @@ class DashboardController extends Controller
                     (int) ($jumlahJenisHakmilik['KEKAL'] ?? 0),
                 ],
             ];
+
+            $lokasiAset = Tanah::query()
+                ->whereNotNull('asl_latitude')
+                ->whereNotNull('asl_longitude')
+                ->whereBetween('asl_latitude', [-90, 90])
+                ->whereBetween('asl_longitude', [-180, 180])
+                ->get([
+                    'asl_ref_no',
+                    'asl_lot_no',
+                    'asl_location',
+                    'asl_latitude',
+                    'asl_longitude',
+                ])
+                ->map(fn ($item) => [
+                    'jenis' => 'Tanah',
+                    'rujukan' => $item->asl_ref_no,
+                    'nama' => $item->asl_lot_no
+                        ? 'Lot ' . $item->asl_lot_no
+                        : 'Aset Tanah',
+                    'lokasi' => $item->asl_location,
+                    'latitud' => (float) $item->asl_latitude,
+                    'longitud' => (float) $item->asl_longitude,
+                ])
+                ->values();
         }
 
         if ($user->usr_level === 'KJ') {

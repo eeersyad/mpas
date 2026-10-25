@@ -98,10 +98,10 @@
                 <thead>
                     <tr>
                         <th>Bil.</th>
-                        <th>Tarikh Aduan</th>
-                        <th>Aset Bangunan</th>
-                        <th>Jenis Kerosakan</th>
-                        <th>Status</th>
+                        <th><x-susun medan="tarikh" label="Tarikh Aduan" /></th>
+                        <th><x-susun medan="aset" label="Aset Bangunan" /></th>
+                        <th><x-susun medan="kerosakan" label="Jenis Kerosakan" /></th>
+                        <th><x-susun medan="status" label="Status" /></th>
                         <th class="text-end">Tindakan</th>
                     </tr>
                 </thead>

@@ -109,8 +109,14 @@
 
                     <div class="col-12 col-md-3">
                         <label class="form-label fw-semibold">Daerah</label>
-                        <input type="text" name="asb_distinct" class="form-control"
-                            value="{{ old('asb_distinct', $bangunan?->asb_distinct) }}">
+                        <input
+                            type="text"
+                            name="asb_distinct"
+                            class="form-control bg-light"
+                            value="Marang"
+                            readonly
+                            aria-readonly="true"
+                        >
                     </div>
 
                     <div class="col-12 col-md-3">
@@ -153,8 +159,14 @@
 
                     <div class="col-12 col-md-3">
                         <label class="form-label fw-semibold">Negeri</label>
-                        <input type="text" name="asb_state" class="form-control"
-                            value="{{ old('asb_state', $bangunan?->asb_state) }}">
+                        <input
+                            type="text"
+                            name="asb_state"
+                            class="form-control bg-light"
+                            value="Terengganu"
+                            readonly
+                            aria-readonly="true"
+                        >
                     </div>
 
                     <div class="col-12">
@@ -242,9 +254,19 @@
 
                 <div class="row g-4">
                     <div class="col-12 col-md-6">
-                        <label class="form-label fw-semibold">Keluasan Bangunan (m²)</label>
-                        <input type="number" min="0" step="0.01" name="asb_size" class="form-control"
-                            value="{{ old('asb_size', $bangunan?->asb_size) }}">
+                        <label class="form-label fw-semibold">Keluasan Bangunan</label>
+
+                        <div class="input-group">
+                            <input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                name="asb_size"
+                                class="form-control"
+                                value="{{ old('asb_size', $bangunan?->asb_size) }}"
+                            >
+                            <span class="input-group-text">m²</span>
+                        </div>
                     </div>
 
                     <div class="col-12 col-md-6 d-flex align-items-end">

@@ -632,12 +632,54 @@ document.addEventListener('DOMContentLoaded', () => {
         kemaskiniPaparan();
     }
 
-        /*
+    /*
     |--------------------------------------------------------------------------
     | Modal butiran aset
     |--------------------------------------------------------------------------
     */
     const modalButiranAset = document.querySelector('#modalButiranAset');
+    const aktifkanTabButiran = (bekas) => {
+        const butangTab = [
+            ...bekas.querySelectorAll('[data-tab-butiran-butang]'),
+        ];
+
+        const panelTab = [
+            ...bekas.querySelectorAll('[data-tab-butiran-panel]'),
+        ];
+
+        if (!butangTab.length || !panelTab.length) {
+            return;
+        }
+
+        const bukaTab = (nomborTab) => {
+            butangTab.forEach((butang) => {
+                const aktif = butang.dataset.tabButiranButang === nomborTab;
+
+                butang.classList.toggle('aktif', aktif);
+                butang.setAttribute('aria-selected', aktif ? 'true' : 'false');
+            });
+
+            panelTab.forEach((panel) => {
+                const aktif = panel.dataset.tabButiranPanel === nomborTab;
+
+                panel.classList.toggle('aktif', aktif);
+                panel.hidden = !aktif;
+            });
+
+            bekas.querySelector('.modal-body')?.scrollTo({
+                top: 0,
+                behavior: 'smooth',
+            });
+        };
+
+        butangTab.forEach((butang) => {
+            butang.addEventListener('click', () => {
+                bukaTab(butang.dataset.tabButiranButang);
+            });
+        });
+
+        bukaTab(butangTab[0].dataset.tabButiranButang);
+    };
     const kandunganModalAset = modalButiranAset?.querySelector(
         '[data-kandungan-modal]'
     );
@@ -672,6 +714,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 kandunganModalAset.innerHTML = await respons.text();
+                aktifkanTabButiran(kandunganModalAset);
             } catch (ralat) {
                 kandunganModalAset.innerHTML = `
                     <div class="modal-body text-center py-5">
@@ -943,6 +986,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 'select.kawalan-penapis'
             );
 
+            const medanTarikh = borang.querySelectorAll(
+                'input[type="date"].kawalan-penapis'
+            );
+
+            medanTarikh.forEach((medan) => {
+                medan.addEventListener('change', hantarCarian);
+            });
+
             dropdownPenapis.forEach((dropdown) => {
                 dropdown.addEventListener('change', hantarCarian);
             });
@@ -961,6 +1012,74 @@ document.addEventListener('DOMContentLoaded', () => {
                     hantarCarian();
                 }
             });
+        });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Papar atau sorok kata laluan
+    |--------------------------------------------------------------------------
+    */
+    document
+        .querySelectorAll('[data-togol-kata-laluan]')
+        .forEach((butang) => {
+            const input = document.querySelector(
+                butang.dataset.togolKataLaluan
+            );
+
+            if (!input) {
+                return;
+            }
+
+            butang.addEventListener('click', () => {
+                const sedangDisorok = input.type === 'password';
+
+                input.type = sedangDisorok ? 'text' : 'password';
+                butang.setAttribute(
+                    'aria-label',
+                    sedangDisorok
+                        ? 'Sorok kata laluan'
+                        : 'Papar kata laluan'
+                );
+                butang.setAttribute(
+                    'title',
+                    sedangDisorok
+                        ? 'Sorok kata laluan'
+                        : 'Papar kata laluan'
+                );
+
+                butang.querySelector('i').className = sedangDisorok
+                    ? 'bi bi-eye-slash'
+                    : 'bi bi-eye';
+            });
+        });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Suis status akaun pengguna
+    |--------------------------------------------------------------------------
+    */
+    document
+        .querySelectorAll('[data-suis-status-wrapper]')
+        .forEach((wrapper) => {
+            const suis = wrapper.querySelector('[data-suis-status]');
+            const nilai = wrapper.querySelector('[data-nilai-status]');
+            const label = wrapper.querySelector('[data-label-status]');
+            const penerangan = wrapper.querySelector('[data-penerangan-status]');
+
+            const kemaskiniStatus = () => {
+                const aktif = suis.checked;
+
+                nilai.value = aktif ? 'ACTIVE' : 'INACTIVE';
+                wrapper.classList.toggle('aktif', aktif);
+                wrapper.classList.toggle('tidak-aktif', !aktif);
+
+                label.textContent = aktif ? 'Akaun Aktif' : 'Akaun Tidak Aktif';
+                penerangan.textContent = aktif
+                    ? 'Pengguna boleh mengakses sistem.'
+                    : 'Akses pengguna disekat buat sementara waktu.';
+            };
+
+            suis.addEventListener('change', kemaskiniStatus);
         });
 
     /*

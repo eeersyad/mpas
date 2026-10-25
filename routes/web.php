@@ -33,8 +33,8 @@ Route::middleware('throttle:20,1')->group(function () {
         ->name('aduan.awam.store');
 });
 
-//KUMPULAN SYSTEM, BPH
-Route::middleware('peranan:SYSTEM,BPH')->group(function () {
+// KUMPULAN SYSTEM
+Route::middleware('peranan:SYSTEM')->group(function () {
     Route::get('/pengguna', [PengurusanPenggunaController::class, 'index'])
         ->name('pengguna.index');
 
@@ -52,7 +52,10 @@ Route::middleware('peranan:SYSTEM,BPH')->group(function () {
 
     Route::delete('/pengguna/{pengguna}', [PengurusanPenggunaController::class, 'destroy'])
         ->name('pengguna.destroy');
+});
 
+// KUMPULAN SYSTEM, BPH
+Route::middleware('peranan:SYSTEM,BPH')->group(function () {
     Route::get('/kod-qr', [PengurusanKodQrController::class, 'index'])
         ->name('kodqr.index');
 

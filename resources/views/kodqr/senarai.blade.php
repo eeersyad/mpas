@@ -53,10 +53,6 @@
                     <option value="INACTIVE" @selected(request('status_qr') === 'INACTIVE')>
                         Tidak Aktif
                     </option>
-
-                    <option value="TIADA" @selected(request('status_qr') === 'TIADA')>
-                        Belum Dijana
-                    </option>
                 </select>
             </div>
 
@@ -82,10 +78,10 @@
                 <thead>
                     <tr>
                         <th>Bil.</th>
-                        <th>No. Rujukan</th>
-                        <th>Aset Bangunan</th>
-                        <th>Status QR</th>
-                        <th>Tarikh Dijana</th>
+                        <th><x-susun medan="rujukan" label="No. Rujukan" /></th>
+                        <th><x-susun medan="aset" label="Aset Bangunan" /></th>
+                        <th><x-susun medan="status" label="Status QR" /></th>
+                        <th><x-susun medan="tarikh" label="Tarikh Dijana" /></th>
                         <th class="text-end">Tindakan</th>
                     </tr>
                 </thead>

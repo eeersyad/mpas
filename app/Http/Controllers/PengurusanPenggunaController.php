@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Support\Jadual;
+use App\Support\Susunan;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -19,6 +20,18 @@ class PengurusanPenggunaController extends Controller
         $peranan = $request->input('peranan');
         $status = $request->input('status');
 
+        [$kolumSusunan, $arahSusunan] = Susunan::dapatkan(
+            $request,
+            [
+                'nama' => 'usr_name',
+                'peranan' => 'usr_level',
+                'status' => 'usr_status',
+                'tarikh' => 'created_at',
+            ],
+            'nama',
+            'asc'
+        );
+
         $pengguna = User::query()
             ->whereIn('usr_level', $this->perananDibenarkan())
             ->when(
@@ -33,8 +46,7 @@ class PengurusanPenggunaController extends Controller
                 $status,
                 fn ($query, $nilai) => $query->where('usr_status', $nilai)
             )
-            ->orderBy('usr_level')
-            ->orderBy('usr_name')
+            ->orderBy($kolumSusunan, $arahSusunan)
             ->paginate($had)
             ->withQueryString();
 

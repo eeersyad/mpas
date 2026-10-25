@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>@yield('tajuk', 'Aduan Aset') | MPAS</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -40,7 +41,7 @@
                 icon: 'success',
                 title: 'Aduan berjaya dihantar',
                 text: @json(session('berjaya')),
-                confirmButtonText: 'Faham',
+                confirmButtonText: 'OK',
                 confirmButtonColor: '#168A7E',
             });
         </script>

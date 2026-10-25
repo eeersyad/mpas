@@ -46,8 +46,20 @@
         </div>
     </div>
 
-    <form method="GET" class="panel-penapis mb-4">
+    <form
+        method="GET"
+        class="panel-penapis mb-4"
+        data-penapis-automatik
+    >
         <input type="hidden" name="had" value="{{ request('had', 15) }}">
+
+        @if (request()->filled('sort'))
+            <input type="hidden" name="sort" value="{{ request('sort') }}">
+        @endif
+
+        @if (request()->filled('direction'))
+            <input type="hidden" name="direction" value="{{ request('direction') }}">
+        @endif
 
         <div class="row g-3 align-items-end">
             @if (in_array($jenis, ['bangunan', 'tanah'], true))
@@ -210,10 +222,6 @@
 
             <div class="col-12 col-xl-3">
                 <div class="d-flex gap-2 tindakan-penapis">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-search me-1"></i>Jana Laporan
-                    </button>
-
                     <a href="{{ route('laporan.papar', $jenis) }}" class="btn btn-outline-secondary">
                         <i class="bi bi-arrow-counterclockwise me-1"></i>
                         Semula
@@ -230,30 +238,30 @@
                     @if ($jenis === 'bangunan')
                         <tr>
                             <th>Bil.</th>
-                            <th>No. Rujukan</th>
-                            <th>Nama Bangunan</th>
-                            <th>Status Premis</th>
-                            <th>Penyelenggaraan</th>
-                            <th>Penyewa Aktif</th>
+                            <th><x-susun medan="rujukan" label="No. Rujukan" /></th>
+                            <th><x-susun medan="nama" label="Nama Bangunan" /></th>
+                            <th><x-susun medan="status_premis" label="Status Premis" /></th>
+                            <th><x-susun medan="penyelenggaraan" label="Penyelenggaraan" /></th>
+                            <th><x-susun medan="penyewa" label="Penyewa Aktif" /></th>
                         </tr>
                     @elseif ($jenis === 'tanah')
                         <tr>
                             <th>Bil.</th>
-                            <th>No. Rujukan</th>
-                            <th>No. Lot</th>
-                            <th>Lokasi</th>
-                            <th>Status Hakmilik</th>
-                            <th>Jenis Hakmilik</th>
-                            <th>Keluasan</th>
+                            <th><x-susun medan="rujukan" label="No. Rujukan" /></th>
+                            <th><x-susun medan="lot" label="No. Lot" /></th>
+                            <th><x-susun medan="lokasi" label="Lokasi" /></th>
+                            <th><x-susun medan="status_hakmilik" label="Status Hakmilik" /></th>
+                            <th><x-susun medan="jenis_hakmilik" label="Jenis Hakmilik" /></th>
+                            <th><x-susun medan="keluasan" label="Keluasan" /></th>
                         </tr>
                     @else
                         <tr>
                             <th>Bil.</th>
-                            <th>Tarikh Aduan</th>
-                            <th>Aset Bangunan</th>
-                            <th>Jenis Kerosakan</th>
-                            <th>Pengadu</th>
-                            <th>Status</th>
+                            <th><x-susun medan="tarikh" label="Tarikh Aduan" /></th>
+                            <th><x-susun medan="aset" label="Aset Bangunan" /></th>
+                            <th><x-susun medan="kerosakan" label="Jenis Kerosakan" /></th>
+                            <th><x-susun medan="pengadu" label="Pengadu" /></th>
+                            <th><x-susun medan="status" label="Status" /></th>
                         </tr>
                     @endif
                 </thead>
@@ -296,7 +304,17 @@
                                     <small class="text-secondary">{{ $item->bangunan?->asb_ref_no ?? '-' }}</small>
                                 </td>
                                 <td>{{ \App\Support\Paparan::label($item->cmp_damage_type) }}</td>
-                                <td>{{ $item->tnt_id ? 'Penyewa' : 'Orang Awam' }}</td>
+                                <td>
+                                    <strong class="d-block">
+                                        {{ $item->penyewa?->tnt_name
+                                            ?? $item->cmp_reporter_name
+                                            ?? 'Orang Awam' }}
+                                    </strong>
+
+                                    <small class="text-secondary">
+                                        {{ $item->tnt_id ? 'Penyewa aset' : 'Orang Awam' }}
+                                    </small>
+                                </td>
                                 <td>{{ \App\Support\Paparan::label($item->cmp_status) }}</td>
                             </tr>
                         @endif

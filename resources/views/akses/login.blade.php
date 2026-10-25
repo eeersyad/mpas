@@ -58,7 +58,7 @@
                                 Kata Laluan
                             </label>
 
-                            <div class="input-group">
+                            <div class="input-group input-kata-laluan">
                                 <span class="input-group-text bg-white">
                                     <i class="bi bi-lock"></i>
                                 </span>
@@ -71,6 +71,16 @@
                                     autocomplete="current-password"
                                     required
                                 >
+
+                                <button
+                                    type="button"
+                                    class="btn butang-lihat-kata-laluan"
+                                    data-togol-kata-laluan="#password"
+                                    aria-label="Papar kata laluan"
+                                    title="Papar kata laluan"
+                                >
+                                    <i class="bi bi-eye"></i>
+                                </button>
                             </div>
 
                             @error('password')

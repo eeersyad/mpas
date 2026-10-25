@@ -102,10 +102,10 @@
                 <thead>
                     <tr>
                         <th>Bil.</th>
-                        <th>Nama Pengguna</th>
-                        <th>Peranan</th>
-                        <th>Status</th>
-                        <th>Tarikh Daftar</th>
+                        <th><x-susun medan="nama" label="Nama Pengguna" /></th>
+                        <th><x-susun medan="peranan" label="Peranan" /></th>
+                        <th><x-susun medan="status" label="Status" /></th>
+                        <th><x-susun medan="tarikh" label="Tarikh Daftar" /></th>
                         <th class="text-end">Tindakan</th>
                     </tr>
                 </thead>
@@ -168,25 +168,6 @@
                                     >
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
-
-                                    <form
-                                        method="POST"
-                                        action="{{ route('pengguna.destroy', $item) }}"
-                                        class="d-inline"
-                                        data-padam-pengguna
-                                        data-nama-pengguna="{{ $item->usr_name }}"
-                                    >
-                                        @csrf
-                                        @method('DELETE')
-
-                                        <button
-                                            type="submit"
-                                            class="btn btn-sm btn-outline-danger"
-                                            title="Padam pengguna"
-                                        >
-                                            <i class="bi bi-trash3"></i>
-                                        </button>
-                                    </form>
                                 </div>
                             </td>
                         </tr>

@@ -362,6 +362,31 @@
                     </div>
                 </div>
             </div>
+
+            <div class="col-12">
+                <div class="kad-dashboard">
+                    <div class="d-flex flex-column flex-sm-row justify-content-between gap-2 mb-4">
+                        <div>
+                            <p class="teks-kecil mb-1">LOKASI ASET TANAH</p>
+                            <h2 class="tajuk-kad-dashboard mb-0">Peta Aset Tanah MPAS</h2>
+                        </div>
+
+                        <span class="lencana-dashboard">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            {{ count($lokasiAset) }} lokasi
+                        </span>
+                    </div>
+
+                    <div id="petaAset" class="peta-aset"></div>
+
+                    <div class="petunjuk-peta mt-3">
+                        <span>
+                            <i class="bi bi-map-fill text-primary"></i>
+                            Aset Tanah
+                        </span>
+                    </div>
+                </div>
+            </div>
         </div>
 
     @elseif ($user->usr_level === 'KJ')
@@ -546,9 +571,16 @@
                         onClick: (_event, elemenDipilih) => {
                             const indeks = elemenDipilih[0]?.index;
                             const label = data.label?.[indeks];
-                            const nilai = nilaiPenapisStatus[label];
 
-                            if (!tetapanKlik || !nilai) {
+                            if (!tetapanKlik) {
+                                return;
+                            }
+
+                            const nilai =
+                                tetapanKlik.nilaiPenapis?.[label] ??
+                                nilaiPenapisStatus[label];
+
+                            if (!nilai) {
                                 return;
                             }
 
@@ -639,13 +671,27 @@
                     '#8FB7F7',
                     '#B9A3F5',
                     '#F6D58B',
-                ]
+                ],
+                {
+                    pautan: pautanTanah,
+                    namaPenapis: 'status_hakmilik',
+                    nilaiPenapis: {
+                        Hakmilik: 'HAKMILIK',
+                        Rizab: 'RIZAB',
+                        Strata: 'STRATA',
+                        'Lain-lain': 'LAIN_LAIN',
+                    },
+                }
             );
 
             binaCartaBar(
                 '#cartaJenisHakmilikTanah',
                 dataJenisHakmilikTanah,
-                warnaMengikutStatus(dataJenisHakmilikTanah)
+                warnaMengikutStatus(dataJenisHakmilikTanah),
+                {
+                    pautan: pautanTanah,
+                    namaPenapis: 'jenis_hakmilik',
+                }
             );
 
             const elemenCartaSkor = document.querySelector('#cartaSkorAset');

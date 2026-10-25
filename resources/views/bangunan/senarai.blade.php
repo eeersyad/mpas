@@ -110,15 +110,16 @@
 
     <div class="kad-data">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 jadual-sistem">
+            <table class="table table-hover align-middle mb-0 jadual-sistem jadual-bangunan">
                 <thead>
                     <tr>
                         <th>Bil.</th>
-                        <th>No. Rujukan</th>
-                        <th>Nama Bangunan</th>
-                        <th>Kategori</th>
-                        <th>Status Premis</th>
-                        <th>Penyewa Aktif</th>
+                        <th><x-susun medan="rujukan" label="No. Rujukan" /></th>
+                        <th><x-susun medan="nama" label="Nama Bangunan" /></th>
+                        <th><x-susun medan="kategori" label="Kategori" /></th>
+                        <th><x-susun medan="status_premis" label="Status Premis" /></th>
+                        <th><x-susun medan="penyelenggaraan" label="Status Penyelenggaraan" /></th>
+                        <th><x-susun medan="penyewa" label="Penyewa Aktif" /></th>
                         <th class="text-end">Tindakan</th>
                     </tr>
                 </thead>
@@ -165,10 +166,27 @@
                                 </span>
                             </td>
 
+                            @php
+                                $warnaPenyelenggaraan = match ($item->asb_maintenance_status) {
+                                    'RENDAH' => 'penyelenggaraan-rendah',
+                                    'SEDERHANA' => 'penyelenggaraan-sederhana',
+                                    'KRITIKAL' => 'penyelenggaraan-kritikal',
+                                    default => 'kelabu',
+                                };
+                            @endphp
+
+                            <td>
+                                <span class="lencana-jadual {{ $warnaPenyelenggaraan }}">
+                                    {{ $item->asb_maintenance_status
+                                        ? \App\Support\Paparan::label($item->asb_maintenance_status)
+                                        : '-' }}
+                                </span>
+                            </td>
+
                             <td>
                                 <span class="lencana-bilangan">
                                     <i class="bi bi-people"></i>
-                                    {{ $item->penyewa->where('tnt_status', 'AKTIF')->count() }} penyewa
+                                    {{ $item->penyewa_aktif_count }} penyewa
                                 </span>
                             </td>
 
@@ -195,7 +213,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="py-5 text-center">
+                            <td colspan="8" class="py-5 text-center">
                                 <i class="bi bi-buildings text-secondary fs-2 d-block mb-2"></i>
                                 <span class="text-secondary">Tiada aset bangunan didaftarkan.</span>
                             </td>

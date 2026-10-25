@@ -23,6 +23,7 @@ class Aduan extends Model
     protected $fillable = [
         'asb_id',
         'tnt_id',
+        'cmp_reporter_name',
         'cmp_received_date',
         'cmp_note',
         'cmp_damage_type',

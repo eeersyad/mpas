@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>@yield('tajuk', 'Dashboard') | MPAS</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -71,7 +72,7 @@
                 'label' => 'Pengguna',
                 'icon' => 'bi-people-fill',
                 'url' => route('pengguna.index'),
-                'roles' => ['SYSTEM', 'BPH'],
+                'roles' => ['SYSTEM'],
                 'active' => request()->routeIs('pengguna.*'),
             ],
             [
@@ -311,7 +312,7 @@
                 icon: 'success',
                 title: 'Berjaya',
                 text: @json(session('berjaya')),
-                confirmButtonText: 'Faham',
+                confirmButtonText: 'OK',
                 confirmButtonColor: '#168A7E',
             });
         </script>
@@ -323,7 +324,7 @@
                 icon: 'error',
                 title: 'Tidak berjaya',
                 text: @json(session('ralat')),
-                confirmButtonText: 'Faham',
+                confirmButtonText: 'OK',
                 confirmButtonColor: '#168A7E',
             });
         </script>

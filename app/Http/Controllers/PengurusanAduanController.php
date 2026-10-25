@@ -6,6 +6,8 @@ use App\Http\Requests\TolakAduanRequest;
 use App\Http\Requests\KemaskiniAduanRequest;
 use App\Models\Aduan;
 use App\Support\Jadual;
+use App\Models\Bangunan;
+use App\Support\Susunan;
 use App\Services\NotifikasiAduan;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -24,6 +26,18 @@ class PengurusanAduanController extends Controller
         $statusAduanAktif = $user->usr_level === 'KJ'
             ? ['DITERIMA', 'DALAM_PENYELENGGARAAN']
             : ['BARU', 'DITERIMA', 'DALAM_PENYELENGGARAAN'];
+
+        [$kolumSusunan, $arahSusunan] = Susunan::dapatkan(
+            $request,
+            [
+                'tarikh' => 'cmp_received_date',
+                'aset' => 'aset_bangunan',
+                'kerosakan' => 'cmp_damage_type',
+                'status' => 'cmp_status',
+                'terkini' => 'cmp_received_date',
+            ],
+            'terkini'
+        );
 
         $aduan = Aduan::query()
             ->with([
@@ -59,7 +73,15 @@ class PengurusanAduanController extends Controller
                     $request->string('status')->toString()
                 )
             )
-            ->latest('cmp_received_date')
+            ->when(
+                $kolumSusunan === 'aset_bangunan',
+                fn ($query) => $query->orderBy(
+                    Bangunan::select('asb_name')
+                        ->whereColumn('assets_building.asb_id', 'complaint.asb_id'),
+                    $arahSusunan
+                ),
+                fn ($query) => $query->orderBy($kolumSusunan, $arahSusunan)
+            )
             ->paginate($had)
             ->withQueryString();
 

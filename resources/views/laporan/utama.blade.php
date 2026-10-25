@@ -29,11 +29,6 @@
                         <div class="ikon-pilihan-laporan">
                             <i class="bi {{ $item['ikon'] }}"></i>
                         </div>
-
-                        <span class="lencana-tersedia">
-                            <i class="bi bi-check-circle-fill"></i>
-                            Tersedia
-                        </span>
                     </div>
 
                     <div class="mt-4">

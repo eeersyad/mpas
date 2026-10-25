@@ -155,7 +155,7 @@
                                     Kata Laluan Baharu
                                 </label>
 
-                                <div class="input-group-profil">
+                                <div class="input-group-profil input-kata-laluan">
                                     <span><i class="bi bi-lock"></i></span>
 
                                     <input
@@ -166,6 +166,16 @@
                                         autocomplete="new-password"
                                         placeholder="Minimum 8 aksara"
                                     >
+
+                                    <button
+                                        type="button"
+                                        class="btn butang-lihat-kata-laluan"
+                                        data-togol-kata-laluan="#usr_password"
+                                        aria-label="Papar kata laluan"
+                                        title="Papar kata laluan"
+                                    >
+                                        <i class="bi bi-eye"></i>
+                                    </button>
                                 </div>
 
                                 @error('usr_password')
@@ -178,7 +188,7 @@
                                     Pengesahan Kata Laluan
                                 </label>
 
-                                <div class="input-group-profil">
+                                <div class="input-group-profil input-kata-laluan">
                                     <span><i class="bi bi-shield-check"></i></span>
 
                                     <input
@@ -189,6 +199,16 @@
                                         autocomplete="new-password"
                                         placeholder="Ulang kata laluan baharu"
                                     >
+
+                                    <button
+                                        type="button"
+                                        class="btn butang-lihat-kata-laluan"
+                                        data-togol-kata-laluan="#usr_password_confirmation"
+                                        aria-label="Papar kata laluan"
+                                        title="Papar kata laluan"
+                                    >
+                                        <i class="bi bi-eye"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>

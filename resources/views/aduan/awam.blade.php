@@ -25,10 +25,20 @@
         <div class="maklumat-aset-awam">
             <h1>{{ $bangunan->asb_name }}</h1>
 
-            <span class="rujukan-aset-awam">
-                <i class="bi bi-upc-scan"></i>
-                {{ $bangunan->asb_ref_no }}
-            </span>
+            @php
+                $alamatAsetAwam = collect([
+                    $bangunan->asb_add1,
+                    $bangunan->asb_add2,
+                    $bangunan->asb_postcode,
+                    $bangunan->asb_distinct,
+                    $bangunan->asb_state,
+                ])->filter()->implode(', ');
+            @endphp
+
+            <p class="alamat-aset-awam">
+                <i class="bi bi-geo-alt-fill"></i>
+                <span>{{ $alamatAsetAwam ?: 'Alamat aset belum direkodkan.' }}</span>
+            </p>
         </div>
     </header>
 
@@ -218,6 +228,25 @@
                 @enderror
             </div>
 
+            <div id="ruangOrangAwam" class="mb-3" hidden>
+                <label for="cmp_reporter_name" class="form-label fw-semibold">
+                    Nama Pengadu <span class="text-danger">*</span>
+                </label>
+
+                <input
+                    id="cmp_reporter_name"
+                    type="text"
+                    name="cmp_reporter_name"
+                    class="form-control @error('cmp_reporter_name') is-invalid @enderror"
+                    value="{{ old('cmp_reporter_name') }}"
+                    placeholder="Masukkan nama penuh anda"
+                >
+
+                @error('cmp_reporter_name')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
             <div class="mb-3">
                 <label for="cmp_damage_type" class="form-label fw-semibold">
                     Jenis Kerosakan <span class="text-danger">*</span>
@@ -273,27 +302,63 @@
                 @enderror
             </div>
 
-            <div class="mb-4">
-                <label for="gambar" class="form-label fw-semibold">
+            <div class="mb-4" data-pilihan-gambar-aduan>
+                <label class="form-label fw-semibold">
                     Gambar Kerosakan
                 </label>
 
-                <input
-                    id="gambar"
-                    type="file"
-                    name="gambar[]"
-                    class="form-control @error('gambar') is-invalid @enderror"
-                    accept="image/jpeg,image/png,image/webp"
-                    capture="environment"
-                    multiple
-                >
+                <div class="pilihan-gambar-awam">
+                    <button
+                        type="button"
+                        class="butang-pilih-gambar"
+                        data-buka-galeri
+                    >
+                        <i class="bi bi-images"></i>
 
-                <div class="form-text">
-                    Maksimum empat gambar. Saiz setiap gambar tidak melebihi 5 MB.
+                        <span>
+                            <strong>Pilih dari Galeri</strong>
+                            <small>Pilih sehingga 4 gambar</small>
+                        </span>
+                    </button>
+
+                    <button
+                        type="button"
+                        class="butang-pilih-gambar"
+                        data-buka-kamera
+                    >
+                        <i class="bi bi-camera-fill"></i>
+
+                        <span>
+                            <strong>Ambil Gambar</strong>
+                            <small>Guna kamera telefon</small>
+                        </span>
+                    </button>
                 </div>
 
+                <input
+                    id="gambarGaleri"
+                    type="file"
+                    name="gambar[]"
+                    accept="image/jpeg,image/png,image/webp"
+                    multiple
+                    class="visually-hidden"
+                    data-gambar-galeri
+                >
+
+                <div data-input-kamera></div>
+
+                <div class="form-text" data-status-gambar>
+                    0 daripada 4 gambar dipilih. Saiz setiap gambar tidak melebihi 5 MB.
+                </div>
+
+                <div
+                    class="preview-gambar-awam"
+                    data-preview-gambar
+                    aria-live="polite"
+                ></div>
+
                 @error('gambar')
-                    <div class="invalid-feedback">{{ $message }}</div>
+                    <div class="text-danger small mt-2">{{ $message }}</div>
                 @enderror
 
                 @error('gambar.*')
@@ -317,20 +382,191 @@
         const kategoriPengadu = document.querySelector('#jenis_pengadu');
         const ruangPenyewa = document.querySelector('#ruangPenyewa');
         const pilihanPenyewa = document.querySelector('#tnt_id');
+        const ruangOrangAwam = document.querySelector('#ruangOrangAwam');
+        const namaPengaduAwam = document.querySelector('#cmp_reporter_name');
 
-        const kemaskiniPenyewa = () => {
+        const kemaskiniPengadu = () => {
             const penyewa = kategoriPengadu.value === 'PENYEWA';
+            const orangAwam = kategoriPengadu.value === 'ORANG_AWAM';
 
             ruangPenyewa.hidden = !penyewa;
             pilihanPenyewa.required = penyewa;
 
+            ruangOrangAwam.hidden = !orangAwam;
+            namaPengaduAwam.required = orangAwam;
+
             if (!penyewa) {
                 pilihanPenyewa.value = '';
             }
+
+            if (!orangAwam) {
+                namaPengaduAwam.value = '';
+            }
         };
 
-        kategoriPengadu.addEventListener('change', kemaskiniPenyewa);
-        kemaskiniPenyewa();
+        kategoriPengadu.addEventListener('change', kemaskiniPengadu);
+        kemaskiniPengadu();
+
+        const panelGambarAduan = document.querySelector('[data-pilihan-gambar-aduan]');
+
+        if (panelGambarAduan) {
+            const hadGambar = 4;
+            const inputGaleri = panelGambarAduan.querySelector('[data-gambar-galeri]');
+            const bekasInputKamera = panelGambarAduan.querySelector('[data-input-kamera]');
+            const butangGaleri = panelGambarAduan.querySelector('[data-buka-galeri]');
+            const butangKamera = panelGambarAduan.querySelector('[data-buka-kamera]');
+            const statusGambar = panelGambarAduan.querySelector('[data-status-gambar]');
+            const previewGambar = panelGambarAduan.querySelector('[data-preview-gambar]');
+
+            const dapatGambarGaleri = () =>
+                [...(inputGaleri.files ?? [])].map((fail, indeks) => ({
+                    sumber: 'galeri',
+                    id: `galeri-${indeks}`,
+                    indeks,
+                    fail,
+                }));
+
+            const dapatGambarKamera = () =>
+                [...bekasInputKamera.querySelectorAll('[data-gambar-kamera]')]
+                    .filter((input) => input.files?.length > 0)
+                    .map((input) => ({
+                        sumber: 'kamera',
+                        id: input.dataset.id,
+                        fail: input.files[0],
+                    }));
+
+            const semuaGambar = () => [
+                ...dapatGambarGaleri(),
+                ...dapatGambarKamera(),
+            ];
+
+            const jumlahGambarDipilih = () => semuaGambar().length;
+
+            const paparRalatHadGambar = () => {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Had gambar telah dicapai',
+                    text: 'Maksimum empat gambar sahaja boleh dimuat naik bagi satu aduan.',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#168A7E',
+                });
+            };
+
+            const kemaskiniFailGaleri = (fail) => {
+                const pemindahanFail = new DataTransfer();
+
+                fail.forEach((item) => {
+                    pemindahanFail.items.add(item);
+                });
+
+                inputGaleri.files = pemindahanFail.files;
+            };
+
+            const padamGambar = (gambar) => {
+                if (gambar.sumber === 'galeri') {
+                    const failGaleri = [...inputGaleri.files];
+                    failGaleri.splice(gambar.indeks, 1);
+                    kemaskiniFailGaleri(failGaleri);
+                } else {
+                    bekasInputKamera
+                        .querySelector(`[data-gambar-kamera][data-id="${gambar.id}"]`)
+                        ?.remove();
+                }
+
+                kemaskiniPaparanGambar();
+            };
+
+            const kemaskiniPreviewGambar = () => {
+                previewGambar.replaceChildren();
+
+                semuaGambar().forEach((gambar, indeks) => {
+                    const kadPreview = document.createElement('div');
+                    kadPreview.className = 'item-preview-gambar';
+
+                    const imej = document.createElement('img');
+                    imej.src = URL.createObjectURL(gambar.fail);
+                    imej.alt = `Gambar kerosakan ${indeks + 1}`;
+
+                    const butangPadam = document.createElement('button');
+                    butangPadam.type = 'button';
+                    butangPadam.className = 'butang-buang-preview';
+                    butangPadam.title = `Buang gambar ${indeks + 1}`;
+                    butangPadam.setAttribute('aria-label', `Buang gambar ${indeks + 1}`);
+                    butangPadam.innerHTML = '<i class="bi bi-x-lg"></i>';
+
+                    butangPadam.addEventListener('click', () => {
+                        padamGambar(gambar);
+                    });
+
+                    kadPreview.append(imej, butangPadam);
+                    previewGambar.appendChild(kadPreview);
+                });
+            };
+
+            const kemaskiniPaparanGambar = () => {
+                const jumlah = jumlahGambarDipilih();
+
+                statusGambar.textContent =
+                    `${jumlah} daripada ${hadGambar} gambar dipilih. ` +
+                    'Saiz setiap gambar tidak melebihi 5 MB.';
+
+                butangKamera.disabled = jumlah >= hadGambar;
+                butangKamera.classList.toggle('disabled', jumlah >= hadGambar);
+
+                kemaskiniPreviewGambar();
+            };
+
+            butangGaleri.addEventListener('click', () => {
+                inputGaleri.click();
+            });
+
+            inputGaleri.addEventListener('change', () => {
+                const jumlahKamera = dapatGambarKamera().length;
+                const bakiGambar = hadGambar - jumlahKamera;
+                const failDipilih = [...inputGaleri.files];
+
+                if (failDipilih.length > bakiGambar) {
+                    kemaskiniFailGaleri(failDipilih.slice(0, Math.max(0, bakiGambar)));
+                    paparRalatHadGambar();
+                }
+
+                kemaskiniPaparanGambar();
+            });
+
+            butangKamera.addEventListener('click', () => {
+                if (jumlahGambarDipilih() >= hadGambar) {
+                    paparRalatHadGambar();
+                    return;
+                }
+
+                const inputKamera = document.createElement('input');
+
+                inputKamera.type = 'file';
+                inputKamera.name = 'gambar[]';
+                inputKamera.accept = 'image/jpeg,image/png,image/webp';
+                inputKamera.capture = 'environment';
+                inputKamera.hidden = true;
+                inputKamera.dataset.gambarKamera = 'ya';
+                inputKamera.dataset.id =
+                    window.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
+
+                inputKamera.addEventListener('change', () => {
+                    if (!inputKamera.files?.length) {
+                        inputKamera.remove();
+                    } else if (jumlahGambarDipilih() > hadGambar) {
+                        inputKamera.remove();
+                        paparRalatHadGambar();
+                    }
+
+                    kemaskiniPaparanGambar();
+                });
+
+                bekasInputKamera.appendChild(inputKamera);
+                inputKamera.click();
+            });
+
+            kemaskiniPaparanGambar();
+        }
 
         const borangAduanAwam = document.querySelector('#borangAduanAwam');
 

@@ -85,6 +85,16 @@
                                     required
                                 >
 
+                                <button
+                                    type="button"
+                                    class="btn butang-lihat-kata-laluan"
+                                    data-togol-kata-laluan="#usr_password"
+                                    aria-label="Papar kata laluan"
+                                    title="Papar kata laluan"
+                                >
+                                    <i class="bi bi-eye"></i>
+                                </button>
+
                                 <div class="form-text">
                                     Gunakan sekurang-kurangnya 8 aksara.
                                 </div>
@@ -107,6 +117,16 @@
                                     autocomplete="new-password"
                                     required
                                 >
+
+                                <button
+                                    type="button"
+                                    class="btn butang-lihat-kata-laluan"
+                                    data-togol-kata-laluan="#usr_password_confirmation"
+                                    aria-label="Papar kata laluan"
+                                    title="Papar kata laluan"
+                                >
+                                    <i class="bi bi-eye"></i>
+                                </button>
                             </div>
 
                             <div class="col-12 col-md-6">

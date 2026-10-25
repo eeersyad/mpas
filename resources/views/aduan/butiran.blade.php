@@ -76,7 +76,11 @@
 
         <div class="hero-aduan-pengadu">
             <span class="teks-kecil d-block mb-1">PENGADU</span>
-            <strong>{{ $aduan->penyewa?->tnt_name ?? 'Orang Awam' }}</strong>
+            <strong>
+                {{ $aduan->penyewa?->tnt_name
+                    ?? $aduan->cmp_reporter_name
+                    ?? 'Orang Awam' }}
+            </strong>
             <small class="d-block text-secondary">
                 {{ $aduan->tnt_id ? 'Penyewa aset' : 'Aduan awam' }}
             </small>
