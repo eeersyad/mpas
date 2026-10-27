@@ -25,7 +25,6 @@ final class Paparan
             'TIDAK_DISEWA' => 'Tidak disewa',
             'PAJAK' => 'Pajak',
             'TIDAK_DIPAJAK' => 'Tidak dipajak',
-            'KEKAL' => 'Kekal',
             'KEGUNAAN_MDM' => 'Kegunaan MDM',
             'DILUPUS' => 'Dilupus',
 

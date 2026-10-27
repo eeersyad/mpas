@@ -68,14 +68,49 @@ class PengurusanLaporanController extends Controller
             $this->pembinaRekod($request, $jenis)->get()
         );
 
-        return Pdf::loadView('laporan.pdf', [
+        $pdf = Pdf::loadView('laporan.pdf', [
             'tajuk' => $konfigurasi['tajuk'],
             'kepala' => $data['kepala'],
             'baris' => $data['baris'],
             'tarikh' => now(),
+            'logoMdm' => base64_encode(
+                file_get_contents(public_path('images/logo-mdm.png'))
+            ),
+            'logoMpas' => base64_encode(
+                file_get_contents(public_path('images/logo-mpas-2.png'))
+            ),
         ])
-            ->setPaper('a4', 'landscape')
-            ->download($this->namaFail($jenis, 'pdf'));
+            ->setPaper('a4', 'landscape');
+
+        $pdf->render();
+
+        $dompdf = $pdf->getDomPDF();
+        $kanvas = $dompdf->getCanvas();
+
+        $font = $dompdf->getFontMetrics()->getFont(
+            'DejaVu Sans',
+            'normal'
+        );
+
+        $kanvas->page_text(
+            22,
+            570,
+            'Dokumen ini dijana oleh MPAS untuk kegunaan rasmi Majlis Daerah Marang.',
+            $font,
+            7,
+            [0.33, 0.33, 0.33]
+        );
+
+        $kanvas->page_text(
+            742,
+            570,
+            'Halaman {PAGE_NUM} / {PAGE_COUNT}',
+            $font,
+            7,
+            [0.33, 0.33, 0.33]
+        );
+
+        return $pdf->download($this->namaFail($jenis, 'pdf'));
     }
 
     private function pembinaRekod(Request $request, string $jenis)
@@ -145,7 +180,7 @@ class PengurusanLaporanController extends Controller
                 'lot' => 'asl_lot_no',
                 'lokasi' => 'asl_location',
                 'status_hakmilik' => 'asl_status_hakmilik',
-                'jenis_hakmilik' => 'asl_hakmilik_type',
+                'status_tanah' => 'asl_status_tanah',
                 'keluasan' => 'asl_land_size',
                 'terkini' => 'asl_id',
             ],
@@ -158,7 +193,8 @@ class PengurusanLaporanController extends Controller
                     $query->where('asl_ref_no', 'like', "%{$cari}%")
                         ->orWhere('asl_lot_no', 'like', "%{$cari}%")
                         ->orWhere('asl_location', 'like', "%{$cari}%")
-                        ->orWhere('asl_hakmilik_no', 'like', "%{$cari}%");
+                        ->orWhere('asl_hakmilik_no', 'like', "%{$cari}%")
+                        ->orWhere('asl_status_tanah', 'like', "%{$cari}%");
                 });
             })
             ->when(
@@ -169,10 +205,10 @@ class PengurusanLaporanController extends Controller
                 )
             )
             ->when(
-                $request->filled('jenis_hakmilik'),
+                $request->filled('status_tanah'),
                 fn ($query) => $query->where(
-                    'asl_hakmilik_type',
-                    $request->string('jenis_hakmilik')->toString()
+                    'asl_status_tanah',
+                    $request->string('status_tanah')->toString()
                 )
             )
             ->orderBy($kolumSusunan, $arahSusunan);
@@ -309,7 +345,7 @@ class PengurusanLaporanController extends Controller
                     'No. Lot',
                     'Lokasi',
                     'Status Hakmilik',
-                    'Jenis Hakmilik',
+                    'Status Tanah',
                     'Keluasan (m²)',
                 ],
                 'baris' => $rekod->values()->map(fn ($item, $indeks) => [
@@ -318,11 +354,41 @@ class PengurusanLaporanController extends Controller
                     $item->asl_lot_no,
                     $item->asl_location,
                     Paparan::label($item->asl_status_hakmilik),
-                    Paparan::label($item->asl_hakmilik_type),
+                    Paparan::label($item->asl_status_tanah),
                     number_format($item->asl_land_size, 2),
                 ])->all(),
             ],
-
+            'aduan' => [
+                'kepala' => [
+                    'Bil.',
+                    'Tarikh Aduan',
+                    'Aset Bangunan',
+                    'No. Rujukan',
+                    'Jenis Kerosakan',
+                    'Pengadu',
+                    'Status',
+                    'Tarikh Penyelenggaraan',
+                    'Tarikh Aduan Selesai',
+                    'Bilangan Hari Aduan',
+                ],
+                'baris' => $rekod->values()->map(fn ($item, $indeks) => [
+                    $indeks + 1,
+                    $item->cmp_received_date?->format('d/m/Y') ?? '-',
+                    $item->bangunan?->asb_name ?? '-',
+                    $item->bangunan?->asb_ref_no ?? '-',
+                    Paparan::label($item->cmp_damage_type),
+                    $item->penyewa?->tnt_name
+                        ?? $item->cmp_reporter_name
+                        ?? 'Orang Awam',
+                    Paparan::label($item->cmp_status),
+                    $item->cmp_maintenance_date?->format('d/m/Y') ?? '-',
+                    $item->cmp_completed_at?->format('d/m/Y') ?? '-',
+                    $this->kiraBilanganHariAduan(
+                        $item->cmp_received_date,
+                        $item->cmp_completed_at
+                    ),
+                ])->all(),
+            ],
             default => [
                 'kepala' => [
                     'Bil.',
@@ -336,7 +402,7 @@ class PengurusanLaporanController extends Controller
                 ],
                 'baris' => $rekod->values()->map(fn ($item, $indeks) => [
                     $indeks + 1,
-                    $item->cmp_received_date?->format('d/m/Y, h:i A') ?? '-',
+                    $item->cmp_received_date?->format('d/m/Y') ?? '-',
                     $item->bangunan?->asb_name ?? '-',
                     $item->bangunan?->asb_ref_no ?? '-',
                     Paparan::label($item->cmp_damage_type),
@@ -348,6 +414,31 @@ class PengurusanLaporanController extends Controller
                 ])->all(),
             ],
         };
+    }
+
+    private function kiraBilanganHariAduan($tarikhAduan, $tarikhSelesai): string
+    {
+        if (! $tarikhAduan || ! $tarikhSelesai) {
+            return '-';
+        }
+
+        $hariBekerja = 0;
+
+        $tarikhSemasa = $tarikhAduan->copy()->startOfDay();
+        $tarikhAkhir = $tarikhSelesai->copy()->startOfDay();
+
+        while ($tarikhSemasa->lt($tarikhAkhir)) {
+            $tarikhSemasa->addDay();
+
+            if (
+                ! $tarikhSemasa->isFriday()
+                && ! $tarikhSemasa->isSaturday()
+            ) {
+                $hariBekerja++;
+            }
+        }
+
+        return $hariBekerja . ' hari';
     }
 
     private function sahkanAkses(Request $request, string $jenis): array
@@ -373,7 +464,7 @@ class PengurusanLaporanController extends Controller
             ],
             'tanah' => [
                 'tajuk' => 'Laporan Aset Tanah',
-                'penerangan' => 'Senarai aset tanah mengikut status dan jenis hakmilik.',
+                'penerangan' => 'Senarai aset tanah mengikut status hakmilik dan status tanah.',
                 'ikon' => 'bi-map-fill',
                 'peranan' => ['SYSTEM', 'BPH', 'BP'],
             ],
@@ -413,7 +504,7 @@ class PengurusanLaporanController extends Controller
             $laporan[] = [
                 'kod' => 'tanah',
                 'tajuk' => 'Laporan Aset Tanah',
-                'penerangan' => 'Maklumat aset tanah mengikut status dan jenis hakmilik.',
+                'penerangan' => 'Maklumat aset tanah mengikut status hakmilik dan status tanah.',
                 'ikon' => 'bi-map-fill',
                 'tema' => 'biru',
                 'jumlah' => Tanah::count(),

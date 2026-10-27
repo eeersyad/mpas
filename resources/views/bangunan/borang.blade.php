@@ -70,6 +70,25 @@
                     </div>
 
                     <div class="col-12 col-md-6">
+                        <label for="asb_no_file" class="form-label fw-semibold">
+                            No. Fail
+                        </label>
+
+                        <input
+                            type="text"
+                            id="asb_no_file"
+                            name="asb_no_file"
+                            class="form-control @error('asb_no_file') is-invalid @enderror"
+                            value="{{ old('asb_no_file', $bangunan?->asb_no_file) }}"
+                            placeholder="Contoh: MDM/PH/01/2026"
+                        >
+
+                        @error('asb_no_file')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="col-12 col-md-6">
                         <label class="form-label fw-semibold">Kategori <span class="text-danger">*</span></label>
                         <select name="asb_category" class="form-select @error('asb_category') is-invalid @enderror" required>
                             <option value="">-- Pilih Kategori --</option>
@@ -667,19 +686,19 @@
                                 </div>
 
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label">Tarikh Mula Sewa</label>
+                                    <label class="form-label">Tarikh Mula Perjanjian</label>
                                     <input
                                         type="date"
-                                        name="penyewa[__INDEX__][tnt_start_date]"
+                                        name="penyewa[__INDEX__][tnt_mula_perjanjian]"
                                         class="form-control"
                                     >
                                 </div>
 
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label">Tarikh Tamat Sewa</label>
+                                    <label class="form-label">Tarikh Tamat Perjanjian</label>
                                     <input
                                         type="date"
-                                        name="penyewa[__INDEX__][tnt_end_date]"
+                                        name="penyewa[__INDEX__][tnt_tamat_perjanjian]"
                                         class="form-control"
                                     >
                                 </div>

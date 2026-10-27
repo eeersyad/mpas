@@ -48,7 +48,7 @@
 
     <form
         method="GET"
-        class="panel-penapis mb-4"
+        class="panel-penapis mb-4 {{ in_array($jenis, ['aduan', 'penyelenggaraan'], true) ? 'penapis-laporan-aduan' : '' }}"
         data-penapis-automatik
     >
         <input type="hidden" name="had" value="{{ request('had', 15) }}">
@@ -146,16 +146,16 @@
                 </div>
 
                 <div class="col-12 col-md-6 col-xl-2">
-                    <label for="jenisHakmilik" class="label-penapis">
-                        <i class="bi bi-key"></i> Jenis Hakmilik
+                    <label for="statusTanah" class="label-penapis">
+                        <i class="bi bi-key"></i> Status Tanah
                     </label>
 
-                    <select id="jenisHakmilik" name="jenis_hakmilik" class="form-select kawalan-penapis">
-                        <option value="">Semua Jenis</option>
+                    <select id="statusTanah" name="status_tanah" class="form-select kawalan-penapis">
+                        <option value="">Semua Status</option>
 
-                        @foreach (['SEWA', 'TIDAK_DISEWA', 'PAJAK', 'TIDAK_DIPAJAK', 'KEKAL'] as $jenisHakmilik)
-                            <option value="{{ $jenisHakmilik }}" @selected(request('jenis_hakmilik') === $jenisHakmilik)>
-                                {{ \App\Support\Paparan::label($jenisHakmilik) }}
+                        @foreach (['SEWA', 'TIDAK_DISEWA', 'PAJAK', 'TIDAK_DIPAJAK'] as $status)
+                            <option value="{{ $status }}" @selected(request('status_tanah') === $status)>
+                                {{ \App\Support\Paparan::label($status) }}
                             </option>
                         @endforeach
                     </select>
@@ -222,9 +222,13 @@
 
             <div class="col-12 col-xl-3">
                 <div class="d-flex gap-2 tindakan-penapis">
-                    <a href="{{ route('laporan.papar', $jenis) }}" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-counterclockwise me-1"></i>
-                        Semula
+                    <a
+                        href="{{ route('laporan.papar', $jenis) }}"
+                        class="btn btn-outline-secondary"
+                        title="Tetapkan semula penapis"
+                        aria-label="Tetapkan semula penapis"
+                    >
+                        <i class="bi bi-arrow-counterclockwise"></i>
                     </a>
                 </div>
             </div>
@@ -251,7 +255,7 @@
                             <th><x-susun medan="lot" label="No. Lot" /></th>
                             <th><x-susun medan="lokasi" label="Lokasi" /></th>
                             <th><x-susun medan="status_hakmilik" label="Status Hakmilik" /></th>
-                            <th><x-susun medan="jenis_hakmilik" label="Jenis Hakmilik" /></th>
+                            <th><x-susun medan="status_tanah" label="Status Tanah" /></th>
                             <th><x-susun medan="keluasan" label="Keluasan" /></th>
                         </tr>
                     @else
@@ -287,7 +291,7 @@
                                 <td>{{ $item->asl_lot_no }}</td>
                                 <td>{{ $item->asl_location }}</td>
                                 <td>{{ \App\Support\Paparan::label($item->asl_status_hakmilik) }}</td>
-                                <td>{{ \App\Support\Paparan::label($item->asl_hakmilik_type) }}</td>
+                                <td>{{ \App\Support\Paparan::label($item->asl_status_tanah) }}</td>
                                 <td>{{ number_format($item->asl_land_size, 2) }} m²</td>
                             </tr>
                         @else

@@ -9,6 +9,7 @@ use App\Models\Tanah;
 use App\Services\Rujukan;
 use App\Support\Jadual;
 use App\Support\Susunan;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -26,17 +27,18 @@ class PengurusanTanahController extends Controller
 
         $cari = trim((string) $request->input('cari', ''));
         $statusHakmilik = $request->input('status_hakmilik');
-        $jenisHakmilik = $request->input('jenis_hakmilik');
+        $statusTanah = $request->input('status_tanah');
 
         [$kolumSusunan, $arahSusunan] = Susunan::dapatkan(
             $request,
             [
                 'rujukan' => 'asl_ref_no',
                 'lot' => 'asl_lot_no',
+                'no_fail' => 'asl_no_file',
                 'lokasi' => 'asl_location',
                 'keluasan' => 'asl_land_size',
                 'status_hakmilik' => 'asl_status_hakmilik',
-                'jenis_hakmilik' => 'asl_hakmilik_type',
+                'status_tanah' => 'asl_status_tanah',
                 'terkini' => 'asl_id',
             ],
             'terkini'
@@ -48,8 +50,10 @@ class PengurusanTanahController extends Controller
                 $query->where(function ($query) use ($cari): void {
                     $query->where('asl_ref_no', 'like', "%{$cari}%")
                         ->orWhere('asl_lot_no', 'like', "%{$cari}%")
+                        ->orWhere('asl_no_file', 'like', "%{$cari}%")
                         ->orWhere('asl_location', 'like', "%{$cari}%")
-                        ->orWhere('asl_hakmilik_no', 'like', "%{$cari}%");
+                        ->orWhere('asl_hakmilik_no', 'like', "%{$cari}%")
+                        ->orWhere('asl_status_tanah', 'like', "%{$cari}%");
                 });
             })
             ->when(
@@ -57,8 +61,8 @@ class PengurusanTanahController extends Controller
                 fn ($query, $status) => $query->where('asl_status_hakmilik', $status)
             )
             ->when(
-                $jenisHakmilik,
-                fn ($query, $jenis) => $query->where('asl_hakmilik_type', $jenis)
+                $statusTanah,
+                fn ($query, $status) => $query->where('asl_status_tanah', $status)
             )
             ->orderBy($kolumSusunan, $arahSusunan)
             ->paginate($had)
@@ -125,6 +129,54 @@ class PengurusanTanahController extends Controller
         ]);
 
         return view('tanah.butiran', compact('tanah'));
+    }
+
+    public function muatTurunPdf(Tanah $tanah)
+    {
+        $pdf = Pdf::loadView('pdf.aset-butiran', [
+            'jenis' => 'tanah',
+            'aset' => $tanah,
+            'tarikh' => now(),
+            'logoMdm' => base64_encode(
+                file_get_contents(public_path('images/logo-mdm.png'))
+            ),
+            'logoMpas' => base64_encode(
+                file_get_contents(public_path('images/logo-mpas-2.png'))
+            ),
+        ])
+            ->setPaper('a4', 'landscape');
+
+        $pdf->render();
+
+        $dompdf = $pdf->getDomPDF();
+        $kanvas = $dompdf->getCanvas();
+
+        $font = $dompdf->getFontMetrics()->getFont(
+            'DejaVu Sans',
+            'normal'
+        );
+
+        $kanvas->page_text(
+            24,
+            570,
+            'Dokumen ini dijana oleh MPAS untuk kegunaan rasmi Majlis Daerah Marang.',
+            $font,
+            7,
+            [0.33, 0.33, 0.33]
+        );
+
+        $kanvas->page_text(
+            742,
+            570,
+            'Halaman {PAGE_NUM} / {PAGE_COUNT}',
+            $font,
+            7,
+            [0.33, 0.33, 0.33]
+        );
+
+        return $pdf->download(
+            "Aset-Tanah-{$tanah->asl_ref_no}.pdf"
+        );
     }
 
     public function edit(Tanah $tanah): View

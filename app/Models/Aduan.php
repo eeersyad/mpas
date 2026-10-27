@@ -24,6 +24,7 @@ class Aduan extends Model
         'asb_id',
         'tnt_id',
         'cmp_reporter_name',
+        'cmp_reporter_phone',
         'cmp_received_date',
         'cmp_note',
         'cmp_damage_type',
@@ -71,6 +72,15 @@ class Aduan extends Model
     public function gambar(): HasMany
     {
         return $this->hasMany(GambarAduan::class, 'cmp_id', 'cmp_id');
+    }
+
+    public function gambarSiap(): HasMany
+    {
+        return $this->hasMany(
+            GambarSiapAduan::class,
+            'cmp_id',
+            'cmp_id'
+        )->orderBy('cmpcimg_order');
     }
 
     public function diciptaOleh(): BelongsTo

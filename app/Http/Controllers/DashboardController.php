@@ -55,8 +55,8 @@ class DashboardController extends Controller
         $cartaTanah = [];
         $skorAset = [];
         $lokasiAset = [];
+        $cartaStatusHakmilikTanah = [];
         $cartaStatusTanah = [];
-        $cartaJenisHakmilikTanah = [];
         $cartaAduanKj = [];
         $aduanTindakan = collect();
 
@@ -85,10 +85,10 @@ class DashboardController extends Controller
                 ],
             ];
 
-            $jumlahHakmilik = Tanah::query()
-                ->selectRaw('asl_hakmilik_type, COUNT(*) as jumlah')
-                ->groupBy('asl_hakmilik_type')
-                ->pluck('jumlah', 'asl_hakmilik_type');
+            $jumlahStatusTanah = Tanah::query()
+                ->selectRaw('asl_status_tanah, COUNT(*) as jumlah')
+                ->groupBy('asl_status_tanah')
+                ->pluck('jumlah', 'asl_status_tanah');
 
             $cartaTanah = [
                 'label' => [
@@ -96,14 +96,12 @@ class DashboardController extends Controller
                     'Tidak Disewa',
                     'Pajak',
                     'Tidak Dipajak',
-                    'Kekal',
                 ],
                 'nilai' => [
-                    (int) ($jumlahHakmilik['SEWA'] ?? 0),
-                    (int) ($jumlahHakmilik['TIDAK_DISEWA'] ?? 0),
-                    (int) ($jumlahHakmilik['PAJAK'] ?? 0),
-                    (int) ($jumlahHakmilik['TIDAK_DIPAJAK'] ?? 0),
-                    (int) ($jumlahHakmilik['KEKAL'] ?? 0),
+                    (int) ($jumlahStatusTanah['SEWA'] ?? 0),
+                    (int) ($jumlahStatusTanah['TIDAK_DISEWA'] ?? 0),
+                    (int) ($jumlahStatusTanah['PAJAK'] ?? 0),
+                    (int) ($jumlahStatusTanah['TIDAK_DIPAJAK'] ?? 0),
                 ],
             ];
 
@@ -171,40 +169,38 @@ class DashboardController extends Controller
         }
 
         if ($user->usr_level === 'BP') {
-            $jumlahStatusTanah = Tanah::query()
+            $jumlahStatusHakmilikTanah = Tanah::query()
                 ->selectRaw('asl_status_hakmilik, COUNT(*) as jumlah')
                 ->groupBy('asl_status_hakmilik')
                 ->pluck('jumlah', 'asl_status_hakmilik');
 
-            $cartaStatusTanah = [
+            $cartaStatusHakmilikTanah = [
                 'label' => ['Hakmilik', 'Rizab', 'Strata', 'Lain-lain'],
                 'nilai' => [
-                    (int) ($jumlahStatusTanah['HAKMILIK'] ?? 0),
-                    (int) ($jumlahStatusTanah['RIZAB'] ?? 0),
-                    (int) ($jumlahStatusTanah['STRATA'] ?? 0),
-                    (int) ($jumlahStatusTanah['LAIN_LAIN'] ?? 0),
+                    (int) ($jumlahStatusHakmilikTanah['HAKMILIK'] ?? 0),
+                    (int) ($jumlahStatusHakmilikTanah['RIZAB'] ?? 0),
+                    (int) ($jumlahStatusHakmilikTanah['STRATA'] ?? 0),
+                    (int) ($jumlahStatusHakmilikTanah['LAIN_LAIN'] ?? 0),
                 ],
             ];
 
-            $jumlahJenisHakmilik = Tanah::query()
-                ->selectRaw('asl_hakmilik_type, COUNT(*) as jumlah')
-                ->groupBy('asl_hakmilik_type')
-                ->pluck('jumlah', 'asl_hakmilik_type');
+            $jumlahStatusTanah = Tanah::query()
+                ->selectRaw('asl_status_tanah, COUNT(*) as jumlah')
+                ->groupBy('asl_status_tanah')
+                ->pluck('jumlah', 'asl_status_tanah');
 
-            $cartaJenisHakmilikTanah = [
+            $cartaStatusTanah = [
                 'label' => [
                     'Sewa',
                     'Tidak Disewa',
                     'Pajak',
                     'Tidak Dipajak',
-                    'Kekal',
                 ],
                 'nilai' => [
-                    (int) ($jumlahJenisHakmilik['SEWA'] ?? 0),
-                    (int) ($jumlahJenisHakmilik['TIDAK_DISEWA'] ?? 0),
-                    (int) ($jumlahJenisHakmilik['PAJAK'] ?? 0),
-                    (int) ($jumlahJenisHakmilik['TIDAK_DIPAJAK'] ?? 0),
-                    (int) ($jumlahJenisHakmilik['KEKAL'] ?? 0),
+                    (int) ($jumlahStatusTanah['SEWA'] ?? 0),
+                    (int) ($jumlahStatusTanah['TIDAK_DISEWA'] ?? 0),
+                    (int) ($jumlahStatusTanah['PAJAK'] ?? 0),
+                    (int) ($jumlahStatusTanah['TIDAK_DIPAJAK'] ?? 0),
                 ],
             ];
 
@@ -273,8 +269,8 @@ class DashboardController extends Controller
             'cartaTanah',
             'skorAset',
             'lokasiAset',
+            'cartaStatusHakmilikTanah',
             'cartaStatusTanah',
-            'cartaJenisHakmilikTanah',
             'cartaAduanKj',
             'aduanTindakan'
         ));

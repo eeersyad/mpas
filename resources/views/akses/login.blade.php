@@ -94,7 +94,7 @@
                     </form>
                     <div class="border-top mt-4 pt-3 text-center">
                         <p class="text-secondary small mb-0">
-                            Hakmilik Cipta Majlis Daerah Marang © 2025
+                            Hakmilik Majlis Daerah Marang © 2025
                         </p>
                     </div>
                 </div>

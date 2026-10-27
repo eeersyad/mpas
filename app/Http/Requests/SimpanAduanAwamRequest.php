@@ -27,6 +27,13 @@ class SimpanAduanAwamRequest extends FormRequest
                 'string',
                 'max:255',
             ],
+            'cmp_reporter_phone' => [
+                'nullable',
+                'required_if:jenis_pengadu,ORANG_AWAM',
+                'string',
+                'max:20',
+                'regex:/^[0-9+\-\s()]{8,20}$/',
+            ],
 
             'cmp_damage_type' => ['required', 'string', 'max:255'],
             'cmp_note' => ['required', 'string', 'max:2000'],
@@ -50,6 +57,8 @@ class SimpanAduanAwamRequest extends FormRequest
             'gambar.max' => 'Maksimum empat gambar boleh dimuat naik.',
             'gambar.*.max' => 'Saiz setiap gambar tidak boleh melebihi 5 MB.',
             'cmp_reporter_name.required_if' => 'Sila masukkan nama pengadu.',
+            'cmp_reporter_phone.required_if' => 'Sila masukkan nombor telefon pengadu.',
+            'cmp_reporter_phone.regex' => 'Sila masukkan nombor telefon yang sah.',
         ];
     }
 }

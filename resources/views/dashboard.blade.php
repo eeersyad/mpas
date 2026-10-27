@@ -179,7 +179,7 @@
                         <div class="d-flex flex-column flex-sm-row justify-content-between gap-2 mb-4">
                             <div>
                                 <p class="teks-kecil mb-1">ASET TANAH</p>
-                                <h2 class="tajuk-kad-dashboard mb-0">Jenis Hakmilik Tanah</h2>
+                                <h2 class="tajuk-kad-dashboard mb-0">Status Tanah</h2>
                             </div>
 
                             <span class="lencana-dashboard">
@@ -220,7 +220,7 @@
                         <div class="d-flex flex-column flex-sm-row justify-content-between gap-2 mb-4">
                             <div>
                                 <p class="teks-kecil mb-1">ASET TANAH</p>
-                                <h2 class="tajuk-kad-dashboard mb-0">Jenis Hakmilik Tanah</h2>
+                                <h2 class="tajuk-kad-dashboard mb-0">Status Tanah</h2>
                             </div>
 
                             <span class="lencana-dashboard">
@@ -336,7 +336,7 @@
                     </div>
 
                     <div class="ruang-carta-bar">
-                        <canvas id="cartaStatusTanah"></canvas>
+                        <canvas id="cartaStatusHakmilikTanah"></canvas>
                     </div>
                 </div>
             </div>
@@ -347,7 +347,7 @@
                         <div>
                             <p class="teks-kecil mb-1">ASET TANAH</p>
                             <h2 class="tajuk-kad-dashboard mb-0">
-                                Jenis Hakmilik Tanah
+                                Status Tanah
                             </h2>
                         </div>
 
@@ -358,7 +358,7 @@
                     </div>
 
                     <div class="ruang-carta-bar">
-                        <canvas id="cartaJenisHakmilikTanah"></canvas>
+                        <canvas id="cartaStatusTanah"></canvas>
                     </div>
                 </div>
             </div>
@@ -501,13 +501,13 @@
             };
 
             const dataTanahDemo = {
-                label: ['Sewa', 'Tidak Disewa', 'Pajak', 'Tidak Dipajak', 'Kegunaan MDM'],
-                nilai: [80, 11, 4, 5, 12],
+                label: ['Sewa', 'Tidak Disewa', 'Pajak', 'Tidak Dipajak'],
+                nilai: [80, 11, 4, 5],
             };
             const dataSkor = @json($skorAset);
             const lokasiAset = @json($lokasiAset);
+            const dataStatusHakmilikTanah = @json($cartaStatusHakmilikTanah);
             const dataStatusTanah = @json($cartaStatusTanah);
-            const dataJenisHakmilikTanah = @json($cartaJenisHakmilikTanah);
             const dataAduanKj = @json($cartaAduanKj);
             const warnaStatusAset = {
                 Sewa: '#6FC7BD',
@@ -516,7 +516,6 @@
                 'Tidak Dipajak': '#F6D58B',
                 'Kegunaan MDM': '#8FB7F7',
                 Dilupus: '#B8C2C1',
-                Kekal: '#A7D8A4',
             };
 
             const warnaMengikutStatus = (data) =>
@@ -534,7 +533,6 @@
                 'Tidak Dipajak': 'TIDAK_DIPAJAK',
                 'Kegunaan MDM': 'KEGUNAAN_MDM',
                 Dilupus: 'DILUPUS',
-                Kekal: 'KEKAL',
             };
 
             const binaCartaBar = (id, data, warna, tetapanKlik = null) => {
@@ -659,13 +657,13 @@
                     warnaMengikutStatus(dataTanah),
                     {
                         pautan: pautanTanah,
-                        namaPenapis: 'jenis_hakmilik',
+                        namaPenapis: 'status_tanah',
                     }
                 );
             @endif
             binaCartaBar(
-                '#cartaStatusTanah',
-                dataStatusTanah,
+                '#cartaStatusHakmilikTanah',
+                dataStatusHakmilikTanah,
                 [
                     '#6FC7BD',
                     '#8FB7F7',
@@ -685,12 +683,12 @@
             );
 
             binaCartaBar(
-                '#cartaJenisHakmilikTanah',
-                dataJenisHakmilikTanah,
-                warnaMengikutStatus(dataJenisHakmilikTanah),
+                '#cartaStatusTanah',
+                dataStatusTanah,
+                warnaMengikutStatus(dataStatusTanah),
                 {
                     pautan: pautanTanah,
-                    namaPenapis: 'jenis_hakmilik',
+                    namaPenapis: 'status_tanah',
                 }
             );
 

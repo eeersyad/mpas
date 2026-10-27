@@ -102,7 +102,7 @@
                 </div>
 
                 <div class="row g-3">
-                    <div class="col-12 col-md-6">
+                    <div class="col-12 col-md-4">
                         <div class="item-butiran-aduan">
                             <span>Jenis Kerosakan</span>
                             <strong>
@@ -111,10 +111,25 @@
                         </div>
                     </div>
 
-                    <div class="col-12 col-md-6">
+                    <div class="col-12 col-md-4">
                         <div class="item-butiran-aduan">
                             <span>Jenis Pengadu</span>
                             <strong>{{ $aduan->tnt_id ? 'Penyewa' : 'Orang Awam' }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <div class="item-butiran-aduan">
+                            <span>Nombor Telefon</span>
+
+                            <strong>
+                                @if (! $aduan->tnt_id && $aduan->cmp_reporter_phone)
+                                    <i class="bi bi-telephone-fill me-1 text-success"></i>
+                                    {{ $aduan->cmp_reporter_phone }}
+                                @else
+                                    -
+                                @endif
+                            </strong>
                         </div>
                     </div>
 
@@ -150,22 +165,67 @@
 
                     <div class="row g-3">
                         @foreach ($aduan->gambar as $gambar)
-                            <div class="col-6 col-md-4">
-                                <a
-                                    href="{{ asset('storage/' . $gambar->cmpimg_path) }}"
-                                    target="_blank"
-                                    rel="noopener"
+                            <div class="col-3">
+                                <button
+                                    type="button"
                                     class="gambar-aduan-bingkai"
+                                    data-buka-lightbox-aduan
+                                    data-sumber="{{ asset('storage/' . $gambar->cmpimg_path) }}"
+                                    data-kedudukan="{{ \App\Support\Paparan::label($gambar->cmpimg_position) }}"
+                                    data-indeks="{{ $loop->index }}"
+                                    aria-label="Lihat gambar kerosakan {{ $loop->iteration }}"
                                 >
                                     <img
                                         src="{{ asset('storage/' . $gambar->cmpimg_path) }}"
-                                        alt="Gambar kerosakan aduan"
+                                        alt="Gambar kerosakan {{ $loop->iteration }}"
                                     >
 
                                     <span>
-                                        <i class="bi bi-arrows-fullscreen"></i>
+                                        <i class="bi bi-zoom-in"></i>
                                     </span>
-                                </a>
+                                </button>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+            @if ($aduan->gambarSiap->isNotEmpty())
+                <div class="kad-butiran-aduan mt-4">
+                    <div class="d-flex align-items-center gap-2 mb-4">
+                        <div class="ikon-seksyen-aduan">
+                            <i class="bi bi-check2-circle"></i>
+                        </div>
+
+                        <div>
+                            <h2 class="h6 fw-bold mb-0">
+                                Gambar Selepas Penyelenggaraan
+                            </h2>
+
+                            <small class="text-secondary">
+                                {{ $aduan->gambarSiap->count() }} gambar dimuat naik oleh KJ.
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        @foreach ($aduan->gambarSiap as $gambarSiap)
+                            <div class="col-3">
+                                <button
+                                    type="button"
+                                    class="gambar-aduan-bingkai"
+                                    data-buka-lightbox-aduan
+                                    data-sumber="{{ asset('storage/' . $gambarSiap->cmpcimg_path) }}"
+                                    aria-label="Lihat gambar selepas penyelenggaraan {{ $loop->iteration }}"
+                                >
+                                    <img
+                                        src="{{ asset('storage/' . $gambarSiap->cmpcimg_path) }}"
+                                        alt="Gambar selepas penyelenggaraan {{ $loop->iteration }}"
+                                    >
+
+                                    <span>
+                                        <i class="bi bi-zoom-in"></i>
+                                    </span>
+                                </button>
                             </div>
                         @endforeach
                     </div>
@@ -312,6 +372,7 @@
                         <form
                             method="POST"
                             action="{{ route('aduan.penyelenggaraan', $aduan) }}"
+                            enctype="multipart/form-data"
                             data-kemaskini-aduan
                         >
                             @csrf
@@ -377,8 +438,79 @@
                                 >{{ old('cmp_completion_note', $aduan->cmp_completion_note) }}</textarea>
                             </div>
 
+                            <div
+                                id="ruangGambarSiap"
+                                class="mb-4"
+                                data-pilihan-gambar-siap
+                                @if (old('cmp_status', $aduan->cmp_status) !== 'SELESAI') hidden @endif
+                            >
+                                <label class="label-penapis">
+                                    <i class="bi bi-camera-fill"></i>
+                                    Gambar Selepas Penyelenggaraan
+                                </label>
+
+                                <div class="pilihan-gambar-awam">
+                                    <button
+                                        type="button"
+                                        class="butang-pilih-gambar"
+                                        data-buka-galeri-siap
+                                    >
+                                        <i class="bi bi-images"></i>
+
+                                        <span>
+                                            <strong>Pilih dari Galeri</strong>
+                                            <small>Pilih gambar daripada peranti</small>
+                                        </span>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        class="butang-pilih-gambar"
+                                        data-buka-kamera-siap
+                                    >
+                                        <i class="bi bi-camera-fill"></i>
+
+                                        <span>
+                                            <strong>Ambil Gambar</strong>
+                                            <small>Guna kamera telefon</small>
+                                        </span>
+                                    </button>
+                                </div>
+
+                                <input
+                                    id="gambarSiapGaleri"
+                                    type="file"
+                                    name="gambar_siap[]"
+                                    accept="image/jpeg,image/png,image/webp"
+                                    multiple
+                                    class="visually-hidden"
+                                    data-gambar-siap-galeri
+                                >
+
+                                <div data-input-kamera-siap></div>
+
+                                <div class="form-text" data-status-gambar-siap>
+                                    0 daripada 4 gambar dipilih. Saiz setiap gambar tidak melebihi 5 MB.
+                                </div>
+
+                                <div
+                                    class="preview-gambar-awam"
+                                    data-preview-gambar-siap
+                                    aria-live="polite"
+                                ></div>
+
+                                @error('gambar_siap')
+                                    <div class="text-danger small mt-2">{{ $message }}</div>
+                                @enderror
+
+                                @error('gambar_siap.*')
+                                    <div class="text-danger small mt-2">{{ $message }}</div>
+                                @enderror
+                            </div>
+
                             <button type="submit" class="btn btn-primary w-100">
-                                <i class="bi bi-tools me-2"></i>Simpan Kemaskini
+                                <i class="bi {{ $aduan->cmp_status === 'DITERIMA' ? 'bi-check2-circle' : 'bi-arrow-repeat' }} me-2"></i>
+                                {{ $aduan->cmp_status === 'DITERIMA' ? 'Simpan' : 'Kemaskini' }}
                             </button>
                         </form>
                     </div>
@@ -405,4 +537,67 @@
             </div>
         </div>
     </div>
+    @if ($aduan->gambar->isNotEmpty() || $aduan->gambarSiap->isNotEmpty())
+        <div
+            class="modal fade modal-lightbox-aduan"
+            id="modalLightboxAduan"
+            tabindex="-1"
+            aria-labelledby="tajukLightboxAduan"
+            aria-hidden="true"
+        >
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div>
+                            <p class="teks-lightbox mb-1">LAMPIRAN ADUAN</p>
+                            <h2 class="modal-title h5 fw-bold" id="tajukLightboxAduan">
+                                Pratonton Gambar Aduan
+                            </h2>
+                        </div>
+
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Tutup"
+                        ></button>
+                    </div>
+
+                    <div class="modal-body p-0">
+                        <div class="ruang-lightbox-aduan">
+                            <button
+                                type="button"
+                                class="butang-navigasi-lightbox"
+                                data-lightbox-sebelum
+                                aria-label="Gambar sebelumnya"
+                            >
+                                <i class="bi bi-chevron-left"></i>
+                            </button>
+
+                            <figure class="gambar-utama-lightbox mb-0">
+                                <img
+                                    src=""
+                                    alt=""
+                                    data-lightbox-gambar
+                                >
+
+                                <figcaption>
+                                    <span data-lightbox-bilangan></span>
+                                </figcaption>
+                            </figure>
+
+                            <button
+                                type="button"
+                                class="butang-navigasi-lightbox"
+                                data-lightbox-seterusnya
+                                aria-label="Gambar seterusnya"
+                            >
+                                <i class="bi bi-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 @endsection

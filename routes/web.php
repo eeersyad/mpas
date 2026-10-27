@@ -123,6 +123,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/aset-tanah', [PengurusanTanahController::class, 'index'])
             ->name('tanah.index');
 
+        Route::get('/aset-tanah/{tanah}/pdf', [PengurusanTanahController::class, 'muatTurunPdf'])
+            ->name('tanah.pdf');
+
         Route::get('/aset-tanah/daftar', [PengurusanTanahController::class, 'create'])
             ->name('tanah.create');
 
@@ -145,6 +148,9 @@ Route::middleware('auth')->group(function () {
     Route::middleware('peranan:SYSTEM,BPH')->group(function () {
         Route::get('/aset-bangunan', [PengurusanBangunanController::class, 'index'])
             ->name('bangunan.index');
+
+        Route::get('/aset-bangunan/{bangunan}/pdf', [PengurusanBangunanController::class, 'muatTurunPdf'])
+            ->name('bangunan.pdf');
 
         Route::get('/aset-bangunan/daftar', [PengurusanBangunanController::class, 'create'])
             ->name('bangunan.create');

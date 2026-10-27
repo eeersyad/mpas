@@ -20,6 +20,7 @@ class Bangunan extends Model
         'ast_id',
         'asb_ref_no',
         'asb_name',
+        'asb_no_file',
         'asb_add1',
         'asb_add2',
         'asb_postcode',

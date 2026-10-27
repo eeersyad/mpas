@@ -61,20 +61,20 @@
             </div>
 
             <div class="col-12 col-md-6 col-xl-2">
-                <label for="jenisHakmilik" class="label-penapis">
-                    <i class="bi bi-key"></i> Jenis Hakmilik
+                <label for="statusTanah" class="label-penapis">
+                    <i class="bi bi-key"></i> Status Tanah
                 </label>
 
                 <select
-                    id="jenisHakmilik"
-                    name="jenis_hakmilik"
+                    id="statusTanah"
+                    name="status_tanah"
                     class="form-select kawalan-penapis"
                 >
-                    <option value="">Semua Jenis</option>
+                    <option value="">Semua Status</option>
 
-                    @foreach (['SEWA', 'TIDAK_DISEWA', 'PAJAK', 'TIDAK_DIPAJAK', 'KEKAL'] as $jenis)
-                        <option value="{{ $jenis }}" @selected(request('jenis_hakmilik') === $jenis)>
-                            {{ \App\Support\Paparan::label($jenis) }}
+                    @foreach (['SEWA', 'TIDAK_DISEWA', 'PAJAK', 'TIDAK_DIPAJAK'] as $status)
+                        <option value="{{ $status }}" @selected(request('status_tanah') === $status)>
+                            {{ \App\Support\Paparan::label($status) }}
                         </option>
                     @endforeach
                 </select>
@@ -104,10 +104,11 @@
                         <th>Bil.</th>
                         <th><x-susun medan="rujukan" label="No. Rujukan" /></th>
                         <th><x-susun medan="lot" label="No. Lot" /></th>
+                        <th><x-susun medan="no_fail" label="No. Fail" /></th>
                         <th><x-susun medan="lokasi" label="Lokasi" /></th>
                         <th><x-susun medan="keluasan" label="Keluasan" /></th>
                         <th><x-susun medan="status_hakmilik" label="Status Hakmilik" /></th>
-                        <th><x-susun medan="jenis_hakmilik" label="Jenis Hakmilik" /></th>
+                        <th><x-susun medan="status_tanah" label="Status Tanah" /></th>
                         <th class="text-end">Tindakan</th>
                     </tr>
                 </thead>
@@ -117,13 +118,15 @@
                         <tr
                             class="baris-boleh-klik"
                             data-baris-butiran
+                            data-url="{{ route('tanah.butiran', $item) }}"
                             tabindex="0"
                             role="button"
-                            aria-label="Lihat butiran {{ $item->asl_ref_no }}"
+                            aria-label="Lihat butiran {{ $item->asl_lot_no }}"
                         >
                             <td>{{ $tanah->firstItem() + $loop->index }}</td>
                             <td class="fw-semibold">{{ $item->asl_ref_no }}</td>
                             <td>{{ $item->asl_lot_no }}</td>
+                            <td>{{ $item->asl_no_file ?: '-' }}</td>
                             <td>{{ $item->asl_location }}</td>
                             <td>{{ number_format($item->asl_land_size, 2) }} m²</td>
                             <td>
@@ -133,32 +136,30 @@
                             </td>
 
                             @php
-                                $warnaJenisHakmilik = match ($item->asl_hakmilik_type) {
+                                $warnaStatusTanah = match ($item->asl_status_tanah) {
                                     'SEWA' => 'jenis-sewa',
                                     'TIDAK_DISEWA' => 'jenis-tidak-disewa',
                                     'PAJAK' => 'jenis-pajak',
                                     'TIDAK_DIPAJAK' => 'jenis-tidak-dipajak',
-                                    'KEKAL' => 'jenis-kekal',
                                     default => 'kelabu',
                                 };
                             @endphp
 
                             <td>
-                                <span class="lencana-jadual {{ $warnaJenisHakmilik }}">
-                                    {{ \App\Support\Paparan::label($item->asl_hakmilik_type) }}
+                                <span class="lencana-jadual {{ $warnaStatusTanah }}">
+                                    {{ \App\Support\Paparan::label($item->asl_status_tanah) }}
                                 </span>
                             </td>
                             <td class="text-end">
                                 <div class="d-inline-flex gap-2">
-                                    <button
-                                        type="button"
+                                    <a
+                                        href="{{ route('tanah.pdf', $item) }}"
                                         class="btn btn-sm btn-outline-secondary"
-                                        data-buka-butiran
-                                        data-url="{{ route('tanah.butiran', $item) }}"
-                                        title="Lihat butiran aset tanah"
+                                        title="Muat turun maklumat aset tanah dalam PDF"
+                                        aria-label="Muat turun PDF aset tanah"
                                     >
-                                        <i class="bi bi-eye"></i>
-                                    </button>
+                                        <i class="bi bi-download"></i>
+                                    </a>
 
                                     <a
                                         href="{{ route('tanah.edit', $item) }}"
@@ -172,7 +173,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="py-5 text-center">
+                            <td colspan="9" class="py-5 text-center">
                                 <i class="bi bi-map text-secondary fs-2 d-block mb-2"></i>
                                 <span class="text-secondary">Tiada aset tanah didaftarkan.</span>
                             </td>

@@ -684,48 +684,51 @@ document.addEventListener('DOMContentLoaded', () => {
         '[data-kandungan-modal]'
     );
 
-    document.querySelectorAll('[data-buka-butiran]').forEach((butang) => {
-        butang.addEventListener('click', async () => {
-            if (!modalButiranAset || !kandunganModalAset) {
-                return;
+    const bukaButiranAset = async (url) => {
+        if (!modalButiranAset || !kandunganModalAset || !url) {
+            return;
+        }
+
+        kandunganModalAset.innerHTML = `
+            <div class="modal-body text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="text-secondary mt-3 mb-0">
+                    Memuatkan butiran aset...
+                </p>
+            </div>
+        `;
+
+        bootstrap.Modal.getOrCreateInstance(modalButiranAset).show();
+
+        try {
+            const respons = await fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+
+            if (!respons.ok) {
+                throw new Error('Butiran aset tidak dapat dimuatkan.');
             }
 
+            kandunganModalAset.innerHTML = await respons.text();
+            aktifkanTabButiran(kandunganModalAset);
+        } catch (ralat) {
             kandunganModalAset.innerHTML = `
                 <div class="modal-body text-center py-5">
-                    <div class="spinner-border text-primary" role="status"></div>
-                    <p class="text-secondary mt-3 mb-0">
-                        Memuatkan butiran aset...
+                    <i class="bi bi-exclamation-circle text-danger fs-1"></i>
+                    <h5 class="mt-3">Butiran tidak dapat dimuatkan</h5>
+                    <p class="text-secondary mb-0">
+                        Sila cuba semula sebentar lagi.
                     </p>
                 </div>
             `;
+        }
+    };
 
-            const modal = bootstrap.Modal.getOrCreateInstance(modalButiranAset);
-            modal.show();
-
-            try {
-                const respons = await fetch(butang.dataset.url, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                    },
-                });
-
-                if (!respons.ok) {
-                    throw new Error('Butiran aset tidak dapat dimuatkan.');
-                }
-
-                kandunganModalAset.innerHTML = await respons.text();
-                aktifkanTabButiran(kandunganModalAset);
-            } catch (ralat) {
-                kandunganModalAset.innerHTML = `
-                    <div class="modal-body text-center py-5">
-                        <i class="bi bi-exclamation-circle text-danger fs-1"></i>
-                        <h5 class="mt-3">Butiran tidak dapat dimuatkan</h5>
-                        <p class="text-secondary mb-0">
-                            Sila cuba semula sebentar lagi.
-                        </p>
-                    </div>
-                `;
-            }
+    document.querySelectorAll('[data-buka-butiran]').forEach((butang) => {
+        butang.addEventListener('click', () => {
+            bukaButiranAset(butang.dataset.url);
         });
     });
 
@@ -752,7 +755,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('[data-baris-butiran]').forEach((baris) => {
         aktifkanBarisJadual(baris, () => {
-            baris.querySelector('[data-buka-butiran]')?.click();
+            bukaButiranAset(baris.dataset.url);
         });
     });
 
@@ -905,7 +908,232 @@ document.addEventListener('DOMContentLoaded', () => {
     */
     const borangTerimaAduan = document.querySelector('[data-terima-aduan]');
     const borangTolakAduan = document.querySelector('[data-tolak-aduan]');
-    const borangKemaskiniAduan = document.querySelector('[data-kemaskini-aduan]');
+    const borangKemaskiniAduan = document.querySelector(
+        '[data-kemaskini-aduan]'
+    );
+
+    const statusKemaskiniAduan = borangKemaskiniAduan?.querySelector(
+        '[name="cmp_status"]'
+    );
+
+    const ruangGambarSiap = borangKemaskiniAduan?.querySelector(
+        '#ruangGambarSiap'
+    );
+
+    
+
+    const kemaskiniRuangGambarSiap = () => {
+        if (!statusKemaskiniAduan || !ruangGambarSiap) {
+            return;
+        }
+
+        const aduanSelesai = statusKemaskiniAduan.value === 'SELESAI';
+
+        ruangGambarSiap.hidden = !aduanSelesai;
+
+        
+    };
+
+    statusKemaskiniAduan?.addEventListener(
+        'change',
+        kemaskiniRuangGambarSiap
+    );
+
+    kemaskiniRuangGambarSiap();
+
+    const panelGambarSiap = document.querySelector(
+        '[data-pilihan-gambar-siap]'
+    );
+
+    if (panelGambarSiap) {
+        const hadGambar = 4;
+
+        const inputGaleri = panelGambarSiap.querySelector(
+            '[data-gambar-siap-galeri]'
+        );
+
+        const bekasInputKamera = panelGambarSiap.querySelector(
+            '[data-input-kamera-siap]'
+        );
+
+        const butangGaleri = panelGambarSiap.querySelector(
+            '[data-buka-galeri-siap]'
+        );
+
+        const butangKamera = panelGambarSiap.querySelector(
+            '[data-buka-kamera-siap]'
+        );
+
+        const statusGambar = panelGambarSiap.querySelector(
+            '[data-status-gambar-siap]'
+        );
+
+        const previewGambar = panelGambarSiap.querySelector(
+            '[data-preview-gambar-siap]'
+        );
+
+        const dapatGambarGaleri = () =>
+            [...(inputGaleri.files ?? [])].map((fail, indeks) => ({
+                sumber: 'galeri',
+                id: `galeri-siap-${indeks}`,
+                indeks,
+                fail,
+            }));
+
+        const dapatGambarKamera = () =>
+            [...bekasInputKamera.querySelectorAll('[data-gambar-kamera-siap]')]
+                .filter((input) => input.files?.length > 0)
+                .map((input) => ({
+                    sumber: 'kamera',
+                    id: input.dataset.id,
+                    fail: input.files[0],
+                }));
+
+        const semuaGambar = () => [
+            ...dapatGambarGaleri(),
+            ...dapatGambarKamera(),
+        ];
+
+        const jumlahGambarDipilih = () => semuaGambar().length;
+
+        const paparRalatHadGambar = () => {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Had gambar telah dicapai',
+                text: 'Maksimum empat gambar sahaja boleh dimuat naik.',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#168A7E',
+            });
+        };
+
+        const kemaskiniFailGaleri = (fail) => {
+            const pemindahanFail = new DataTransfer();
+
+            fail.forEach((item) => {
+                pemindahanFail.items.add(item);
+            });
+
+            inputGaleri.files = pemindahanFail.files;
+        };
+
+        const padamGambar = (gambar) => {
+            if (gambar.sumber === 'galeri') {
+                const failGaleri = [...inputGaleri.files];
+
+                failGaleri.splice(gambar.indeks, 1);
+
+                kemaskiniFailGaleri(failGaleri);
+            } else {
+                bekasInputKamera
+                    .querySelector(
+                        `[data-gambar-kamera-siap][data-id="${gambar.id}"]`
+                    )
+                    ?.remove();
+            }
+
+            kemaskiniPaparanGambar();
+        };
+
+        const kemaskiniPreviewGambar = () => {
+            previewGambar.replaceChildren();
+
+            semuaGambar().forEach((gambar, indeks) => {
+                const kadPreview = document.createElement('div');
+
+                kadPreview.className = 'item-preview-gambar';
+
+                const imej = document.createElement('img');
+
+                imej.src = URL.createObjectURL(gambar.fail);
+                imej.alt = `Gambar selepas penyelenggaraan ${indeks + 1}`;
+
+                const butangPadam = document.createElement('button');
+
+                butangPadam.type = 'button';
+                butangPadam.className = 'butang-buang-preview';
+                butangPadam.title = `Buang gambar ${indeks + 1}`;
+                butangPadam.setAttribute(
+                    'aria-label',
+                    `Buang gambar ${indeks + 1}`
+                );
+                butangPadam.innerHTML = '<i class="bi bi-x-lg"></i>';
+
+                butangPadam.addEventListener('click', () => {
+                    padamGambar(gambar);
+                });
+
+                kadPreview.append(imej, butangPadam);
+                previewGambar.appendChild(kadPreview);
+            });
+        };
+
+        const kemaskiniPaparanGambar = () => {
+            const jumlah = jumlahGambarDipilih();
+
+            statusGambar.textContent =
+                `${jumlah} daripada ${hadGambar} gambar dipilih. ` +
+                'Saiz setiap gambar tidak melebihi 5 MB.';
+
+            butangKamera.disabled = jumlah >= hadGambar;
+            butangKamera.classList.toggle('disabled', jumlah >= hadGambar);
+
+            kemaskiniPreviewGambar();
+        };
+
+        butangGaleri.addEventListener('click', () => {
+            inputGaleri.click();
+        });
+
+        inputGaleri.addEventListener('change', () => {
+            const jumlahKamera = dapatGambarKamera().length;
+            const bakiGambar = hadGambar - jumlahKamera;
+            const failDipilih = [...inputGaleri.files];
+
+            if (failDipilih.length > bakiGambar) {
+                kemaskiniFailGaleri(
+                    failDipilih.slice(0, Math.max(0, bakiGambar))
+                );
+
+                paparRalatHadGambar();
+            }
+
+            kemaskiniPaparanGambar();
+        });
+
+        butangKamera.addEventListener('click', () => {
+            if (jumlahGambarDipilih() >= hadGambar) {
+                paparRalatHadGambar();
+                return;
+            }
+
+            const inputKamera = document.createElement('input');
+
+            inputKamera.type = 'file';
+            inputKamera.name = 'gambar_siap[]';
+            inputKamera.accept = 'image/jpeg,image/png,image/webp';
+            inputKamera.capture = 'environment';
+            inputKamera.hidden = true;
+            inputKamera.dataset.gambarKameraSiap = 'ya';
+            inputKamera.dataset.id =
+                window.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
+
+            inputKamera.addEventListener('change', () => {
+                if (!inputKamera.files?.length) {
+                    inputKamera.remove();
+                } else if (jumlahGambarDipilih() > hadGambar) {
+                    inputKamera.remove();
+                    paparRalatHadGambar();
+                }
+
+                kemaskiniPaparanGambar();
+            });
+
+            bekasInputKamera.appendChild(inputKamera);
+            inputKamera.click();
+        });
+
+        kemaskiniPaparanGambar();
+    }
 
     const sahkanTindakanAduan = (borang, tetapan) => {
         borang?.addEventListener('submit', (event) => {
@@ -1081,6 +1309,97 @@ document.addEventListener('DOMContentLoaded', () => {
 
             suis.addEventListener('change', kemaskiniStatus);
         });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Lightbox gambar aduan
+    |--------------------------------------------------------------------------
+    */
+    const butangGambarAduan = [
+        ...document.querySelectorAll('[data-buka-lightbox-aduan]'),
+    ];
+
+    const modalLightboxAduan = document.querySelector('#modalLightboxAduan');
+
+    if (butangGambarAduan.length && modalLightboxAduan) {
+        const gambarLightbox = modalLightboxAduan.querySelector(
+            '[data-lightbox-gambar]'
+        );
+        const bilanganLightbox = modalLightboxAduan.querySelector(
+            '[data-lightbox-bilangan]'
+        );
+        const butangSebelum = modalLightboxAduan.querySelector(
+            '[data-lightbox-sebelum]'
+        );
+        const butangSeterusnya = modalLightboxAduan.querySelector(
+            '[data-lightbox-seterusnya]'
+        );
+
+        let indeksSemasa = 0;
+
+        const paparGambar = (indeks) => {
+            indeksSemasa = (indeks + butangGambarAduan.length)
+                % butangGambarAduan.length;
+
+            const item = butangGambarAduan[indeksSemasa];
+
+            gambarLightbox.src = item.dataset.sumber;
+            gambarLightbox.alt = item.querySelector('img')?.alt
+                ?? 'Gambar kerosakan aduan';
+
+            const kemaskiniNisbahGambar = () => {
+                const gambarPotret =
+                    gambarLightbox.naturalHeight > gambarLightbox.naturalWidth;
+
+                modalLightboxAduan.classList.toggle(
+                    'gambar-potret',
+                    gambarPotret
+                );
+            };
+
+            gambarLightbox.onload = kemaskiniNisbahGambar;
+
+            if (gambarLightbox.complete) {
+                kemaskiniNisbahGambar();
+            }
+
+            bilanganLightbox.textContent =
+                `${indeksSemasa + 1} daripada ${butangGambarAduan.length}`;
+
+            const satuGambarSahaja = butangGambarAduan.length === 1;
+
+            butangSebelum.disabled = satuGambarSahaja;
+            butangSeterusnya.disabled = satuGambarSahaja;
+        };
+
+        butangGambarAduan.forEach((butang, indeks) => {
+            butang.addEventListener('click', () => {
+                paparGambar(indeks);
+
+                bootstrap.Modal
+                    .getOrCreateInstance(modalLightboxAduan)
+                    .show();
+            });
+        });
+
+        butangSebelum.addEventListener('click', () => {
+            paparGambar(indeksSemasa - 1);
+        });
+
+        butangSeterusnya.addEventListener('click', () => {
+            paparGambar(indeksSemasa + 1);
+        });
+
+        modalLightboxAduan.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowLeft') {
+                paparGambar(indeksSemasa - 1);
+            }
+
+            if (event.key === 'ArrowRight') {
+                paparGambar(indeksSemasa + 1);
+            }
+        });
+    }
 
     /*
     |--------------------------------------------------------------------------

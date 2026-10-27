@@ -60,10 +60,17 @@
                 </dl>
             </div>
 
-            <div class="col-12">
+            <div class="col-12 col-md-6">
                 <dl class="butiran-medan">
                     <dt>Nama Bangunan</dt>
                     <dd>{{ $bangunan->asb_name ?: '-' }}</dd>
+                </dl>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <dl class="butiran-medan">
+                    <dt>No. Fail</dt>
+                    <dd>{{ $bangunan->asb_no_file ?: '-' }}</dd>
                 </dl>
             </div>
 
@@ -391,11 +398,11 @@
                     </div>
 
                     <div class="col-12 col-md-4">
-                        <small class="teks-kecil d-block">Tempoh Sewa</small>
+                        <small class="teks-kecil d-block">Tempoh Perjanjian</small>
                         <span>
-                            {{ $penyewa->tnt_start_date?->format('d/m/Y') ?? '-' }}
-                            hingga
-                            {{ $penyewa->tnt_end_date?->format('d/m/Y') ?? '-' }}
+                            {{ $penyewa->tnt_mula_perjanjian?->format('d/m/Y') ?? '-' }}
+                            -
+                            {{ $penyewa->tnt_tamat_perjanjian?->format('d/m/Y') ?? '-' }}
                         </span>
                     </div>
                 </div>

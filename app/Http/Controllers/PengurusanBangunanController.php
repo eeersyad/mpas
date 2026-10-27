@@ -10,6 +10,7 @@ use App\Services\Rujukan;
 use App\Services\KodQr;
 use App\Support\Jadual;
 use App\Support\Susunan;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
@@ -33,6 +34,7 @@ class PengurusanBangunanController extends Controller
             [
                 'rujukan' => 'asb_ref_no',
                 'nama' => 'asb_name',
+                'no_fail' => 'asb_no_file',
                 'kategori' => 'asb_category',
                 'status_premis' => 'asb_premise_status',
                 'penyelenggaraan' => 'asb_maintenance_status',
@@ -51,6 +53,7 @@ class PengurusanBangunanController extends Controller
                 $query->where(function ($query) use ($cari): void {
                     $query->where('asb_ref_no', 'like', "%{$cari}%")
                         ->orWhere('asb_name', 'like', "%{$cari}%")
+                        ->orWhere('asb_no_file', 'like', "%{$cari}%")
                         ->orWhere('asb_city', 'like', "%{$cari}%")
                         ->orWhere('asb_category', 'like', "%{$cari}%");
                 });
@@ -141,6 +144,56 @@ class PengurusanBangunanController extends Controller
         ]);
 
         return view('bangunan.butiran', compact('bangunan'));
+    }
+
+    public function muatTurunPdf(Bangunan $bangunan)
+    {
+        $bangunan->load('penyewa');
+
+        $pdf = Pdf::loadView('pdf.aset-butiran', [
+            'jenis' => 'bangunan',
+            'aset' => $bangunan,
+            'tarikh' => now(),
+            'logoMdm' => base64_encode(
+                file_get_contents(public_path('images/logo-mdm.png'))
+            ),
+            'logoMpas' => base64_encode(
+                file_get_contents(public_path('images/logo-mpas-2.png'))
+            ),
+        ])
+            ->setPaper('a4', 'landscape');
+
+        $pdf->render();
+
+        $dompdf = $pdf->getDomPDF();
+        $kanvas = $dompdf->getCanvas();
+
+        $font = $dompdf->getFontMetrics()->getFont(
+            'DejaVu Sans',
+            'normal'
+        );
+
+        $kanvas->page_text(
+            24,
+            570,
+            'Dokumen ini dijana oleh MPAS untuk kegunaan rasmi Majlis Daerah Marang.',
+            $font,
+            7,
+            [0.33, 0.33, 0.33]
+        );
+
+        $kanvas->page_text(
+            742,
+            570,
+            'Halaman {PAGE_NUM} / {PAGE_COUNT}',
+            $font,
+            7,
+            [0.33, 0.33, 0.33]
+        );
+
+        return $pdf->download(
+            "Aset-Bangunan-{$bangunan->asb_ref_no}.pdf"
+        );
     }
 
     public function edit(Bangunan $bangunan): View

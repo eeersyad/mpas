@@ -5,6 +5,7 @@
 @section('kandungan')
     @php
         $bangunan = $kodBangunan->bangunan;
+        $jumlahPenyewa = $bangunan->penyewa->count();
 
         $status = [
             'BARU' => ['label' => 'Aduan Diterima', 'peratus' => 25, 'warna' => 'primary'],
@@ -24,6 +25,16 @@
 
         <div class="maklumat-aset-awam">
             <h1>{{ $bangunan->asb_name }}</h1>
+
+            <span class="jumlah-penyewa-awam">
+                <i class="bi bi-people-fill"></i>
+
+                @if ($jumlahPenyewa > 0)
+                    {{ $jumlahPenyewa }} Penyewa
+                @else
+                    Tiada Penyewa
+                @endif
+            </span>
 
             @php
                 $alamatAsetAwam = collect([
@@ -242,6 +253,27 @@
                     placeholder="Masukkan nama penuh anda"
                 >
 
+                <div class="mt-3">
+                    <label for="cmp_reporter_phone" class="form-label fw-semibold">
+                        Nombor Telefon <span class="text-danger">*</span>
+                    </label>
+
+                    <input
+                        id="cmp_reporter_phone"
+                        type="tel"
+                        name="cmp_reporter_phone"
+                        class="form-control @error('cmp_reporter_phone') is-invalid @enderror"
+                        value="{{ old('cmp_reporter_phone') }}"
+                        inputmode="tel"
+                        autocomplete="tel"
+                        placeholder="Contoh: 012-3456789"
+                    >
+
+                    @error('cmp_reporter_phone')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
                 @error('cmp_reporter_name')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -384,6 +416,7 @@
         const pilihanPenyewa = document.querySelector('#tnt_id');
         const ruangOrangAwam = document.querySelector('#ruangOrangAwam');
         const namaPengaduAwam = document.querySelector('#cmp_reporter_name');
+        const telefonPengaduAwam = document.querySelector('#cmp_reporter_phone');
 
         const kemaskiniPengadu = () => {
             const penyewa = kategoriPengadu.value === 'PENYEWA';
@@ -394,6 +427,7 @@
 
             ruangOrangAwam.hidden = !orangAwam;
             namaPengaduAwam.required = orangAwam;
+            telefonPengaduAwam.required = orangAwam;
 
             if (!penyewa) {
                 pilihanPenyewa.value = '';
@@ -401,6 +435,7 @@
 
             if (!orangAwam) {
                 namaPengaduAwam.value = '';
+                telefonPengaduAwam.value = '';
             }
         };
 

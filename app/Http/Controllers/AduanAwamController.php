@@ -92,17 +92,23 @@ class AduanAwamController extends Controller
             ? $data['cmp_reporter_name']
             : null;
 
+        $reporterPhone = $data['jenis_pengadu'] === 'ORANG_AWAM'
+            ? $data['cmp_reporter_phone']
+            : null;
+
         $aduan = DB::transaction(function () use (
             $request,
             $kodBangunan,
             $data,
             $tenantId,
-            $reporterName
+            $reporterName,
+            $reporterPhone
         ): Aduan {
             $aduan = Aduan::create([
                 'asb_id' => $kodBangunan->asb_id,
                 'tnt_id' => $tenantId,
                 'cmp_reporter_name' => $reporterName,
+                'cmp_reporter_phone' => $reporterPhone,
                 'cmp_received_date' => now(),
                 'cmp_note' => $data['cmp_note'],
                 'cmp_damage_type' => $data['cmp_damage_type'],

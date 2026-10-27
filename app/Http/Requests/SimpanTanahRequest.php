@@ -15,12 +15,13 @@ class SimpanTanahRequest extends FormRequest
     {
         return [
             'asl_lot_no' => ['required', 'string', 'max:100'],
+            'asl_no_file' => ['nullable', 'string', 'max:100'],
             'asl_location' => ['required', 'string', 'max:255'],
             'asl_land_size' => ['required', 'numeric', 'min:0'],
 
             'asl_hakmilik_no' => ['nullable', 'string', 'max:100'],
             'asl_status_hakmilik' => ['nullable', 'in:HAKMILIK,RIZAB,STRATA,LAIN_LAIN'],
-            'asl_hakmilik_type' => ['nullable', 'in:SEWA,TIDAK_DISEWA,PAJAK,TIDAK_DIPAJAK,KEKAL'],
+            'asl_status_tanah' => ['required', 'in:SEWA,TIDAK_DISEWA,PAJAK,TIDAK_DIPAJAK'],
             'asl_tarikh_terima_hakmilik' => ['nullable', 'date'],
             'asl_tarikh_serah_balik_hakmilik' => ['nullable', 'date', 'after_or_equal:asl_tarikh_terima_hakmilik'],
 
@@ -61,6 +62,8 @@ class SimpanTanahRequest extends FormRequest
             'asl_longitude.between' => 'Longitud mesti berada antara -180 hingga 180.',
             'asl_tarikh_serah_balik_hakmilik.after_or_equal' =>
                 'Tarikh serah balik tidak boleh lebih awal daripada tarikh terima hakmilik.',
+            'asl_status_tanah.required' => 'Status tanah diperlukan.',
+            'asl_status_tanah.in' => 'Status tanah yang dipilih tidak sah.',
             
             'dokumen.max' => 'Maksimum 4 dokumen boleh dimuat naik bagi satu aset tanah.',
             'dokumen.*.jenis.required_with' => 'Sila pilih jenis dokumen.',

@@ -23,6 +23,7 @@ class SimpanBangunanRequest extends FormRequest
     {
         return [
             'asb_name' => ['required', 'string', 'max:255'],
+            'asb_no_file' => ['nullable', 'string', 'max:100'],
             'asb_category' => ['required', 'in:PREMIS_PERNIAGAAN,TANDAS,DEWAN,PONDOK_BAS'],
             'asb_sub_category' => ['nullable', 'string', 'max:255'],
             'asb_add1' => ['required', 'string', 'max:255'],
@@ -84,8 +85,12 @@ class SimpanBangunanRequest extends FormRequest
             'penyewa.*.tnt_name' => ['required_with:penyewa.*.tnt_status', 'nullable', 'string', 'max:255'],
             'penyewa.*.tnt_acc_no' => ['nullable', 'string', 'max:100'],
             'penyewa.*.tnt_ic_no' => ['nullable', 'string', 'max:20'],
-            'penyewa.*.tnt_start_date' => ['nullable', 'date'],
-            'penyewa.*.tnt_end_date' => ['nullable', 'date', 'after_or_equal:penyewa.*.tnt_start_date'],
+            'penyewa.*.tnt_mula_perjanjian' => ['nullable', 'date'],
+            'penyewa.*.tnt_tamat_perjanjian' => [
+                'nullable',
+                'date',
+                'after_or_equal:penyewa.*.tnt_mula_perjanjian',
+            ],
             'penyewa.*.tnt_status' => ['nullable', 'in:AKTIF,TIDAK_AKTIF'],
 
             'dokumen' => ['nullable', 'array', 'max:10'],
@@ -114,8 +119,8 @@ class SimpanBangunanRequest extends FormRequest
             'asb_maintenance_status.required' => 'Sila pilih status penyelenggaraan.',
             'asb_premise_status.required' => 'Sila pilih status premis.',
             'penyewa.*.tnt_name.required_with' => 'Sila masukkan nama penyewa.',
-            'penyewa.*.tnt_end_date.after_or_equal' =>
-                'Tarikh tamat sewaan tidak boleh lebih awal daripada tarikh mula sewaan.',
+            'penyewa.*.tnt_tamat_perjanjian.after_or_equal' =>
+                'Tarikh tamat perjanjian tidak boleh lebih awal daripada tarikh mula perjanjian.',
             'dokumen.max' => 'Maksimum 10 dokumen boleh dimuat naik dalam satu masa.',
             'dokumen.*.jenis.required_with' => 'Sila pilih jenis dokumen.',
             'dokumen.*.jenis.in' => 'Jenis dokumen yang dipilih tidak sah.',

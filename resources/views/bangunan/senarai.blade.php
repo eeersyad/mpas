@@ -116,7 +116,7 @@
                         <th>Bil.</th>
                         <th><x-susun medan="rujukan" label="No. Rujukan" /></th>
                         <th><x-susun medan="nama" label="Nama Bangunan" /></th>
-                        <th><x-susun medan="kategori" label="Kategori" /></th>
+                        <th><x-susun medan="no_fail" label="No. Fail" /></th>
                         <th><x-susun medan="status_premis" label="Status Premis" /></th>
                         <th><x-susun medan="penyelenggaraan" label="Status Penyelenggaraan" /></th>
                         <th><x-susun medan="penyewa" label="Penyewa Aktif" /></th>
@@ -129,6 +129,7 @@
                         <tr
                             class="baris-boleh-klik"
                             data-baris-butiran
+                            data-url="{{ route('bangunan.butiran', $item) }}"
                             tabindex="0"
                             role="button"
                             aria-label="Lihat butiran {{ $item->asb_name }}"
@@ -139,14 +140,16 @@
 
                             <td>
                                 <div class="fw-semibold">{{ $item->asb_name }}</div>
-                                <small class="text-secondary">{{ $item->asb_city ?? '-' }}</small>
+                                <div class="mt-2">
+                                    <span class="lencana-jadual kelabu">
+                                        {{ \App\Support\Paparan::label($item->asb_category) }}
+                                    </span>
+                                </div>
                             </td>
 
-                            <td>
-                                <span class="lencana-jadual kelabu">
-                                    {{ \App\Support\Paparan::label($item->asb_category) }}
-                                </span>
-                            </td>
+                            <td>{{ $item->asb_no_file ?: '-' }}</td>
+
+                            
 
                             @php
                                 $warnaPremis = match ($item->asb_premise_status) {
@@ -192,15 +195,14 @@
 
                             <td class="text-end">
                                 <div class="d-inline-flex gap-2">
-                                    <button
-                                        type="button"
+                                    <a
+                                        href="{{ route('bangunan.pdf', $item) }}"
                                         class="btn btn-sm btn-outline-secondary"
-                                        data-buka-butiran
-                                        data-url="{{ route('bangunan.butiran', $item) }}"
-                                        title="Lihat butiran aset bangunan"
+                                        title="Muat turun maklumat aset bangunan dalam PDF"
+                                        aria-label="Muat turun PDF aset bangunan"
                                     >
-                                        <i class="bi bi-eye"></i>
-                                    </button>
+                                        <i class="bi bi-download"></i>
+                                    </a>
                                     <a
                                         href="{{ route('bangunan.edit', $item) }}"
                                         class="btn btn-sm btn-outline-primary"
@@ -213,7 +215,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="py-5 text-center">
+                            <td colspan="9" class="py-5 text-center">
                                 <i class="bi bi-buildings text-secondary fs-2 d-block mb-2"></i>
                                 <span class="text-secondary">Tiada aset bangunan didaftarkan.</span>
                             </td>

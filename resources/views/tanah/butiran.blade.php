@@ -60,6 +60,13 @@
 
             <div class="col-12 col-md-6">
                 <dl class="butiran-medan">
+                    <dt>No. Fail</dt>
+                    <dd>{{ $tanah->asl_no_file ?: '-' }}</dd>
+                </dl>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <dl class="butiran-medan">
                     <dt>Keluasan Tanah</dt>
                     <dd>
                         {{ $tanah->asl_land_size !== null
@@ -81,7 +88,7 @@
     <section class="panel-butiran" data-tab-butiran-panel="2" role="tabpanel" hidden>
         <div class="butiran-seksyen">
             <h6>Maklumat Hakmilik</h6>
-            <p>Butiran status, jenis dan rekod penerimaan hakmilik tanah.</p>
+            <p>Butiran status hakmilik, status tanah dan rekod penerimaan tanah.</p>
         </div>
 
         <div class="row g-3">
@@ -105,10 +112,10 @@
 
             <div class="col-12 col-md-4">
                 <dl class="butiran-medan">
-                    <dt>Jenis Hakmilik</dt>
+                    <dt>Status Tanah</dt>
                     <dd>
-                        {{ $tanah->asl_hakmilik_type
-                            ? \App\Support\Paparan::label($tanah->asl_hakmilik_type)
+                        {{ $tanah->asl_status_tanah
+                            ? \App\Support\Paparan::label($tanah->asl_status_tanah)
                             : '-' }}
                     </dd>
                 </dl>

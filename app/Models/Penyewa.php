@@ -20,8 +20,8 @@ class Penyewa extends Model
         'tnt_name',
         'tnt_acc_no',
         'tnt_ic_no',
-        'tnt_start_date',
-        'tnt_end_date',
+        'tnt_mula_perjanjian',
+        'tnt_tamat_perjanjian',
         'tnt_status',
         'created_by',
         'updated_by',
@@ -30,8 +30,8 @@ class Penyewa extends Model
     protected function casts(): array
     {
         return [
-            'tnt_start_date' => 'date',
-            'tnt_end_date' => 'date',
+            'tnt_mula_perjanjian' => 'date',
+            'tnt_tamat_perjanjian' => 'date',
         ];
     }
 

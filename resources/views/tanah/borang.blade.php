@@ -58,7 +58,7 @@
                 </div>
 
                 <div class="row g-4">
-                    <div class="col-12 col-md-6">
+                    <div class="col-12 col-md-4">
                         <label for="asl_lot_no" class="form-label fw-semibold">
                             Nombor Lot <span class="text-danger">*</span>
                         </label>
@@ -77,7 +77,26 @@
                         @enderror
                     </div>
 
-                    <div class="col-12 col-md-6">
+                    <div class="col-12 col-md-4">
+                        <label for="asl_no_file" class="form-label fw-semibold">
+                            No. Fail
+                        </label>
+
+                        <input
+                            type="text"
+                            id="asl_no_file"
+                            name="asl_no_file"
+                            class="form-control @error('asl_no_file') is-invalid @enderror"
+                            value="{{ old('asl_no_file', $tanah?->asl_no_file) }}"
+                            placeholder="Contoh: MDM/TNH/01/2026"
+                        >
+
+                        @error('asl_no_file')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="col-12 col-md-4">
                         <label for="asl_land_size" class="form-label fw-semibold">
                             Keluasan Tanah <span class="text-danger">*</span>
                         </label>
@@ -163,17 +182,17 @@
                     </div>
 
                     <div class="col-12 col-md-4">
-                        <label for="asl_hakmilik_type" class="form-label fw-semibold">Jenis Hakmilik</label>
+                        <label for="asl_status_tanah" class="form-label fw-semibold">Status Tanah</label>
 
-                        <select class="form-select" id="asl_hakmilik_type" name="asl_hakmilik_type">
-                            <option value="">-- Pilih Jenis --</option>
+                        <select class="form-select" id="asl_status_tanah" name="asl_status_tanah">
+                            <option value="">-- Pilih Status Tanah --</option>
 
-                            @foreach (['SEWA', 'TIDAK_DISEWA', 'PAJAK', 'TIDAK_DIPAJAK', 'KEKAL'] as $jenis)
+                            @foreach (['SEWA', 'TIDAK_DISEWA', 'PAJAK', 'TIDAK_DIPAJAK'] as $status)
                                 <option
-                                    value="{{ $jenis }}"
-                                    @selected(old('asl_hakmilik_type', $tanah?->asl_hakmilik_type) === $jenis)
+                                    value="{{ $status }}"
+                                    @selected(old('asl_status_tanah', $tanah?->asl_status_tanah) === $status)
                                 >
-                                    {{ str_replace('_', ' ', $jenis) }}
+                                    {{ \App\Support\Paparan::label($status) }}
                                 </option>
                             @endforeach
                         </select>

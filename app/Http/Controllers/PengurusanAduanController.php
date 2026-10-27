@@ -9,6 +9,7 @@ use App\Support\Jadual;
 use App\Models\Bangunan;
 use App\Support\Susunan;
 use App\Services\NotifikasiAduan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -100,6 +101,7 @@ class PengurusanAduanController extends Controller
             'bangunan',
             'penyewa',
             'gambar',
+            'gambarSiap.dimuatNaikOleh',
             'diterimaOleh',
             'disenggaraOleh',
         ]);
@@ -156,7 +158,7 @@ class PengurusanAduanController extends Controller
     }
 
     public function kemaskiniPenyelenggaraan(
-        Request $request,
+        KemaskiniAduanRequest $request,
         Aduan $aduan,
         NotifikasiAduan $notifikasiAduan
     ): RedirectResponse {
@@ -176,14 +178,38 @@ class PengurusanAduanController extends Controller
 
         $status = $request->string('cmp_status')->toString();
 
-        $aduan->update([
-            'cmp_status' => $status,
-            'cmp_maintenance_date' => $request->input('cmp_maintenance_date'),
-            'cmp_completion_note' => $request->input('cmp_completion_note'),
-            'cmp_completed_at' => $status === 'SELESAI' ? now() : null,
-            'cmp_maintained_by' => $request->user()->usr_id,
-            'updated_by' => $request->user()->usr_id,
-        ]);
+        DB::transaction(function () use ($request, $aduan, $status): void {
+            $aduan->update([
+                'cmp_status' => $status,
+                'cmp_maintenance_date' => $request->input('cmp_maintenance_date'),
+                'cmp_completion_note' => $request->input('cmp_completion_note'),
+                'cmp_completed_at' => $status === 'SELESAI' ? now() : null,
+                'cmp_maintained_by' => $request->user()->usr_id,
+                'updated_by' => $request->user()->usr_id,
+            ]);
+
+            if ($status !== 'SELESAI' || ! $request->hasFile('gambar_siap')) {
+                return;
+            }
+
+            $gambarSiap = collect($request->file('gambar_siap'))
+                ->filter()
+                ->values();
+
+            foreach ($gambarSiap as $indeks => $gambar) {
+                $laluan = $gambar->store(
+                    'aduan-siap/' . $aduan->cmp_id,
+                    'public'
+                );
+
+                $aduan->gambarSiap()->create([
+                    'cmpcimg_name' => $gambar->getClientOriginalName(),
+                    'cmpcimg_path' => $laluan,
+                    'cmpcimg_order' => $indeks + 1,
+                    'created_by' => $request->user()->usr_id,
+                ]);
+            }
+        });
 
         $notifikasiAduan->aduanDikemaskini(
             $aduan,
