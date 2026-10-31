@@ -147,7 +147,12 @@
                                 </div>
                             </td>
 
-                            <td>{{ $item->asb_no_file ?: '-' }}</td>
+                            <td
+                                class="teks-no-fail"
+                                title="{{ $item->asb_no_file }}"
+                            >
+                                {{ $item->asb_no_file ?: '-' }}
+                            </td>
 
                             
 

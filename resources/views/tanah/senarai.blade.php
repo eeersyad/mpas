@@ -98,7 +98,7 @@
 
     <div class="kad-data">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 jadual-sistem">
+            <table class="table table-hover align-middle mb-0 jadual-sistem jadual-tanah">
                 <thead>
                     <tr>
                         <th>Bil.</th>
@@ -126,7 +126,12 @@
                             <td>{{ $tanah->firstItem() + $loop->index }}</td>
                             <td class="fw-semibold">{{ $item->asl_ref_no }}</td>
                             <td>{{ $item->asl_lot_no }}</td>
-                            <td>{{ $item->asl_no_file ?: '-' }}</td>
+                            <td
+                                class="teks-no-fail"
+                                title="{{ $item->asl_no_file }}"
+                            >
+                                {{ $item->asl_no_file ?: '-' }}
+                            </td>
                             <td>{{ $item->asl_location }}</td>
                             <td>{{ number_format($item->asl_land_size, 2) }} m²</td>
                             <td>

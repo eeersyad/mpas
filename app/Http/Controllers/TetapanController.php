@@ -6,6 +6,7 @@ use App\Models\Bangunan;
 use App\Models\Tanah;
 use App\Models\TetapanRujukan;
 use App\Models\TetapanAduan;
+use App\Models\TetapanPenyewa;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -148,5 +149,54 @@ class TetapanController extends Controller
         return redirect()
             ->route('tetapan.aduan')
             ->with('berjaya', 'Tetapan aduan awam berjaya dikemaskini.');
+    }
+
+    public function penyewa(): View
+    {
+        $tetapan = TetapanPenyewa::query()->first();
+
+        return view('tetapan.penyewa', compact('tetapan'));
+    }
+
+    public function kemaskiniPenyewa(Request $request): RedirectResponse
+    {
+        $data = $request->validate(
+            [
+                'tpy_tempoh_hampir_tamat_perjanjian' => [
+                    'required',
+                    'integer',
+                    'min:1',
+                    'max:365',
+                ],
+            ],
+            [
+                'tpy_tempoh_hampir_tamat_perjanjian.required' =>
+                    'Sila masukkan tempoh hampir tamat perjanjian.',
+                'tpy_tempoh_hampir_tamat_perjanjian.integer' =>
+                    'Tempoh mesti dalam bentuk nombor.',
+                'tpy_tempoh_hampir_tamat_perjanjian.min' =>
+                    'Tempoh minimum ialah satu hari.',
+                'tpy_tempoh_hampir_tamat_perjanjian.max' =>
+                    'Tempoh maksimum ialah 365 hari.',
+            ]
+        );
+
+        $tetapan = TetapanPenyewa::query()->firstOrNew();
+
+        $tetapan->fill([
+            'tpy_tempoh_hampir_tamat_perjanjian' =>
+                $data['tpy_tempoh_hampir_tamat_perjanjian'],
+            'updated_by' => $request->user()->usr_id,
+        ]);
+
+        if (! $tetapan->exists) {
+            $tetapan->created_by = $request->user()->usr_id;
+        }
+
+        $tetapan->save();
+
+        return redirect()
+            ->route('tetapan.penyewa')
+            ->with('berjaya', 'Tetapan penyewa berjaya dikemaskini.');
     }
 }

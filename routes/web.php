@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PengurusanPenggunaController;
 use App\Http\Controllers\ProfilController;
 use App\Http\Controllers\TetapanController;
+use App\Http\Controllers\TetapanKomponenController;
 use App\Http\Controllers\PengurusanTanahController;
 use App\Http\Controllers\PengurusanBangunanController;
 use App\Http\Controllers\PengurusanAduanController;
@@ -115,6 +116,21 @@ Route::middleware('auth')->group(function () {
 
         Route::put('/tetapan/aduan', [TetapanController::class, 'kemaskiniAduan'])
             ->name('tetapan.aduan.kemaskini');
+
+        Route::get('/tetapan/penyewa', [TetapanController::class, 'penyewa'])
+            ->name('tetapan.penyewa');
+
+        Route::put('/tetapan/penyewa', [TetapanController::class, 'kemaskiniPenyewa'])
+            ->name('tetapan.penyewa.kemaskini');
+        
+        Route::get('/tetapan/komponen', [TetapanKomponenController::class, 'index'])
+            ->name('tetapan.komponen');
+
+        Route::post('/tetapan/komponen', [TetapanKomponenController::class, 'simpan'])
+            ->name('tetapan.komponen.simpan');
+
+        Route::put('/tetapan/komponen/{komponen}', [TetapanKomponenController::class, 'kemaskini'])
+            ->name('tetapan.komponen.kemaskini');
     });
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');

@@ -107,12 +107,6 @@
                             value="{{ old('asb_sub_category', $bangunan?->asb_sub_category) }}">
                     </div>
 
-                    <div class="col-12 col-md-6">
-                        <label class="form-label fw-semibold">Poskod</label>
-                        <input type="text" name="asb_postcode" class="form-control"
-                            value="{{ old('asb_postcode', $bangunan?->asb_postcode) }}">
-                    </div>
-
                     <div class="col-12">
                         <label class="form-label fw-semibold">Alamat Baris 1 <span class="text-danger">*</span></label>
                         <input type="text" name="asb_add1" class="form-control @error('asb_add1') is-invalid @enderror"
@@ -124,6 +118,16 @@
                         <label class="form-label fw-semibold">Alamat Baris 2</label>
                         <input type="text" name="asb_add2" class="form-control"
                             value="{{ old('asb_add2', $bangunan?->asb_add2) }}">
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold">Poskod</label>
+                        <input
+                            type="text"
+                            name="asb_postcode"
+                            class="form-control"
+                            value="{{ old('asb_postcode', $bangunan?->asb_postcode) }}"
+                        >
                     </div>
 
                     <div class="col-12 col-md-3">
@@ -188,7 +192,7 @@
                         >
                     </div>
 
-                    <div class="col-12">
+                    <div class="col-12 col-md-6">
                         <label class="form-label fw-semibold">Negara</label>
                         <input type="text" name="asb_country" class="form-control"
                             value="{{ old('asb_country', $bangunan?->asb_country ?? 'Malaysia') }}">
@@ -400,12 +404,13 @@
                 <div class="row g-3">
                     <div class="col-12 col-md-6">
                         <label for="asb_maintenance_status" class="form-label">
-                            Status Penyelenggaraan
+                            Status Penyelenggaraan <span class="text-danger">*</span>
                         </label>
                         <select
                             id="asb_maintenance_status"
                             name="asb_maintenance_status"
                             class="form-select @error('asb_maintenance_status') is-invalid @enderror"
+                            required
                         >
                             <option value="">-- Pilih Status --</option>
                             <option value="RENDAH" @selected(old('asb_maintenance_status', $bangunan?->asb_maintenance_status) === 'RENDAH')>
@@ -426,12 +431,13 @@
 
                     <div class="col-12 col-md-6">
                         <label for="asb_premise_status" class="form-label">
-                            Status Premis
+                            Status Premis <span class="text-danger">*</span>
                         </label>
                         <select
                             id="asb_premise_status"
                             name="asb_premise_status"
                             class="form-select @error('asb_premise_status') is-invalid @enderror"
+                            required
                         >
                             <option value="">-- Pilih Status --</option>
 
@@ -668,20 +674,28 @@
                                 </div>
 
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label">No. Kad Pengenalan / No. Syarikat</label>
+                                    <label class="form-label">
+                                        No. Kad Pengenalan / No. Syarikat <span class="text-danger">*</span>
+                                    </label>
+
                                     <input
                                         type="text"
                                         name="penyewa[__INDEX__][tnt_ic_no]"
                                         class="form-control"
+                                        required
                                     >
                                 </div>
 
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label">No. Akaun Penyewa</label>
+                                    <label class="form-label">
+                                        No. Akaun Penyewa <span class="text-danger">*</span>
+                                    </label>
+
                                     <input
                                         type="text"
                                         name="penyewa[__INDEX__][tnt_acc_no]"
                                         class="form-control"
+                                        required
                                     >
                                 </div>
 

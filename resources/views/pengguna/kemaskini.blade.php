@@ -309,7 +309,7 @@
 
                             <button type="submit" class="btn btn-utama butang-simpan-profil">
                                 <i class="bi bi-check2-circle me-2"></i>
-                                Simpan Kemaskini
+                                Simpan
                             </button>
                         </div>
                     </div>

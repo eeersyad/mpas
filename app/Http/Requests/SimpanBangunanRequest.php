@@ -14,7 +14,33 @@ class SimpanBangunanRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        $medanFormatTajuk = [
+            'asb_name',
+            'asb_add1',
+            'asb_add2',
+            'asb_city',
+            'asb_collector_name',
+            'asb_collector_position',
+            'asb_verifier_name',
+            'asb_verifier_position',
+        ];
+
+        $maklumatTajuk = [];
+
+        foreach ($medanFormatTajuk as $medan) {
+            $nilai = $this->input($medan);
+
+            if (is_string($nilai)) {
+                $maklumatTajuk[$medan] = mb_convert_case(
+                    mb_strtolower(trim($nilai), 'UTF-8'),
+                    MB_CASE_TITLE,
+                    'UTF-8'
+                );
+            }
+        }
+
         $this->merge([
+            ...$maklumatTajuk,
             'asb_aset_warisan' => $this->boolean('asb_aset_warisan'),
         ]);
     }
@@ -82,9 +108,24 @@ class SimpanBangunanRequest extends FormRequest
 
             'penyewa' => ['nullable', 'array'],
             'penyewa.*.tnt_id' => ['nullable', 'integer', 'exists:asb_tenant,tnt_id'],
-            'penyewa.*.tnt_name' => ['required_with:penyewa.*.tnt_status', 'nullable', 'string', 'max:255'],
-            'penyewa.*.tnt_acc_no' => ['nullable', 'string', 'max:100'],
-            'penyewa.*.tnt_ic_no' => ['nullable', 'string', 'max:20'],
+            'penyewa.*.tnt_name' => [
+                'nullable',
+                'required_with:penyewa.*.tnt_status',
+                'string',
+                'max:255',
+            ],
+            'penyewa.*.tnt_acc_no' => [
+                'nullable',
+                'required_with:penyewa.*.tnt_status',
+                'string',
+                'max:100',
+            ],
+            'penyewa.*.tnt_ic_no' => [
+                'nullable',
+                'required_with:penyewa.*.tnt_status',
+                'string',
+                'max:20',
+            ],
             'penyewa.*.tnt_mula_perjanjian' => ['nullable', 'date'],
             'penyewa.*.tnt_tamat_perjanjian' => [
                 'nullable',
@@ -121,6 +162,10 @@ class SimpanBangunanRequest extends FormRequest
             'penyewa.*.tnt_name.required_with' => 'Sila masukkan nama penyewa.',
             'penyewa.*.tnt_tamat_perjanjian.after_or_equal' =>
                 'Tarikh tamat perjanjian tidak boleh lebih awal daripada tarikh mula perjanjian.',
+            'penyewa.*.tnt_ic_no.required_with' =>
+                'Sila masukkan nombor kad pengenalan atau nombor syarikat penyewa.',
+            'penyewa.*.tnt_acc_no.required_with' =>
+                'Sila masukkan nombor akaun penyewa.',
             'dokumen.max' => 'Maksimum 10 dokumen boleh dimuat naik dalam satu masa.',
             'dokumen.*.jenis.required_with' => 'Sila pilih jenis dokumen.',
             'dokumen.*.jenis.in' => 'Jenis dokumen yang dipilih tidak sah.',

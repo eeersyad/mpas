@@ -35,6 +35,30 @@
             </span>
         </a>
 
+        <a
+            href="{{ route('tetapan.penyewa') }}"
+            class="tetapan-pautan {{ request()->routeIs('tetapan.penyewa') ? 'aktif' : '' }}"
+        >
+            <i class="bi bi-people-fill"></i>
+
+            <span>
+                <strong>Penyewa</strong>
+                <small>Tempoh tamat perjanjian</small>
+            </span>
+        </a>
+        
+        <a
+            href="{{ route('tetapan.komponen') }}"
+            class="tetapan-pautan {{ request()->routeIs('tetapan.komponen*') ? 'aktif' : '' }}"
+        >
+            <i class="bi bi-tools"></i>
+
+            <span>
+                <strong>Komponen Penyelenggaraan</strong>
+                <small>Komponen dan item pemeriksaan</small>
+            </span>
+        </a>
+
         <div class="pemisah-menu-tetapan"></div>
 
         <span class="tetapan-pautan tidak-aktif">

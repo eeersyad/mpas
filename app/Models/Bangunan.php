@@ -104,6 +104,23 @@ class Bangunan extends Model
         return $this->hasMany(Aduan::class, 'asb_id', 'asb_id');
     }
 
+    
+    public function penyelenggaraan(): HasMany
+    {
+        return $this->hasMany(Penyelenggaraan::class, 'asb_id', 'asb_id')
+            ->orderByDesc('asm_inspection_date')
+            ->orderByDesc('asm_id');
+    }
+
+    public function penyelenggaraanTerkini(): HasOne
+    {
+        return $this->hasOne(Penyelenggaraan::class, 'asb_id', 'asb_id')
+            ->ofMany([
+                'asm_inspection_date' => 'max',
+                'asm_id' => 'max',
+            ]);
+    }
+
     public function diciptaOleh(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by', 'usr_id');

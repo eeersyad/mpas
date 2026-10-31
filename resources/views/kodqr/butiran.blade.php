@@ -152,7 +152,7 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-check2-circle me-1"></i>Simpan Status
+                            <i class="bi bi-check2-circle me-1"></i>Simpan
                         </button>
                     </div>
                 </form>

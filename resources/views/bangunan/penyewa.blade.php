@@ -33,41 +33,49 @@
             </div>
 
             <div class="col-12 col-md-6">
-                <label class="form-label">No. Kad Pengenalan / No. Syarikat</label>
+                <label class="form-label">
+                    No. Kad Pengenalan / No. Syarikat <span class="text-danger">*</span>
+                </label>
+
                 <input
                     type="text"
                     name="penyewa[{{ $indeks }}][tnt_ic_no]"
                     value="{{ old("penyewa.$indeks.tnt_ic_no", $penyewa?->tnt_ic_no) }}"
                     class="form-control"
+                    required
                 >
             </div>
 
             <div class="col-12 col-md-6">
-                <label class="form-label">No. Akaun Penyewa</label>
+                <label class="form-label">
+                    No. Akaun Penyewa <span class="text-danger">*</span>
+                </label>
+
                 <input
                     type="text"
                     name="penyewa[{{ $indeks }}][tnt_acc_no]"
                     value="{{ old("penyewa.$indeks.tnt_acc_no", $penyewa?->tnt_acc_no) }}"
                     class="form-control"
+                    required
                 >
             </div>
 
             <div class="col-12 col-md-6">
-                <label class="form-label">Tarikh Mula Sewa</label>
+                <label class="form-label">Tarikh Mula Perjanjian</label>
                 <input
                     type="date"
-                    name="penyewa[{{ $indeks }}][tnt_start_date]"
-                    value="{{ old("penyewa.$indeks.tnt_start_date", optional($penyewa?->tnt_start_date)->format('Y-m-d')) }}"
+                    name="penyewa[{{ $indeks }}][tnt_mula_perjanjian]"
+                    value="{{ old("penyewa.$indeks.tnt_mula_perjanjian", optional($penyewa?->tnt_mula_perjanjian)->format('Y-m-d')) }}"
                     class="form-control"
                 >
             </div>
 
             <div class="col-12 col-md-6">
-                <label class="form-label">Tarikh Tamat Sewa</label>
+                <label class="form-label">Tarikh Tamat Perjanjian</label>
                 <input
                     type="date"
-                    name="penyewa[{{ $indeks }}][tnt_end_date]"
-                    value="{{ old("penyewa.$indeks.tnt_end_date", optional($penyewa?->tnt_end_date)->format('Y-m-d')) }}"
+                    name="penyewa[{{ $indeks }}][tnt_tamat_perjanjian]"
+                    value="{{ old("penyewa.$indeks.tnt_tamat_perjanjian", optional($penyewa?->tnt_tamat_perjanjian)->format('Y-m-d')) }}"
                     class="form-control"
                 >
             </div>

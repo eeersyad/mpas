@@ -77,7 +77,7 @@
                         placeholder="{{ $jenis === 'bangunan' ? 'Rujukan, nama bangunan atau bandar...' : 'Rujukan, lot, lokasi atau hakmilik...' }}"
                     >
                 </div>
-            @else
+            @elseif (in_array($jenis, ['aduan', 'penyelenggaraan'], true))
                 <div class="col-12 col-xl-4">
                     <label for="cari" class="label-penapis">
                         <i class="bi bi-search"></i> Carian Aduan
@@ -90,6 +90,21 @@
                         value="{{ request('cari') }}"
                         class="form-control kawalan-penapis"
                         placeholder="Aset, rujukan, kerosakan atau catatan..."
+                    >
+                </div>
+            @else
+                <div class="col-12 col-xl-6">
+                    <label for="cari" class="label-penapis">
+                        <i class="bi bi-search"></i> Carian Penyewa
+                    </label>
+
+                    <input
+                        type="search"
+                        id="cari"
+                        name="cari"
+                        value="{{ request('cari') }}"
+                        class="form-control kawalan-penapis"
+                        placeholder="Nama penyewa, no. kad pengenalan, akaun atau aset..."
                     >
                 </div>
             @endif
@@ -220,6 +235,24 @@
                 </div>
             @endif
 
+            @if ($jenis === 'perjanjian_penyewa')
+                <div class="col-12 col-md-6 col-xl-3">
+                    <label for="statusTempoh" class="label-penapis">
+                        <i class="bi bi-calendar2-week"></i> Status Tempoh
+                    </label>
+
+                    <select id="statusTempoh" name="status_tempoh" class="form-select kawalan-penapis">
+                        <option value="">Semua Status</option>
+                        <option value="HAMPIR_TAMAT" @selected(request('status_tempoh') === 'HAMPIR_TAMAT')>
+                            Hampir Tamat
+                        </option>
+                        <option value="SUDAH_TAMAT" @selected(request('status_tempoh') === 'SUDAH_TAMAT')>
+                            Sudah Tamat
+                        </option>
+                    </select>
+                </div>
+            @endif
+
             <div class="col-12 col-xl-3">
                 <div class="d-flex gap-2 tindakan-penapis">
                     <a
@@ -237,7 +270,7 @@
 
     <div class="kad-data">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 jadual-sistem">
+            <table class="table table-hover align-middle mb-0 jadual-sistem {{ $jenis === 'perjanjian_penyewa' ? 'jadual-laporan-penyewa' : '' }}">
                 <thead>
                     @if ($jenis === 'bangunan')
                         <tr>
@@ -257,6 +290,16 @@
                             <th><x-susun medan="status_hakmilik" label="Status Hakmilik" /></th>
                             <th><x-susun medan="status_tanah" label="Status Tanah" /></th>
                             <th><x-susun medan="keluasan" label="Keluasan" /></th>
+                        </tr>
+                    @elseif ($jenis === 'perjanjian_penyewa')
+                        <tr>
+                            <th>Bil.</th>
+                            <th><x-susun medan="penyewa" label="Nama Penyewa" /></th>
+                            <th>No. KP / Syarikat</th>
+                            <th><x-susun medan="bangunan" label="Aset Bangunan" /></th>
+                            <th><x-susun medan="mula" label="Mula Perjanjian" /></th>
+                            <th><x-susun medan="tamat" label="Tamat Perjanjian" /></th>
+                            <th><x-susun medan="status" label="Status Tempoh" /></th>
                         </tr>
                     @else
                         <tr>
@@ -294,6 +337,50 @@
                                 <td>{{ \App\Support\Paparan::label($item->asl_status_tanah) }}</td>
                                 <td>{{ number_format($item->asl_land_size, 2) }} m²</td>
                             </tr>
+                        @elseif ($jenis === 'perjanjian_penyewa')
+                            @php
+                                $tarikhTamat = $item->tnt_tamat_perjanjian;
+                                $sudahTamat = $tarikhTamat?->isBefore(today());
+
+                                $bilanganHari = $tarikhTamat && ! $sudahTamat
+                                    ? today()->diffInDays($tarikhTamat)
+                                    : null;
+
+                                $statusTempoh = $sudahTamat
+                                    ? 'Sudah Tamat'
+                                    : ($bilanganHari === 0
+                                        ? 'Tamat Hari Ini'
+                                        : $bilanganHari . ' Hari Lagi');
+
+                                $kelasStatus = $sudahTamat
+                                    ? 'status-perjanjian-tamat'
+                                    : ($bilanganHari === 0
+                                        ? 'status-perjanjian-hari-ini'
+                                        : 'status-perjanjian-hampir-tamat');
+                            @endphp
+                            <tr>
+                                <td>{{ $rekod->firstItem() + $loop->index }}</td>
+                                <td>
+                                    <strong class="d-block">{{ $item->tnt_name }}</strong>
+
+                                    <small class="text-secondary">
+                                        Akaun: {{ $item->tnt_acc_no ?? '-' }}
+                                    </small>
+                                </td>
+
+                                <td>{{ $item->tnt_ic_no ?? '-' }}</td>
+                                <td>
+                                    <strong class="d-block">{{ $item->bangunan?->asb_name ?? '-' }}</strong>
+                                    <small class="text-secondary">{{ $item->bangunan?->asb_ref_no ?? '-' }}</small>
+                                </td>
+                                <td>{{ $item->tnt_mula_perjanjian?->format('d/m/Y') ?? '-' }}</td>
+                                <td>{{ $item->tnt_tamat_perjanjian?->format('d/m/Y') ?? '-' }}</td>
+                                <td>
+                                    <span class="badge rounded-pill {{ $kelasStatus }}">
+                                        {{ $statusTempoh }}
+                                    </span>
+                                </td>
+                            </tr>
                         @else
                             <tr>
                                 <td>{{ $rekod->firstItem() + $loop->index }}</td>
@@ -324,7 +411,7 @@
                         @endif
                     @empty
                         <tr>
-                            <td colspan="7" class="py-5 text-center">
+                            <td colspan="9" class="py-5 text-center">
                                 <i class="bi bi-file-earmark-x text-secondary fs-2 d-block mb-2"></i>
                                 <span class="text-secondary">Tiada rekod ditemui bagi laporan ini.</span>
                             </td>

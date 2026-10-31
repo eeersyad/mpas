@@ -1412,6 +1412,62 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    const medanFormatTajukBangunan = [
+        'asb_name',
+        'asb_add1',
+        'asb_add2',
+        'asb_city',
+        'asb_collector_name',
+        'asb_collector_position',
+        'asb_verifier_name',
+        'asb_verifier_position',
+    ];
+
+    const formatTajukBangunan = (nilai) => {
+        return nilai
+            .toLocaleLowerCase('ms-MY')
+            .replace(
+                /(^|[\s/-])(\p{L})/gu,
+                (padanan, pemisah, huruf) =>
+                    `${pemisah}${huruf.toLocaleUpperCase('ms-MY')}`
+            );
+    };
+
+    medanFormatTajukBangunan.forEach((namaMedan) => {
+        const medan = borangBangunan.querySelector(
+            `input[name="${namaMedan}"]`
+        );
+
+        if (!medan) {
+            return;
+        }
+
+        const normalisasikanNilai = () => {
+            const kedudukanMula = medan.selectionStart;
+            const kedudukanAkhir = medan.selectionEnd;
+            const nilaiBaharu = formatTajukBangunan(medan.value);
+
+            if (medan.value === nilaiBaharu) {
+                return;
+            }
+
+            medan.value = nilaiBaharu;
+
+            if (
+                document.activeElement === medan &&
+                kedudukanMula !== null &&
+                kedudukanAkhir !== null
+            ) {
+                medan.setSelectionRange(kedudukanMula, kedudukanAkhir);
+            }
+        };
+
+        medan.addEventListener('input', normalisasikanNilai);
+        medan.addEventListener('blur', normalisasikanNilai);
+
+        normalisasikanNilai();
+    });
+
     const panelBangunan = [
         ...borangBangunan.querySelectorAll('[data-langkah]'),
     ];

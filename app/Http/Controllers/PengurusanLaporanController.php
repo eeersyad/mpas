@@ -6,6 +6,8 @@ use App\Exports\EksportLaporan;
 use App\Models\Aduan;
 use App\Models\Bangunan;
 use App\Models\Tanah;
+use App\Models\Penyewa;
+use App\Models\TetapanPenyewa;
 use App\Support\Jadual;
 use App\Support\Paparan;
 use App\Support\Susunan;
@@ -120,7 +122,65 @@ class PengurusanLaporanController extends Controller
             'tanah' => $this->queryTanah($request),
             'aduan' => $this->queryAduan($request, false),
             'penyelenggaraan' => $this->queryAduan($request, true),
+            'perjanjian_penyewa' => $this->queryPerjanjianPenyewa($request),
         };
+    }
+
+    private function queryPerjanjianPenyewa(Request $request)
+    {
+        $cari = trim((string) $request->input('cari', ''));
+        $tarikhHariIni = today();
+        $tarikhHad = $tarikhHariIni->copy()->addDays($this->tempohHampirTamatPerjanjian());
+
+        [$kolumSusunan, $arahSusunan] = Susunan::dapatkan(
+            $request,
+            [
+                'penyewa' => 'tnt_name',
+                'bangunan' => 'aset_bangunan',
+                'mula' => 'tnt_mula_perjanjian',
+                'tamat' => 'tnt_tamat_perjanjian',
+                'status' => 'tnt_tamat_perjanjian',
+                'terkini' => 'tnt_tamat_perjanjian',
+            ],
+            'terkini'
+        );
+
+        return Penyewa::query()
+            ->with('bangunan')
+            ->where('tnt_status', 'AKTIF')
+            ->whereNotNull('tnt_tamat_perjanjian')
+            ->whereDate('tnt_tamat_perjanjian', '<=', $tarikhHad)
+            ->when($cari !== '', function ($query) use ($cari): void {
+                $query->where(function ($query) use ($cari): void {
+                    $query->where('tnt_name', 'like', "%{$cari}%")
+                        ->orWhere('tnt_ic_no', 'like', "%{$cari}%")
+                        ->orWhere('tnt_acc_no', 'like', "%{$cari}%")
+                        ->orWhereHas('bangunan', function ($query) use ($cari): void {
+                            $query->where('asb_name', 'like', "%{$cari}%")
+                                ->orWhere('asb_ref_no', 'like', "%{$cari}%");
+                        });
+                });
+            })
+            ->when(
+                $request->input('status_tempoh') === 'HAMPIR_TAMAT',
+                fn ($query) => $query->whereDate('tnt_tamat_perjanjian', '>=', $tarikhHariIni)
+            )
+            ->when(
+                $request->input('status_tempoh') === 'SUDAH_TAMAT',
+                fn ($query) => $query->whereDate('tnt_tamat_perjanjian', '<', $tarikhHariIni)
+            )
+            ->when(
+                $kolumSusunan === 'aset_bangunan',
+                fn ($query) => $query->orderBy(
+                    Bangunan::select('asb_name')
+                        ->whereColumn('assets_building.asb_id', 'asb_tenant.asb_id'),
+                    $arahSusunan
+                )
+            )
+            ->when(
+                $kolumSusunan !== 'aset_bangunan',
+                fn ($query) => $query->orderBy($kolumSusunan, $arahSusunan)
+            );
     }
 
     private function queryBangunan(Request $request)
@@ -389,6 +449,30 @@ class PengurusanLaporanController extends Controller
                     ),
                 ])->all(),
             ],
+            'perjanjian_penyewa' => [
+                'kepala' => [
+                    'Bil.',
+                    'Nama Penyewa',
+                    'No. Kad Pengenalan / Syarikat',
+                    'No. Akaun',
+                    'Aset Bangunan',
+                    'No. Rujukan',
+                    'Tarikh Mula Perjanjian',
+                    'Tarikh Tamat Perjanjian',
+                    'Status Tempoh',
+                ],
+                'baris' => $rekod->values()->map(fn ($item, $indeks) => [
+                    $indeks + 1,
+                    $item->tnt_name,
+                    $item->tnt_ic_no ?? '-',
+                    $item->tnt_acc_no ?? '-',
+                    $item->bangunan?->asb_name ?? '-',
+                    $item->bangunan?->asb_ref_no ?? '-',
+                    $item->tnt_mula_perjanjian?->format('d/m/Y') ?? '-',
+                    $item->tnt_tamat_perjanjian?->format('d/m/Y') ?? '-',
+                    $this->labelStatusTempohPerjanjian($item->tnt_tamat_perjanjian),
+                ])->all(),
+            ],
             default => [
                 'kepala' => [
                     'Bil.',
@@ -480,6 +564,12 @@ class PengurusanLaporanController extends Controller
                 'ikon' => 'bi-tools',
                 'peranan' => ['SYSTEM', 'BPH', 'KJ'],
             ],
+            'perjanjian_penyewa' => [
+                'tajuk' => 'Laporan Tempoh Perjanjian Penyewa',
+                'penerangan' => 'Senarai penyewa aktif yang perjanjian mereka hampir tamat atau sudah tamat.',
+                'ikon' => 'bi-calendar2-week-fill',
+                'peranan' => ['SYSTEM', 'BPH'],
+            ],
             default => abort(404),
         };
     }
@@ -497,6 +587,16 @@ class PengurusanLaporanController extends Controller
                 'tema' => 'hijau',
                 'jumlah' => Bangunan::count(),
                 'label_jumlah' => 'aset bangunan',
+            ];
+
+            $laporan[] = [
+                'kod' => 'perjanjian_penyewa',
+                'tajuk' => 'Laporan Tempoh Perjanjian Penyewa',
+                'penerangan' => 'Penyewa aktif yang perjanjian mereka hampir tamat atau sudah tamat.',
+                'ikon' => 'bi-calendar2-week-fill',
+                'tema' => 'jingga',
+                'jumlah' => $this->jumlahPenyewaPerjanjianPerluTindakan(),
+                'label_jumlah' => 'perjanjian untuk semakan',
             ];
         }
 
@@ -543,5 +643,45 @@ class PengurusanLaporanController extends Controller
     private function namaFail(string $jenis, string $sambungan): string
     {
         return 'laporan-' . $jenis . '-' . now()->format('Ymd-His') . '.' . $sambungan;
+    }
+
+    private function tempohHampirTamatPerjanjian(): int
+    {
+        return TetapanPenyewa::query()
+            ->value('tpy_tempoh_hampir_tamat_perjanjian') ?? 30;
+    }
+
+    private function jumlahPenyewaPerjanjianPerluTindakan(): int
+    {
+        return Penyewa::query()
+            ->where('tnt_status', 'AKTIF')
+            ->whereNotNull('tnt_tamat_perjanjian')
+            ->whereDate(
+                'tnt_tamat_perjanjian',
+                '<=',
+                today()->addDays($this->tempohHampirTamatPerjanjian())
+            )
+            ->count();
+    }
+
+    private function labelStatusTempohPerjanjian($tarikhTamat): string
+    {
+        if (! $tarikhTamat) {
+            return '-';
+        }
+
+        $tarikhHariIni = today();
+
+        if ($tarikhTamat->isBefore($tarikhHariIni)) {
+            return 'Sudah Tamat';
+        }
+
+        $bilanganHari = $tarikhHariIni->diffInDays($tarikhTamat);
+
+        if ($bilanganHari === 0) {
+            return 'Tamat Hari Ini';
+        }
+
+        return $bilanganHari . ' Hari Lagi';
     }
 }

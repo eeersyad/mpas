@@ -37,6 +37,10 @@ final class Paparan
             'DITOLAK' => 'Ditolak',
             'DALAM_PENYELENGGARAAN' => 'Dalam penyelenggaraan',
             'SELESAI' => 'Selesai',
+            
+            'BAIK' => 'Baik',
+            'ROSAK' => 'Rosak',
+            'TIDAK_BERKAITAN' => 'Tidak berkaitan',
 
             default => Str::of($nilai)
                 ->replace('_', ' ')

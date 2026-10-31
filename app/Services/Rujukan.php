@@ -36,6 +36,6 @@ class Rujukan
             'updated_by' => $userId,
         ]);
 
-        return "{$tetapan->ruj_awalan}-{$nomborDiformat}";
+        return "{$tetapan->ruj_awalan}({$nomborDiformat})";
     }
 }
