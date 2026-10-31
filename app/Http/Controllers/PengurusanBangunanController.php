@@ -6,13 +6,16 @@ use App\Http\Requests\SimpanBangunanRequest;
 use App\Models\Aset;
 use App\Models\Bangunan;
 use App\Models\DokumenBangunan;
+use App\Models\TetapanPenyelenggaraan;
 use App\Services\Rujukan;
 use App\Services\KodQr;
+use App\Services\Pemeriksaan;
 use App\Support\Jadual;
 use App\Support\Susunan;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -81,11 +84,12 @@ class PengurusanBangunanController extends Controller
     public function store(
         SimpanBangunanRequest $request,
         Rujukan $rujukan,
-        KodQr $kodQr
+        KodQr $kodQr,
+        Pemeriksaan $pemeriksaan
     ): RedirectResponse {
         try {
-            DB::transaction(function () use ($request, $rujukan, $kodQr): void {
-                [$maklumatBangunan, $senaraiPenyewa, $senaraiDokumen] = $this->asingkanMaklumat(
+            DB::transaction(function () use ($request, $rujukan, $kodQr, $pemeriksaan): void {
+                [$maklumatBangunan, $senaraiPenyewa, $senaraiDokumen, $dataPemeriksaan] = $this->asingkanMaklumat(
                     $request->validated()
                 );
 
@@ -120,6 +124,12 @@ class PengurusanBangunanController extends Controller
                     $senaraiDokumen,
                     $request->user()->usr_id
                 );
+
+                $pemeriksaan->simpan(
+                    $bangunan,
+                    $dataPemeriksaan,
+                    $request->user()->usr_id
+                );
             });
         } catch (RuntimeException $exception) {
             return back()
@@ -134,8 +144,18 @@ class PengurusanBangunanController extends Controller
             ->with('berjaya', 'Aset bangunan berjaya didaftarkan.');
     }
 
-    public function butiran(Bangunan $bangunan): View
+    public function butiran(Request $request, Bangunan $bangunan): View|Response
     {
+        $user = $request->user();
+
+        $pengurusAset = $user->mempunyaiPeranan(['SYSTEM', 'BPH']);
+        $bolehLihatPemeriksaan = TetapanPenyelenggaraan::bolehLihat($user);
+
+        // Pilihan B: peranan lain hanya boleh buka jika ada akses lihat penyelenggaraan
+        if (! $pengurusAset && ! $bolehLihatPemeriksaan) {
+            return response()->view('ralat.terhad', [], 403);
+        }
+
         $bangunan->load([
             'penyewa',
             'kod',
@@ -143,7 +163,14 @@ class PengurusanBangunanController extends Controller
             'aduan' => fn ($query) => $query->latest('cmp_received_date')->limit(5),
         ]);
 
-        return view('bangunan.butiran', compact('bangunan'));
+        if ($bolehLihatPemeriksaan) {
+            $bangunan->load([
+                'penyelenggaraan.pemeriksa',
+                'penyelenggaraan.dikemaskiniOleh',
+            ]);
+        }
+
+        return view('bangunan.butiran', compact('bangunan', 'bolehLihatPemeriksaan'));
     }
 
     public function muatTurunPdf(Bangunan $bangunan)
@@ -201,6 +228,7 @@ class PengurusanBangunanController extends Controller
         $bangunan->load([
             'penyewa',
             'dokumen.dimuatNaikOleh',
+            'penyelenggaraanTerkini.pemeriksa',
         ]);
 
         return view('bangunan.kemaskini', compact('bangunan'));
@@ -208,10 +236,11 @@ class PengurusanBangunanController extends Controller
 
     public function update(
         SimpanBangunanRequest $request,
-        Bangunan $bangunan
+        Bangunan $bangunan,
+        Pemeriksaan $pemeriksaan
     ): RedirectResponse {
-        DB::transaction(function () use ($request, $bangunan): void {
-            [$maklumatBangunan, $senaraiPenyewa, $senaraiDokumen] = $this->asingkanMaklumat(
+        DB::transaction(function () use ($request, $bangunan, $pemeriksaan): void {
+            [$maklumatBangunan, $senaraiPenyewa, $senaraiDokumen, $dataPemeriksaan] = $this->asingkanMaklumat(
                 $request->validated()
             );
 
@@ -235,6 +264,12 @@ class PengurusanBangunanController extends Controller
                 $senaraiDokumen,
                 $request->user()->usr_id
             );
+
+            $pemeriksaan->simpan(
+                $bangunan,
+                $dataPemeriksaan,
+                $request->user()->usr_id
+            );
         });
 
         return redirect()
@@ -246,8 +281,9 @@ class PengurusanBangunanController extends Controller
     {
         $senaraiPenyewa = $data['penyewa'] ?? [];
         $senaraiDokumen = $data['dokumen'] ?? [];
+        $dataPemeriksaan = $data['pemeriksaan'] ?? ['mod' => 'TIADA'];
 
-        unset($data['penyewa'], $data['dokumen']);
+        unset($data['penyewa'], $data['dokumen'], $data['pemeriksaan']);
         
         $data['asb_distinct'] = 'Marang';
         $data['asb_state'] = 'Terengganu';
@@ -259,7 +295,7 @@ class PengurusanBangunanController extends Controller
         $data['asb_total_block'] = $data['asb_total_block'] ?? 0;
         $data['asb_total_ext_structure'] = $data['asb_total_ext_structure'] ?? 0;
 
-        return [$data, $senaraiPenyewa, $senaraiDokumen];
+        return [$data, $senaraiPenyewa, $senaraiDokumen, $dataPemeriksaan];
     }
 
     private function simpanPenyewa(

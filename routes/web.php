@@ -131,6 +131,12 @@ Route::middleware('auth')->group(function () {
 
         Route::put('/tetapan/komponen/{komponen}', [TetapanKomponenController::class, 'kemaskini'])
             ->name('tetapan.komponen.kemaskini');
+
+        Route::get('/tetapan/penyelenggaraan', [TetapanController::class, 'penyelenggaraan'])
+            ->name('tetapan.penyelenggaraan');
+
+        Route::put('/tetapan/penyelenggaraan', [TetapanController::class, 'kemaskiniPenyelenggaraan'])
+            ->name('tetapan.penyelenggaraan.kemaskini');
     });
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -174,9 +180,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/aset-bangunan', [PengurusanBangunanController::class, 'store'])
             ->name('bangunan.store');
 
-        Route::get('/aset-bangunan/{bangunan}/butiran', [PengurusanBangunanController::class, 'butiran'])
-            ->name('bangunan.butiran');
-
         Route::get('/aset-bangunan/{bangunan}/kemaskini', [PengurusanBangunanController::class, 'edit'])
             ->name('bangunan.edit');
 
@@ -189,6 +192,11 @@ Route::middleware('auth')->group(function () {
         )->name('bangunan.dokumen.hapus');
     });
 
+    // Butiran bangunan: akses disemak dalam controller
+    // (SYSTEM/BPH, atau peranan yang boleh lihat rekod penyelenggaraan)
+    Route::get('/aset-bangunan/{bangunan}/butiran', [PengurusanBangunanController::class, 'butiran'])
+        ->name('bangunan.butiran');
+        
     Route::get('/notifikasi', [NotifikasiController::class, 'index'])
         ->name('notifikasi.index');
 

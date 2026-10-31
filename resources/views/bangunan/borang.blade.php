@@ -1,6 +1,11 @@
 @php
     $bangunan = $bangunan ?? null;
     $penyewaAktif = $bangunan?->penyewa?->where('tnt_status', 'AKTIF')->values() ?? collect();
+
+    $komponenPemeriksaan = app(\App\Services\Pemeriksaan::class)->komponenAktif();
+    $bolehIsiPemeriksaan = \App\Models\TetapanPenyelenggaraan::bolehIsi(auth()->user());
+    $pemeriksaanTerkini = $bangunan?->penyelenggaraanTerkini;
+    $modPemeriksaan = old('pemeriksaan.mod', $bangunan ? 'TIADA' : 'BARU');
 @endphp
 
 <div class="kad-data borang-aset">
@@ -35,7 +40,8 @@
                     'Lokasi & Agensi',
                     'Maklumat Fizikal',
                     'Kos & Penilaian',
-                    'Status & Pengesahan',
+                    'Status & Penyelenggaraan',
+                    'Pengumpulan & Pengesahan',
                     'Penyewa',
                     'Dokumen',
                 ] as $nombor => $label)
@@ -392,12 +398,12 @@
                 </div>
             </section>
 
-            {{-- Langkah 5: Status dan pengesahan --}}
+            {{-- Langkah 5: Status dan penyelenggaraan --}}
             <section class="langkah-borang" data-langkah="5">
                 <div class="mb-4">
-                    <h2 class="h5 fw-bold mb-1">Status dan Pengesahan</h2>
+                    <h2 class="h5 fw-bold mb-1">Status & Penyelenggaraan</h2>
                     <p class="text-secondary small mb-0">
-                        Rekodkan status semasa aset serta maklumat pegawai yang membuat semakan.
+                        Rekodkan status semasa aset serta keputusan pemeriksaan penyelenggaraan.
                     </p>
                 </div>
 
@@ -441,47 +447,21 @@
                         >
                             <option value="">-- Pilih Status --</option>
 
-                            <option
-                                value="SEWA"
-                                @selected(old('asb_premise_status', $bangunan?->asb_premise_status) === 'SEWA')
-                            >
-                                Sewa
-                            </option>
-
-                            <option
-                                value="TIDAK_DISEWA"
-                                @selected(old('asb_premise_status', $bangunan?->asb_premise_status) === 'TIDAK_DISEWA')
-                            >
-                                Tidak Disewa
-                            </option>
-
-                            <option
-                                value="PAJAK"
-                                @selected(old('asb_premise_status', $bangunan?->asb_premise_status) === 'PAJAK')
-                            >
-                                Pajak
-                            </option>
-
-                            <option
-                                value="TIDAK_DIPAJAK"
-                                @selected(old('asb_premise_status', $bangunan?->asb_premise_status) === 'TIDAK_DIPAJAK')
-                            >
-                                Tidak Dipajak
-                            </option>
-
-                            <option
-                                value="KEGUNAAN_MDM"
-                                @selected(old('asb_premise_status', $bangunan?->asb_premise_status) === 'KEGUNAAN_MDM')
-                            >
-                                Kegunaan MDM
-                            </option>
-
-                            <option
-                                value="DILUPUS"
-                                @selected(old('asb_premise_status', $bangunan?->asb_premise_status) === 'DILUPUS')
-                            >
-                                Dilupus
-                            </option>
+                            @foreach ([
+                                'SEWA' => 'Sewa',
+                                'TIDAK_DISEWA' => 'Tidak Disewa',
+                                'PAJAK' => 'Pajak',
+                                'TIDAK_DIPAJAK' => 'Tidak Dipajak',
+                                'KEGUNAAN_MDM' => 'Kegunaan MDM',
+                                'DILUPUS' => 'Dilupus',
+                            ] as $nilai => $label)
+                                <option
+                                    value="{{ $nilai }}"
+                                    @selected(old('asb_premise_status', $bangunan?->asb_premise_status) === $nilai)
+                                >
+                                    {{ $label }}
+                                </option>
+                            @endforeach
                         </select>
 
                         @error('asb_premise_status')
@@ -489,6 +469,299 @@
                         @enderror
                     </div>
 
+                    {{-- PEMERIKSAAN PENYELENGGARAAN --}}
+                    @if ($komponenPemeriksaan->isNotEmpty())
+                        <div class="col-12">
+                            <h3 class="subtajuk-seksyen">Pemeriksaan Penyelenggaraan</h3>
+                        </div>
+
+                        @if (! $bolehIsiPemeriksaan)
+                            <input type="hidden" name="pemeriksaan[mod]" value="TIADA">
+
+                            <div class="col-12">
+                                <div class="alert alert-light border small mb-0">
+                                    <i class="bi bi-lock me-1"></i>
+                                    Anda tidak mempunyai akses untuk mengisi rekod pemeriksaan penyelenggaraan.
+                                </div>
+                            </div>
+                        @else
+                            @php
+                                $pilihanMod = [
+                                    'BARU' => [
+                                        'ikon' => 'bi-plus-circle',
+                                        'tajuk' => $bangunan ? 'Tambah pemeriksaan baru' : 'Isi pemeriksaan sekarang',
+                                        'penerangan' => $bangunan ? 'Simpan sebagai rekod baharu' : 'Rekod pemeriksaan pertama aset',
+                                    ],
+                                ];
+
+                                if ($pemeriksaanTerkini) {
+                                    $pilihanMod['KEMASKINI'] = [
+                                        'ikon' => 'bi-pencil-square',
+                                        'tajuk' => 'Kemas kini terkini',
+                                        'penerangan' => 'Ubah rekod ' . $pemeriksaanTerkini->asm_inspection_date->format('d/m/Y'),
+                                    ];
+                                }
+
+                                $pilihanMod['TIADA'] = [
+                                    'ikon' => $bangunan ? 'bi-dash-circle' : 'bi-clock-history',
+                                    'tajuk' => $bangunan ? 'Tiada perubahan' : 'Isi kemudian',
+                                    'penerangan' => $bangunan ? 'Pemeriksaan tidak diubah' : 'Boleh diisi melalui kemas kini',
+                                ];
+
+                                $nilaiPemeriksaan = [
+                                    'BAIK' => ['kelas' => 'baik', 'ikon' => 'bi-check-circle'],
+                                    'ROSAK' => ['kelas' => 'rosak', 'ikon' => 'bi-exclamation-triangle'],
+                                    'TIDAK_BERKAITAN' => ['kelas' => 'tb', 'ikon' => 'bi-dash-circle'],
+                                ];
+
+                                $jumlahItemPemeriksaan = $komponenPemeriksaan->sum(
+                                    fn ($komponen) => count($komponen->itemAktif())
+                                );
+                            @endphp
+
+                            <div
+                                class="col-12"
+                                data-pemeriksaan
+                                data-tarikh-terkini="{{ $pemeriksaanTerkini?->asm_inspection_date?->format('Y-m-d') }}"
+                                data-catatan-terkini="{{ $pemeriksaanTerkini?->asm_note }}"
+                            >
+                                {{-- Pilihan mod --}}
+                                <div class="row g-2 mb-2">
+                                    @foreach ($pilihanMod as $nilai => $mod)
+                                        <div class="col-12 col-md">
+                                            <input
+                                                type="radio"
+                                                class="btn-check"
+                                                name="pemeriksaan[mod]"
+                                                id="mod{{ $nilai }}"
+                                                value="{{ $nilai }}"
+                                                autocomplete="off"
+                                                @checked($modPemeriksaan === $nilai)
+                                            >
+                                            <label class="pilihan-mod" for="mod{{ $nilai }}">
+                                                <i class="bi {{ $mod['ikon'] }}"></i>
+                                                <span>
+                                                    <strong>{{ $mod['tajuk'] }}</strong>
+                                                    <small>{{ $mod['penerangan'] }}</small>
+                                                </span>
+                                            </label>
+                                        </div>
+                                    @endforeach
+                                </div>
+
+                                <p class="small text-secondary mb-3">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    @if ($pemeriksaanTerkini)
+                                        Pemeriksaan terkini pada
+                                        <strong>{{ $pemeriksaanTerkini->asm_inspection_date->format('d/m/Y') }}</strong>
+                                        oleh {{ $pemeriksaanTerkini->pemeriksa?->usr_name ?? '-' }}.
+                                    @elseif ($bangunan)
+                                        Belum ada rekod pemeriksaan bagi aset ini.
+                                    @else
+                                        Pemeriksaan boleh diisi sekarang atau kemudian melalui kemas kini aset.
+                                    @endif
+                                </p>
+
+                                <fieldset
+                                    data-isi-pemeriksaan
+                                    @class(['d-none' => $modPemeriksaan === 'TIADA'])
+                                    @disabled($modPemeriksaan === 'TIADA')
+                                >
+                                    {{-- Maklumat pemeriksaan + kemajuan --}}
+                                    <div class="panel-pemeriksaan mb-3">
+                                        <div class="row g-3 align-items-center">
+                                            <div class="col-12 col-md-4">
+                                                <label for="asm_inspection_date" class="form-label small fw-semibold">
+                                                    Tarikh Pemeriksaan <span class="text-danger">*</span>
+                                                </label>
+                                                <input
+                                                    type="date"
+                                                    id="asm_inspection_date"
+                                                    name="pemeriksaan[asm_inspection_date]"
+                                                    max="{{ now()->format('Y-m-d') }}"
+                                                    value="{{ old(
+                                                        'pemeriksaan.asm_inspection_date',
+                                                        $modPemeriksaan === 'KEMASKINI'
+                                                            ? $pemeriksaanTerkini?->asm_inspection_date?->format('Y-m-d')
+                                                            : now()->format('Y-m-d')
+                                                    ) }}"
+                                                    class="form-control @error('pemeriksaan.asm_inspection_date') is-invalid @enderror"
+                                                    data-tarikh-pemeriksaan
+                                                    required
+                                                >
+
+                                                @error('pemeriksaan.asm_inspection_date')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+
+                                            <div class="col-12 col-md-4">
+                                                <span class="form-label small fw-semibold d-block">Pemeriksa</span>
+                                                <div class="cip-pemeriksa" title="Direkodkan secara automatik">
+                                                    <span class="avatar-pengguna">
+                                                        {{ strtoupper(substr(auth()->user()->usr_name, 0, 1)) }}
+                                                    </span>
+                                                    <span class="text-truncate">{{ auth()->user()->usr_name }}</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-12 col-md-4">
+                                                <div
+                                                    class="kemajuan-pemeriksaan"
+                                                    data-kemajuan-pemeriksaan
+                                                >
+                                                    <div class="d-flex justify-content-between small mb-1">
+                                                        <span class="fw-semibold">Kemajuan</span>
+                                                        <span class="text-secondary">
+                                                            <strong data-bil-diisi>0</strong> / {{ $jumlahItemPemeriksaan }} item
+                                                        </span>
+                                                    </div>
+
+                                                    <div class="progress" role="progressbar" aria-label="Kemajuan pemeriksaan">
+                                                        <div class="progress-bar" style="width: 0%" data-bar-kemajuan></div>
+                                                    </div>
+
+                                                    <div class="d-flex flex-wrap gap-1 mt-2">
+                                                        <span class="kiraan-nilai baik">Baik <span data-bil="BAIK">0</span></span>
+                                                        <span class="kiraan-nilai rosak">Rosak <span data-bil="ROSAK">0</span></span>
+                                                        <span class="kiraan-nilai tb">T/B <span data-bil="TIDAK_BERKAITAN">0</span></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- Komponen --}}
+                                    @foreach ($komponenPemeriksaan as $komponen)
+                                        <div class="kad-komponen-pemeriksaan" data-komponen-pemeriksaan>
+                                            <div class="kepala-komponen-pemeriksaan">
+                                                <span class="nombor-komponen">{{ $loop->iteration }}</span>
+
+                                                <div class="flex-grow-1 min-w-0">
+                                                    <strong>{{ $komponen->amc_name }}</strong>
+                                                    <small>
+                                                        <span data-kiraan-komponen>0</span> / {{ count($komponen->itemAktif()) }} item diisi
+                                                    </small>
+                                                </div>
+
+                                                <div class="d-flex flex-shrink-0 gap-2">
+                                                    <button type="button" class="btn btn-sm butang-semua-baik" data-semua-baik>
+                                                        <i class="bi bi-check2-all me-1"></i>Semua Baik
+                                                    </button>
+
+                                                    <button
+                                                        type="button"
+                                                        class="btn btn-sm butang-padam-pilihan"
+                                                        data-padam-pilihan
+                                                        title="Kosongkan semua pilihan dalam komponen ini"
+                                                    >
+                                                        <i class="bi bi-eraser me-1"></i>Padam
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            @foreach ($komponen->itemAktif() as $item)
+                                                @php
+                                                    $namaInput = "pemeriksaan[nilai][{$komponen->amc_id}][{$item['id']}]";
+                                                    $kunciOld = "pemeriksaan.nilai.{$komponen->amc_id}.{$item['id']}";
+                                                    $nilaiSemasa = old(
+                                                        $kunciOld,
+                                                        $pemeriksaanTerkini?->nilaiItem($komponen->amc_id, $item['id'])
+                                                    );
+                                                @endphp
+
+                                                <div class="baris-pemeriksaan" data-baris-pemeriksaan>
+                                                    <div class="nama-item-pemeriksaan">
+                                                        {{ $item['nama'] }}
+
+                                                        @error($kunciOld)
+                                                            <small class="text-danger d-block">{{ $message }}</small>
+                                                        @enderror
+                                                    </div>
+
+                                                    <div
+                                                        class="kumpulan-nilai"
+                                                        role="radiogroup"
+                                                        aria-label="Keputusan {{ $item['nama'] }}"
+                                                    >
+                                                        @foreach ($nilaiPemeriksaan as $nilai => $gaya)
+                                                            @php
+                                                                $idInput = "p{$komponen->amc_id}{$item['id']}{$nilai}";
+                                                            @endphp
+
+                                                            <input
+                                                                type="radio"
+                                                                class="btn-check"
+                                                                name="{{ $namaInput }}"
+                                                                id="{{ $idInput }}"
+                                                                value="{{ $nilai }}"
+                                                                autocomplete="off"
+                                                                @checked($nilaiSemasa === $nilai)
+                                                                required
+                                                            >
+                                                            <label class="pilihan-nilai {{ $gaya['kelas'] }}" for="{{ $idInput }}">
+                                                                <i class="bi {{ $gaya['ikon'] }}"></i>
+                                                                {{ \App\Support\Paparan::label($nilai) }}
+                                                            </label>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endforeach
+
+                                    {{-- Catatan --}}
+                                    <div class="panel-pemeriksaan">
+                                        <label for="asm_note" class="form-label small fw-semibold">
+                                            <i class="bi bi-journal-text me-1"></i>Catatan Keseluruhan
+                                            <span class="text-secondary fw-normal">(pilihan)</span>
+                                        </label>
+                                        <textarea
+                                            id="asm_note"
+                                            name="pemeriksaan[asm_note]"
+                                            rows="3"
+                                            maxlength="2000"
+                                            class="form-control @error('pemeriksaan.asm_note') is-invalid @enderror"
+                                            placeholder="Ulasan keseluruhan, cadangan tindakan atau maklumat tambahan pemeriksaan"
+                                            data-catatan-pemeriksaan
+                                        >{{ old(
+                                            'pemeriksaan.asm_note',
+                                            $modPemeriksaan === 'KEMASKINI' ? $pemeriksaanTerkini?->asm_note : ''
+                                        ) }}</textarea>
+
+                                        @error('pemeriksaan.asm_note')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </fieldset>
+                            </div>
+                        @endif
+                    @else
+                        <input type="hidden" name="pemeriksaan[mod]" value="TIADA">
+                    @endif
+                </div>
+
+                <div class="d-flex justify-content-between mt-4 pt-3">
+                    <button type="button" class="btn btn-outline-secondary" data-sebelum>
+                        <i class="bi bi-arrow-left me-1"></i> Sebelumnya
+                    </button>
+
+                    <button type="button" class="btn btn-utama" data-seterusnya>
+                        Seterusnya <i class="bi bi-arrow-right ms-1"></i>
+                    </button>
+                </div>
+            </section>
+
+            {{-- Langkah 6: Pengumpulan dan pengesahan --}}
+            <section class="langkah-borang" data-langkah="6">
+                <div class="mb-4">
+                    <h2 class="h5 fw-bold mb-1">Pengumpulan & Pengesahan</h2>
+                    <p class="text-secondary small mb-0">
+                        Rekodkan maklumat pegawai yang mengumpul dan mengesahkan data aset.
+                    </p>
+                </div>
+
+                <div class="row g-3">
                     <div class="col-12">
                         <h3 class="subtajuk-seksyen">Maklumat Pengumpulan</h3>
                     </div>
@@ -602,7 +875,7 @@
 
                 <div class="d-flex justify-content-between mt-4 pt-3">
                     <button type="button" class="btn btn-outline-secondary" data-sebelum>
-                        <i class="bi bi-arrow-left me-1"></i> Sebelum
+                        <i class="bi bi-arrow-left me-1"></i> Sebelumnya
                     </button>
 
                     <button type="button" class="btn btn-utama" data-seterusnya>
@@ -611,8 +884,8 @@
                 </div>
             </section>
 
-            {{-- Langkah 6: Maklumat penyewa --}}
-            <section class="langkah-borang" data-langkah="6">
+            {{-- Langkah 7: Maklumat penyewa --}}
+            <section class="langkah-borang" data-langkah="7">
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
                     <div>
                         <h2 class="h5 fw-bold mb-1">Maklumat Penyewa</h2>
@@ -731,7 +1004,7 @@
 
                 <div class="d-flex justify-content-between mt-4 pt-3 border-top">
                     <button type="button" class="btn btn-outline-secondary" data-sebelum>
-                        <i class="bi bi-arrow-left me-1"></i> Sebelum
+                        <i class="bi bi-arrow-left me-1"></i> Sebelumnya
                     </button>
 
                     <button type="button" class="btn btn-utama" data-seterusnya>
@@ -739,7 +1012,8 @@
                     </button>
                 </div>
             </section>
-            <section class="langkah-borang" data-langkkah="7" data-langkah="7">
+            {{-- Langkah 8: Dokumen --}}
+            <section class="langkah-borang" data-langkah="8">
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
                     <div>
                         <h2 class="h5 fw-bold mb-1">Dokumen Aset Bangunan</h2>
@@ -902,7 +1176,7 @@
 
                 <div class="d-flex justify-content-between mt-4 pt-3 border-top">
                     <button type="button" class="btn btn-outline-secondary" data-sebelum>
-                        <i class="bi bi-arrow-left me-1"></i>Sebelum
+                        <i class="bi bi-arrow-left me-1"></i>Sebelumnya
                     </button>
 
                     <button type="submit" class="btn btn-utama">
@@ -927,3 +1201,138 @@
         @endforeach
     @endif
 </div>
+
+@push('skrip')
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const bekas = document.querySelector('[data-pemeriksaan]');
+
+            if (! bekas) {
+                return;
+            }
+
+            const fieldset = bekas.querySelector('[data-isi-pemeriksaan]');
+            const tarikh = bekas.querySelector('[data-tarikh-pemeriksaan]');
+            const catatan = bekas.querySelector('[data-catatan-pemeriksaan]');
+            const kemajuan = bekas.querySelector('[data-kemajuan-pemeriksaan]');
+
+            const sekarang = new Date();
+            const hariIni = new Date(sekarang.getTime() - sekarang.getTimezoneOffset() * 60000)
+                .toISOString()
+                .slice(0, 10);
+
+            /*
+            | Kemajuan pengisian
+            */
+            const kemaskiniKemajuan = () => {
+                const semuaBaris = [...bekas.querySelectorAll('[data-baris-pemeriksaan]')];
+                const kiraan = { BAIK: 0, ROSAK: 0, TIDAK_BERKAITAN: 0 };
+                let diisi = 0;
+
+                semuaBaris.forEach((baris) => {
+                    const dipilih = baris.querySelector('input:checked');
+
+                    baris.classList.toggle('rosak', dipilih?.value === 'ROSAK');
+
+                    if (dipilih) {
+                        diisi++;
+                        kiraan[dipilih.value]++;
+                    }
+                });
+
+                bekas.querySelectorAll('[data-komponen-pemeriksaan]').forEach((komponen) => {
+                    komponen.querySelector('[data-kiraan-komponen]').textContent =
+                        komponen.querySelectorAll('[data-baris-pemeriksaan] input:checked').length;
+                });
+
+                if (! kemajuan) {
+                    return;
+                }
+
+                const jumlah = semuaBaris.length;
+                const peratus = jumlah ? Math.round((diisi / jumlah) * 100) : 0;
+                const bar = kemajuan.querySelector('[data-bar-kemajuan]');
+
+                kemajuan.querySelector('[data-bil-diisi]').textContent = diisi;
+                bar.style.width = `${peratus}%`;
+                bar.classList.toggle('bg-success', jumlah > 0 && diisi === jumlah);
+
+                Object.entries(kiraan).forEach(([nilai, bil]) => {
+                    kemajuan.querySelector(`[data-bil="${nilai}"]`).textContent = bil;
+                });
+            };
+
+            /*
+            | Tukar mod pemeriksaan
+            */
+            const tukarMod = (mod, tetapkanNilai = true) => {
+                const tiada = mod === 'TIADA';
+
+                // fieldset disabled: medan tidak disahkan dan tidak dihantar
+                fieldset.disabled = tiada;
+                fieldset.classList.toggle('d-none', tiada);
+
+                if (! tetapkanNilai) {
+                    return;
+                }
+
+                if (mod === 'BARU') {
+                    tarikh.value = hariIni;
+                    catatan.value = '';
+                }
+
+                if (mod === 'KEMASKINI') {
+                    tarikh.value = bekas.dataset.tarikhTerkini || '';
+                    catatan.value = bekas.dataset.catatanTerkini || '';
+                }
+            };
+
+            bekas.querySelectorAll('input[type="radio"][name="pemeriksaan[mod]"]').forEach((pilihan) => {
+                pilihan.addEventListener('change', () => tukarMod(pilihan.value));
+            });
+
+            const modDipilih = bekas.querySelector('input[type="radio"][name="pemeriksaan[mod]"]:checked');
+
+            if (modDipilih) {
+                tukarMod(modDipilih.value, false);
+            }
+
+            /*
+            | Pilihan nilai item + butang Semua Baik
+            */
+            bekas.addEventListener('change', (event) => {
+                if (event.target.closest('[data-baris-pemeriksaan]')) {
+                    kemaskiniKemajuan();
+                }
+            });
+
+            bekas.querySelectorAll('[data-semua-baik]').forEach((butang) => {
+                butang.addEventListener('click', () => {
+                    butang
+                        .closest('[data-komponen-pemeriksaan]')
+                        .querySelectorAll('input[value="BAIK"]')
+                        .forEach((input) => {
+                            input.checked = true;
+                        });
+
+                    kemaskiniKemajuan();
+                });
+            });
+
+            bekas.querySelectorAll('[data-padam-pilihan]').forEach((butang) => {
+                butang.addEventListener('click', () => {
+                    butang
+                        .closest('[data-komponen-pemeriksaan]')
+                        .querySelectorAll('[data-baris-pemeriksaan] input:checked')
+                        .forEach((input) => {
+                            input.checked = false;
+                        });
+
+                    kemaskiniKemajuan();
+                });
+            });
+
+            kemaskiniKemajuan();
+        });
+    </script>
+@endpush

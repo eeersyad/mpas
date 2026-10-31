@@ -7,6 +7,8 @@ use App\Models\Tanah;
 use App\Models\TetapanRujukan;
 use App\Models\TetapanAduan;
 use App\Models\TetapanPenyewa;
+use App\Models\TetapanPenyelenggaraan;
+use Illuminate\Validation\Rule;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -198,5 +200,55 @@ class TetapanController extends Controller
         return redirect()
             ->route('tetapan.penyewa')
             ->with('berjaya', 'Tetapan penyewa berjaya dikemaskini.');
+    }
+
+    
+    public function penyelenggaraan(): View
+    {
+        $tetapan = TetapanPenyelenggaraan::semasa();
+        $peranan = TetapanPenyelenggaraan::PERANAN;
+
+        $namaPeranan = [
+            'BPH' => 'Bahagian Pengurusan Harta',
+            'BP' => 'Bahagian Perancang',
+            'KJ' => 'Jabatan Kejuruteraan',
+        ];
+
+        return view('tetapan.penyelenggaraan', compact('tetapan', 'peranan', 'namaPeranan'));
+    }
+
+    public function kemaskiniPenyelenggaraan(Request $request): RedirectResponse
+    {
+        $data = $request->validate(
+            [
+                'peranan_lihat' => ['nullable', 'array'],
+                'peranan_lihat.*' => [Rule::in(TetapanPenyelenggaraan::PERANAN)],
+                'peranan_isi' => ['nullable', 'array'],
+                'peranan_isi.*' => [Rule::in(TetapanPenyelenggaraan::PERANAN)],
+            ],
+            [
+                'in' => 'Peranan yang dipilih tidak sah.',
+            ]
+        );
+
+        $perananIsi = array_values(array_unique($data['peranan_isi'] ?? []));
+
+        // Peranan yang boleh isi, automatik boleh lihat
+        $perananLihat = array_values(array_unique(array_merge(
+            $data['peranan_lihat'] ?? [],
+            $perananIsi
+        )));
+
+        $tetapan = TetapanPenyelenggaraan::semasa();
+
+        $tetapan->update([
+            'tpn_peranan_lihat' => $perananLihat,
+            'tpn_peranan_isi' => $perananIsi,
+            'updated_by' => $request->user()->usr_id,
+        ]);
+
+        return redirect()
+            ->route('tetapan.penyelenggaraan')
+            ->with('berjaya', 'Tetapan akses penyelenggaraan berjaya dikemaskini.');
     }
 }

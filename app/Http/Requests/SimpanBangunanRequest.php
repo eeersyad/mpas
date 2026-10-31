@@ -4,6 +4,9 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use App\Models\Penyelenggaraan;
+use App\Models\TetapanPenyelenggaraan;
+use App\Services\Pemeriksaan;
 
 class SimpanBangunanRequest extends FormRequest
 {
@@ -43,11 +46,17 @@ class SimpanBangunanRequest extends FormRequest
             ...$maklumatTajuk,
             'asb_aset_warisan' => $this->boolean('asb_aset_warisan'),
         ]);
+        
+        if (! TetapanPenyelenggaraan::bolehIsi($this->user())) {
+            $this->merge([
+                'pemeriksaan' => ['mod' => 'TIADA'],
+            ]);
+        }
     }
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'asb_name' => ['required', 'string', 'max:255'],
             'asb_no_file' => ['nullable', 'string', 'max:100'],
             'asb_category' => ['required', 'in:PREMIS_PERNIAGAAN,TANDAS,DEWAN,PONDOK_BAS'],
@@ -148,11 +157,67 @@ class SimpanBangunanRequest extends FormRequest
                 'max:10240',
             ],
         ];
+
+        return array_merge($rules, $this->rulesPemeriksaan());
+    }
+
+    private function rulesPemeriksaan(): array
+    {
+        $komponen = app(Pemeriksaan::class)->komponenAktif();
+
+        $modDibenarkan = match (true) {
+            ! TetapanPenyelenggaraan::bolehIsi($this->user()),
+            $komponen->isEmpty() => ['TIADA'],
+            $this->isMethod('post') => ['TIADA', 'BARU'],
+            default => ['TIADA', 'BARU', 'KEMASKINI'],
+        };
+
+        $rules = [
+            'pemeriksaan' => ['required', 'array'],
+            'pemeriksaan.mod' => ['required', Rule::in($modDibenarkan)],
+            'pemeriksaan.asm_inspection_date' => [
+                'exclude_if:pemeriksaan.mod,TIADA',
+                'required',
+                'date',
+                'before_or_equal:today',
+            ],
+            'pemeriksaan.asm_note' => [
+                'exclude_if:pemeriksaan.mod,TIADA',
+                'nullable',
+                'string',
+                'max:2000',
+            ],
+            'pemeriksaan.nilai' => [
+                'exclude_if:pemeriksaan.mod,TIADA',
+                'required',
+                'array',
+            ],
+        ];
+
+        foreach ($komponen as $item) {
+            foreach ($item->itemAktif() as $baris) {
+                $rules["pemeriksaan.nilai.{$item->amc_id}.{$baris['id']}"] = [
+                    'exclude_if:pemeriksaan.mod,TIADA',
+                    'required',
+                    Rule::in(Penyelenggaraan::NILAI),
+                ];
+            }
+        }
+
+        return $rules;
     }
 
     public function messages(): array
     {
         return [
+            'pemeriksaan.mod.in' => 'Pilihan rekod pemeriksaan tidak sah.',
+            'pemeriksaan.asm_inspection_date.required' => 'Sila masukkan tarikh pemeriksaan.',
+            'pemeriksaan.asm_inspection_date.date' => 'Tarikh pemeriksaan tidak sah.',
+            'pemeriksaan.asm_inspection_date.before_or_equal' => 'Tarikh pemeriksaan tidak boleh melebihi hari ini.',
+            'pemeriksaan.asm_note.max' => 'Catatan pemeriksaan tidak boleh melebihi 2000 aksara.',
+            'pemeriksaan.nilai.required' => 'Sila lengkapkan keputusan pemeriksaan.',
+            'pemeriksaan.nilai.*.*.required' => 'Sila pilih keputusan bagi setiap item pemeriksaan.',
+            'pemeriksaan.nilai.*.*.in' => 'Keputusan pemeriksaan tidak sah.',
             'asb_name.required' => 'Sila masukkan nama bangunan.',
             'asb_category.required' => 'Sila pilih kategori bangunan.',
             'asb_add1.required' => 'Sila masukkan alamat bangunan.',

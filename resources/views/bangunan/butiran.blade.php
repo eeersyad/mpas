@@ -21,22 +21,28 @@
                 2 => 'Lokasi & Agensi',
                 3 => 'Maklumat Fizikal',
                 4 => 'Kos & Penilaian',
-                5 => 'Status & Pengesahan',
-                6 => 'Penyewa',
-                7 => 'Dokumen',
+                5 => 'Status & Penyelenggaraan',
+                6 => 'Pengumpulan & Pengesahan',
+                7 => 'Penyewa',
+                8 => 'Dokumen',
             ] as $nombor => $label)
                 <button
                     type="button"
                     class="tab-butiran-butang"
                     data-tab-butiran-butang="{{ $nombor }}"
+                    data-label="{{ $label }}"
                     role="tab"
                     aria-selected="false"
+                    aria-label="{{ $label }}"
+                    title="{{ $label }}"
                 >
                     <span>{{ $nombor }}</span>
-                    {{ $label }}
+                    <em class="label-tab">{{ $label }}</em>
                 </button>
             @endforeach
         </div>
+
+        <p class="label-tab-aktif" data-label-tab-aktif>{{ 'Maklumat Asas' }}</p>
     </div>
 
     <section class="panel-butiran aktif" data-tab-butiran-panel="1" role="tabpanel">
@@ -304,8 +310,8 @@
 
     <section class="panel-butiran" data-tab-butiran-panel="5" role="tabpanel" hidden>
         <div class="butiran-seksyen">
-            <h6>Status & Pengesahan</h6>
-            <p>Status semasa aset serta maklumat pengumpulan dan pengesahan.</p>
+            <h6>Status & Penyelenggaraan</h6>
+            <p>Status semasa aset serta rekod pemeriksaan penyelenggaraan.</p>
         </div>
 
         <div class="row g-3">
@@ -323,6 +329,100 @@
                 </dl>
             </div>
 
+            {{-- REKOD PEMERIKSAAN PENYELENGGARAAN --}}
+            @if ($bolehLihatPemeriksaan ?? false)
+                @php
+                    $senaraiPemeriksaan = $bangunan->penyelenggaraan;
+                    $pemeriksaanTerkini = $senaraiPemeriksaan->first();
+                    $sejarahPemeriksaan = $senaraiPemeriksaan->slice(1);
+                @endphp
+
+                <div class="col-12">
+                    <h6 class="fw-bold mt-2 mb-0">
+                        Pemeriksaan Penyelenggaraan Terkini
+                    </h6>
+                </div>
+
+                <div class="col-12">
+                    @if ($pemeriksaanTerkini)
+                        <div class="border rounded-3 p-3">
+                            @include('bangunan._pemeriksaan', ['rekod' => $pemeriksaanTerkini])
+                        </div>
+                    @else
+                        <div class="kad-kosong py-4">
+                            <div class="ilustrasi-kosong">
+                                <i class="bi bi-clipboard2-check"></i>
+                            </div>
+                            <h3>Tiada rekod pemeriksaan</h3>
+                            <p>Pemeriksaan penyelenggaraan belum direkodkan bagi aset ini.</p>
+                        </div>
+                    @endif
+                </div>
+
+                @if ($sejarahPemeriksaan->isNotEmpty())
+                    <div class="col-12">
+                        <h6 class="fw-bold mt-2 mb-2">
+                            Sejarah Pemeriksaan
+                            <small class="text-secondary fw-normal">({{ $sejarahPemeriksaan->count() }} rekod)</small>
+                        </h6>
+
+                        <div class="accordion" id="sejarahPemeriksaan{{ $bangunan->asb_id }}">
+                            @foreach ($sejarahPemeriksaan as $rekod)
+                                @php
+                                    $idRekod = 'pemeriksaan' . $rekod->asm_id;
+                                @endphp
+
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button
+                                            class="accordion-button collapsed py-2 small"
+                                            type="button"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#{{ $idRekod }}"
+                                            aria-expanded="false"
+                                            aria-controls="{{ $idRekod }}"
+                                        >
+                                            <span class="me-auto">
+                                                <strong>{{ $rekod->asm_inspection_date->format('d/m/Y') }}</strong>
+                                                <span class="text-secondary ms-2">
+                                                    oleh {{ $rekod->pemeriksa?->usr_name ?? '-' }}
+                                                </span>
+                                            </span>
+
+                                            @php
+                                                $rosak = $rekod->ringkasanNilai()['ROSAK'];
+                                            @endphp
+                                            <span class="badge rounded-pill me-2 {{ $rosak > 0 ? 'bg-danger-subtle text-danger-emphasis' : 'bg-success-subtle text-success-emphasis' }}">
+                                                {{ $rosak > 0 ? "{$rosak} rosak" : 'Tiada kerosakan' }}
+                                            </span>
+                                        </button>
+                                    </h2>
+
+                                    <div
+                                        id="{{ $idRekod }}"
+                                        class="accordion-collapse collapse"
+                                        data-bs-parent="#sejarahPemeriksaan{{ $bangunan->asb_id }}"
+                                    >
+                                        <div class="accordion-body">
+                                            @include('bangunan._pemeriksaan', ['rekod' => $rekod])
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+            @endif
+        </div>
+    </section>
+
+    <section class="panel-butiran" data-tab-butiran-panel="6" role="tabpanel" hidden>
+        <div class="butiran-seksyen">
+            <h6>Pengumpulan & Pengesahan</h6>
+            <p>Maklumat pegawai yang mengumpul dan mengesahkan data aset.</p>
+        </div>
+
+        <div class="row g-3">
             <div class="col-12"><h6 class="fw-bold mt-2 mb-0">Maklumat Pengumpulan</h6></div>
 
             <div class="col-12 col-md-5">
@@ -371,7 +471,7 @@
         </div>
     </section>
 
-    <section class="panel-butiran" data-tab-butiran-panel="6" role="tabpanel" hidden>
+    <section class="panel-butiran" data-tab-butiran-panel="7" role="tabpanel" hidden>
         <div class="butiran-seksyen">
             <h6>Maklumat Penyewa</h6>
             <p>{{ $bangunan->penyewa->count() }} rekod penyewa bagi aset ini.</p>
@@ -415,7 +515,7 @@
         @endforelse
     </section>
 
-    <section class="panel-butiran" data-tab-butiran-panel="7" role="tabpanel" hidden>
+    <section class="panel-butiran" data-tab-butiran-panel="8" role="tabpanel" hidden>
         <div class="butiran-seksyen">
             <h6>Dokumen Aset Bangunan</h6>
             <p>Dokumen sokongan dan Kod QR aduan bagi aset ini.</p>
@@ -499,3 +599,35 @@
         <i class="bi bi-pencil-square me-1"></i>Kemaskini
     </a>
 </div>
+
+<script>
+    (() => {
+        const label = document.currentScript
+            ?.previousElementSibling
+            ?.closest('.modal-body, body')
+            ?.querySelector('[data-label-tab-aktif]')
+            ?? document.querySelector('[data-label-tab-aktif]');
+
+        if (! label) {
+            return;
+        }
+
+        const bekas = label.closest('.tab-butiran-melekat') ?? label.parentElement;
+
+        const kemaskini = () => {
+            const aktif = bekas.querySelector('.tab-butiran-butang.aktif');
+
+            if (aktif) {
+                label.textContent = aktif.dataset.label;
+            }
+        };
+
+        new MutationObserver(kemaskini).observe(bekas, {
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['class'],
+        });
+
+        kemaskini();
+    })();
+</script>

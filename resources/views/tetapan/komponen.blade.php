@@ -3,6 +3,13 @@
 @section('tajuk', 'Tetapan Komponen Penyelenggaraan')
 
 @section('kandungan')
+    @php
+        $jumlahKomponenAktif = $komponen->where('amc_status', 'ACTIVE')->count();
+        $jumlahItem = $komponen->sum(fn ($item) => count($item->amc_items ?? []));
+        $jumlahItemAktif = $komponen->sum(fn ($item) => count($item->itemAktif()));
+        $turutanSeterusnya = ($komponen->max('amc_order') ?? 0) + 1;
+    @endphp
+
     <div class="hero-tetapan mb-4">
         <p class="teks-kecil mb-1">PENGURUSAN SISTEM</p>
         <h1 class="tajuk-halaman mb-2">Tetapan</h1>
@@ -14,10 +21,9 @@
         </div>
 
         <div class="col-12 col-lg-9">
-            {{-- Ralat pengesahan --}}
-            @if ($errors->any())
+            {{-- Ralat yang tidak berkait dengan mana-mana modal --}}
+            @if ($errors->any() && ! old('_modal'))
                 <div class="alert alert-danger mb-4">
-                    <strong class="d-block mb-2">Tetapan tidak dapat disimpan:</strong>
                     <ul class="mb-0 ps-3">
                         @foreach ($errors->all() as $ralat)
                             <li>{{ $ralat }}</li>
@@ -26,333 +32,279 @@
                 </div>
             @endif
 
-            {{-- Kepala + butang tambah --}}
+            {{-- Kepala --}}
             <div class="kad-data kad-tetapan mb-4">
                 <div class="kepala-kad-tetapan">
-                    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
-                        <div class="d-flex align-items-center gap-3">
+                    <div class="d-flex align-items-center justify-content-between gap-3 w-100">
+                        <div class="d-flex align-items-center gap-3 min-w-0">
                             <div class="ikon-tetapan bangunan">
                                 <i class="bi bi-tools"></i>
                             </div>
 
-                            <div>
+                            <div class="min-w-0">
                                 <h2 class="h6 fw-bold mb-1">Komponen Penyelenggaraan</h2>
                                 <p class="mb-0 text-secondary small">
-                                    Senarai komponen dan item yang akan dipaparkan dalam
-                                    borang pemeriksaan aset bangunan.
+                                    Komponen dan item yang dipaparkan dalam borang pemeriksaan aset bangunan.
                                 </p>
                             </div>
                         </div>
 
                         <button
                             type="button"
-                            class="btn btn-utama"
-                            data-bs-toggle="collapse"
-                            data-bs-target="#borangKomponenBaru"
-                            aria-expanded="false"
-                            aria-controls="borangKomponenBaru"
+                            class="btn btn-utama butang-tambah-ikon flex-shrink-0"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalKomponenBaru"
+                            title="Tambah Komponen"
+                            aria-label="Tambah Komponen"
                         >
-                            <i class="bi bi-plus-circle me-1"></i>Tambah Komponen
+                            <i class="bi bi-plus-lg"></i>
                         </button>
                     </div>
                 </div>
+            </div>
 
-                {{-- Borang komponen baru --}}
-                <div class="collapse" id="borangKomponenBaru">
-                    <form method="POST" action="{{ route('tetapan.komponen.simpan') }}" class="isi-kad-tetapan border-top">
-                        @csrf
-
-                        <div class="row g-3 mb-3">
-                            <div class="col-12 col-md-6">
-                                <label class="form-label fw-semibold">Nama Komponen</label>
-                                <input
-                                    type="text"
-                                    name="amc_name"
-                                    class="form-control"
-                                    value="{{ old('amc_name') }}"
-                                    placeholder="Contoh: Sistem Keselamatan"
-                                    required
-                                >
-                            </div>
-
-                            <div class="col-6 col-md-3">
-                                <label class="form-label fw-semibold">Turutan</label>
-                                <input
-                                    type="number"
-                                    min="1"
-                                    name="amc_order"
-                                    class="form-control"
-                                    value="{{ old('amc_order', $komponen->count() + 1) }}"
-                                    required
-                                >
-                            </div>
-
-                            <div class="col-6 col-md-3">
-                                <label class="form-label fw-semibold">Status</label>
-                                <select name="amc_status" class="form-select">
-                                    <option value="ACTIVE">Aktif</option>
-                                    <option value="INACTIVE">Tidak aktif</option>
-                                </select>
-                            </div>
+            {{-- Statistik --}}
+            <div class="row g-3 mb-4">
+                <div class="col-12 col-sm-4">
+                    <div class="statistik-komponen">
+                        <span class="ikon hijau"><i class="bi bi-diagram-3-fill"></i></span>
+                        <div>
+                            <p>Komponen Aktif</p>
+                            <strong>{{ $jumlahKomponenAktif }} <small class="fs-6 text-secondary fw-semibold">/ {{ $komponen->count() }}</small></strong>
                         </div>
+                    </div>
+                </div>
 
-                        <label class="form-label fw-semibold">Senarai Item</label>
-
-                        <div class="table-responsive border rounded-3 mb-3">
-                            <table class="table align-middle mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th style="width: 100px;">Turutan</th>
-                                        <th>Nama Item</th>
-                                        <th style="width: 170px;">Status</th>
-                                        <th style="width: 60px;"></th>
-                                    </tr>
-                                </thead>
-                                <tbody id="itemKomponenBaru"></tbody>
-                            </table>
+                <div class="col-6 col-sm-4">
+                    <div class="statistik-komponen">
+                        <span class="ikon biru"><i class="bi bi-check2-square"></i></span>
+                        <div>
+                            <p>Item Aktif</p>
+                            <strong>{{ $jumlahItemAktif }}</strong>
                         </div>
+                    </div>
+                </div>
 
-                        <div class="d-flex flex-column flex-sm-row justify-content-between gap-2">
-                            <button
-                                type="button"
-                                class="btn btn-outline-secondary"
-                                data-tambah-item="#itemKomponenBaru"
-                            >
-                                <i class="bi bi-plus-lg me-1"></i>Tambah Item
-                            </button>
-
-                            <button type="submit" class="btn btn-utama">
-                                <i class="bi bi-check-lg me-1"></i>Simpan Komponen
-                            </button>
+                <div class="col-6 col-sm-4">
+                    <div class="statistik-komponen">
+                        <span class="ikon jingga"><i class="bi bi-slash-circle"></i></span>
+                        <div>
+                            <p>Item Tidak Aktif</p>
+                            <strong>{{ $jumlahItem - $jumlahItemAktif }}</strong>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>
 
-            {{-- Senarai komponen sedia ada --}}
-            @forelse ($komponen as $item)
-                <form
-                    method="POST"
-                    action="{{ route('tetapan.komponen.kemaskini', $item) }}"
-                    class="kad-data kad-tetapan mb-4"
-                >
-                    @csrf
-                    @method('PUT')
+            {{-- Senarai komponen --}}
+            <div class="d-flex flex-column gap-3 mb-4">
+                @forelse ($komponen as $item)
+                    @php
+                        $bilAktif = count($item->itemAktif());
+                        $bilTidakAktif = count($item->amc_items ?? []) - $bilAktif;
+                        $aktif = $item->amc_status === 'ACTIVE';
+                    @endphp
 
-                    <div class="kepala-kad-tetapan">
-                        <div class="d-flex align-items-center justify-content-between gap-3">
-                            <div>
-                                <p class="teks-kecil mb-1">KOMPONEN {{ $loop->iteration }}</p>
-                                <h2 class="h6 fw-bold mb-0">{{ $item->amc_name }}</h2>
+                    <div @class(['kad-komponen', 'tidak-aktif' => ! $aktif])>
+                        <div class="kepala-komponen">
+                            <span class="nombor-komponen">{{ $item->amc_order }}</span>
+
+                            <div class="flex-grow-1 min-w-0">
+                                <h3 class="tajuk-komponen">{{ $item->amc_name }}</h3>
+                                <p class="meta-komponen">
+                                    {{ $bilAktif }} item aktif
+                                    @if ($bilTidakAktif > 0)
+                                        · {{ $bilTidakAktif }} tidak aktif
+                                    @endif
+                                    @if ($item->updated_at)
+                                        · Dikemas kini {{ $item->updated_at->format('d/m/Y') }}
+                                    @endif
+                                </p>
                             </div>
 
-                            <span class="lencana-jadual {{ $item->amc_status === 'ACTIVE' ? 'utama' : 'kelabu' }}">
+                            <span class="lencana-jadual {{ $aktif ? 'utama' : 'kelabu' }}">
                                 {{ \App\Support\Paparan::label($item->amc_status) }}
                             </span>
-                        </div>
-                    </div>
 
-                    <div class="isi-kad-tetapan">
-                        <div class="row g-3 mb-3">
-                            <div class="col-12 col-md-6">
-                                <label class="form-label fw-semibold">Nama Komponen</label>
-                                <input
-                                    type="text"
-                                    name="amc_name"
-                                    class="form-control"
-                                    value="{{ $item->amc_name }}"
-                                    required
-                                >
-                            </div>
-
-                            <div class="col-6 col-md-3">
-                                <label class="form-label fw-semibold">Turutan</label>
-                                <input
-                                    type="number"
-                                    min="1"
-                                    name="amc_order"
-                                    class="form-control"
-                                    value="{{ $item->amc_order }}"
-                                    required
-                                >
-                            </div>
-
-                            <div class="col-6 col-md-3">
-                                <label class="form-label fw-semibold">Status</label>
-                                <select name="amc_status" class="form-select">
-                                    <option value="ACTIVE" @selected($item->amc_status === 'ACTIVE')>Aktif</option>
-                                    <option value="INACTIVE" @selected($item->amc_status === 'INACTIVE')>Tidak aktif</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <label class="form-label fw-semibold">
-                            Senarai Item
-                            <small class="text-secondary fw-normal">({{ count($item->itemAktif()) }} aktif)</small>
-                        </label>
-
-                        <div class="table-responsive border rounded-3 mb-3">
-                            <table class="table align-middle mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th style="width: 100px;">Turutan</th>
-                                        <th>Nama Item</th>
-                                        <th style="width: 170px;">Status</th>
-                                        <th style="width: 60px;"></th>
-                                    </tr>
-                                </thead>
-
-                                <tbody id="itemKomponen{{ $item->amc_id }}">
-                                    @foreach ($item->amc_items ?? [] as $index => $baris)
-                                        <tr>
-                                            <td>
-                                                <input type="hidden" name="items[{{ $index }}][id]" value="{{ $baris['id'] }}">
-                                                <input
-                                                    type="number"
-                                                    min="1"
-                                                    name="items[{{ $index }}][turutan]"
-                                                    class="form-control form-control-sm"
-                                                    value="{{ $index + 1 }}"
-                                                    required
-                                                >
-                                            </td>
-                                            <td>
-                                                <input
-                                                    type="text"
-                                                    name="items[{{ $index }}][nama]"
-                                                    class="form-control form-control-sm"
-                                                    value="{{ $baris['nama'] }}"
-                                                    required
-                                                >
-                                            </td>
-                                            <td>
-                                                <select name="items[{{ $index }}][status]" class="form-select form-select-sm">
-                                                    <option value="ACTIVE" @selected(($baris['status'] ?? 'ACTIVE') === 'ACTIVE')>Aktif</option>
-                                                    <option value="INACTIVE" @selected(($baris['status'] ?? 'ACTIVE') === 'INACTIVE')>Tidak aktif</option>
-                                                </select>
-                                            </td>
-                                            <td class="text-center">
-                                                <i class="bi bi-lock text-secondary" title="Item sedia ada tidak boleh dibuang. Nyahaktifkan jika tidak digunakan."></i>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div class="d-flex flex-column flex-sm-row justify-content-between gap-2">
                             <button
                                 type="button"
-                                class="btn btn-outline-secondary"
-                                data-tambah-item="#itemKomponen{{ $item->amc_id }}"
+                                class="btn btn-sm btn-outline-secondary"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalKomponen{{ $item->amc_id }}"
                             >
-                                <i class="bi bi-plus-lg me-1"></i>Tambah Item
-                            </button>
-
-                            <button type="submit" class="btn btn-utama">
-                                <i class="bi bi-check-lg me-1"></i>Simpan Perubahan
+                                <i class="bi bi-pencil-square me-1"></i>Ubah
                             </button>
                         </div>
+
+                        <div class="isi-komponen">
+                            @forelse ($item->amc_items ?? [] as $baris)
+                                @php
+                                    $itemAktif = ($baris['status'] ?? 'ACTIVE') === 'ACTIVE';
+                                @endphp
+
+                                <span
+                                    @class(['cip-item', 'tidak-aktif' => ! $itemAktif])
+                                    title="{{ $itemAktif ? 'Aktif' : 'Tidak aktif' }}"
+                                >
+                                    <i class="bi {{ $itemAktif ? 'bi-check-circle-fill' : 'bi-dash-circle' }}"></i>
+                                    {{ $baris['nama'] }}
+                                </span>
+                            @empty
+                                <small class="text-secondary">Tiada item.</small>
+                            @endforelse
+                        </div>
                     </div>
-                </form>
-            @empty
-                <div class="kad-kosong">
-                    <div class="ilustrasi-kosong">
-                        <i class="bi bi-tools"></i>
+                @empty
+                    <div class="kad-kosong">
+                        <div class="ilustrasi-kosong">
+                            <i class="bi bi-tools"></i>
+                        </div>
+                        <h3>Tiada komponen penyelenggaraan</h3>
+                        <p>Klik butang Tambah Komponen untuk mendaftarkan komponen pertama.</p>
                     </div>
-                    <h3>Tiada komponen penyelenggaraan</h3>
-                    <p>Klik butang Tambah Komponen untuk mendaftarkan komponen pertama.</p>
-                </div>
-            @endforelse
+                @endforelse
+            </div>
 
             <div class="makluman-tetapan">
                 <i class="bi bi-info-circle me-2 text-success"></i>
                 Komponen dan item tidak boleh dihapus supaya rekod pemeriksaan lama kekal lengkap.
-                Tukar status kepada <strong>Tidak aktif</strong> untuk menyembunyikannya daripada
-                borang pemeriksaan baru.
+                Matikan suis <strong>Aktif</strong> untuk menyembunyikannya daripada borang pemeriksaan baru.
             </div>
         </div>
     </div>
 
-    {{-- Templat baris item baru (disalin oleh JavaScript) --}}
-    <template id="templatItem">
-        <tr>
-            <td>
+    {{-- Modal tambah --}}
+    @include('tetapan._modal-komponen', [
+        'idModal' => 'modalKomponenBaru',
+        'tajuk' => 'Tambah Komponen',
+        'action' => route('tetapan.komponen.simpan'),
+        'method' => 'POST',
+        'komponen' => null,
+        'turutanLalai' => $turutanSeterusnya,
+    ])
+
+    {{-- Modal ubah (satu bagi setiap komponen) --}}
+    @foreach ($komponen as $item)
+        @include('tetapan._modal-komponen', [
+            'idModal' => 'modalKomponen' . $item->amc_id,
+            'tajuk' => 'Ubah Komponen',
+            'action' => route('tetapan.komponen.kemaskini', $item),
+            'method' => 'PUT',
+            'komponen' => $item,
+            'turutanLalai' => $item->amc_order,
+        ])
+    @endforeach
+
+    {{-- Templat baris item baru --}}
+    <template id="templatItemKomponen">
+        <div class="baris-item-komponen" data-baris-item>
+            <input type="hidden" name="items[__INDEX__][id]" value="">
+            <input type="hidden" name="items[__INDEX__][turutan]" value="1" data-turutan>
+
+            <span class="nombor-item" data-nombor>1</span>
+
+            <input
+                type="text"
+                name="items[__INDEX__][nama]"
+                class="form-control form-control-sm"
+                placeholder="Nama item"
+                maxlength="255"
+                aria-label="Nama item"
+                required
+            >
+
+            <input type="hidden" name="items[__INDEX__][status]" value="INACTIVE">
+            <div class="form-check form-switch mb-0" title="Aktif / Tidak aktif">
                 <input
-                    type="number"
-                    min="1"
-                    name="items[__INDEX__][turutan]"
-                    class="form-control form-control-sm"
-                    value="__TURUTAN__"
-                    required
+                    class="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    name="items[__INDEX__][status]"
+                    value="ACTIVE"
+                    aria-label="Item aktif"
+                    checked
                 >
-            </td>
-            <td>
-                <input
-                    type="text"
-                    name="items[__INDEX__][nama]"
-                    class="form-control form-control-sm"
-                    placeholder="Nama item"
-                    required
-                >
-            </td>
-            <td>
-                <select name="items[__INDEX__][status]" class="form-select form-select-sm">
-                    <option value="ACTIVE">Aktif</option>
-                    <option value="INACTIVE">Tidak aktif</option>
-                </select>
-            </td>
-            <td class="text-center">
-                <button
-                    type="button"
-                    class="btn btn-sm btn-outline-danger"
-                    data-buang-item
-                    title="Buang baris"
-                >
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </td>
-        </tr>
+            </div>
+
+            <button type="button" class="butang-ikon-kecil" data-naik title="Naik">
+                <i class="bi bi-arrow-up"></i>
+            </button>
+            <button type="button" class="butang-ikon-kecil" data-turun title="Turun">
+                <i class="bi bi-arrow-down"></i>
+            </button>
+            <button type="button" class="butang-ikon-kecil bahaya" data-buang-item title="Buang">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
     </template>
 @endsection
 
 @push('skrip')
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const templat = document.getElementById('templatItem');
+            const templat = document.getElementById('templatItemKomponen');
 
-            const tambahBaris = (sasaran) => {
-                const index = 'baru' + Date.now() + Math.floor(Math.random() * 1000);
-                const turutan = sasaran.children.length + 1;
-
-                const html = templat.innerHTML
-                    .replaceAll('__INDEX__', index)
-                    .replaceAll('__TURUTAN__', turutan);
-
-                sasaran.insertAdjacentHTML('beforeend', html);
-                sasaran.lastElementChild.querySelector('input[type="text"]')?.focus();
+            // Nombor semula item dan turutan tersembunyi
+            const susunSemula = (senarai) => {
+                senarai.querySelectorAll('[data-baris-item]').forEach((baris, indeks) => {
+                    baris.querySelector('[data-turutan]').value = indeks + 1;
+                    baris.querySelector('[data-nombor]').textContent = indeks + 1;
+                });
             };
 
-            document.querySelectorAll('[data-tambah-item]').forEach((butang) => {
-                butang.addEventListener('click', () => {
-                    tambahBaris(document.querySelector(butang.dataset.tambahItem));
-                });
-            });
-
-            // Borang komponen baru bermula dengan satu baris kosong
-            const itemBaru = document.getElementById('itemKomponenBaru');
-            if (itemBaru && itemBaru.children.length === 0) {
-                tambahBaris(itemBaru);
-            }
-
-            // Buang baris baru (hanya baris yang belum disimpan ada butang ini)
             document.addEventListener('click', (event) => {
-                const butang = event.target.closest('[data-buang-item]');
+                const butangTambah = event.target.closest('[data-tambah-item]');
 
-                if (butang) {
-                    butang.closest('tr').remove();
+                if (butangTambah) {
+                    const senarai = butangTambah
+                        .closest('[data-borang-komponen]')
+                        .querySelector('[data-senarai-item]');
+
+                    const index = 'baru' + Date.now() + Math.floor(Math.random() * 1000);
+
+                    senarai.insertAdjacentHTML(
+                        'beforeend',
+                        templat.innerHTML.replaceAll('__INDEX__', index)
+                    );
+
+                    susunSemula(senarai);
+                    senarai.lastElementChild.querySelector('input[type="text"]').focus();
+
+                    return;
+                }
+
+                const baris = event.target.closest('[data-baris-item]');
+
+                if (! baris) {
+                    return;
+                }
+
+                const senarai = baris.parentElement;
+
+                if (event.target.closest('[data-naik]') && baris.previousElementSibling) {
+                    senarai.insertBefore(baris, baris.previousElementSibling);
+                    susunSemula(senarai);
+                }
+
+                if (event.target.closest('[data-turun]') && baris.nextElementSibling) {
+                    baris.nextElementSibling.after(baris);
+                    susunSemula(senarai);
+                }
+
+                if (event.target.closest('[data-buang-item]')) {
+                    baris.remove();
+                    susunSemula(senarai);
                 }
             });
+
+            // Buka semula modal yang gagal disahkan
+            @if ($errors->any() && old('_modal'))
+                const modalRalat = document.getElementById(@json(old('_modal')));
+
+                if (modalRalat) {
+                    bootstrap.Modal.getOrCreateInstance(modalRalat).show();
+                }
+            @endif
         });
     </script>
 @endpush

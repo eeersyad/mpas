@@ -59,6 +59,18 @@
             </span>
         </a>
 
+        <a
+            href="{{ route('tetapan.penyelenggaraan') }}"
+            class="tetapan-pautan {{ request()->routeIs('tetapan.penyelenggaraan*') ? 'aktif' : '' }}"
+        >
+            <i class="bi bi-shield-lock"></i>
+
+            <span>
+                <strong>Akses Penyelenggaraan</strong>
+                <small>Peranan boleh lihat dan isi</small>
+            </span>
+        </a>
+
         <div class="pemisah-menu-tetapan"></div>
 
         <span class="tetapan-pautan tidak-aktif">
