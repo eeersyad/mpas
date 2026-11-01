@@ -28,13 +28,14 @@ Route::middleware('guest')->group(function () {
     
 });
 
-Route::middleware('throttle:20,1')->group(function () {
-    Route::get('/laporan/{kod}', [AduanAwamController::class, 'create'])
-        ->name('aduan.awam.create');
+// Aduan awam melalui kod QR (tanpa log masuk)
+Route::get('/laporan/{kod}', [AduanAwamController::class, 'create'])
+    ->middleware('throttle:20,1')
+    ->name('aduan.awam.create');
 
-    Route::post('/laporan/{kod}', [AduanAwamController::class, 'store'])
-        ->name('aduan.awam.store');
-});
+Route::post('/laporan/{kod}', [AduanAwamController::class, 'store'])
+    ->middleware('throttle:5,10,aduan-awam')
+    ->name('aduan.awam.store');
 
 // KUMPULAN SYSTEM
 Route::middleware('peranan:SYSTEM')->group(function () {

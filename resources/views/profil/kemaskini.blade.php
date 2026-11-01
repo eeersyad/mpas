@@ -146,10 +146,43 @@
                         </div>
 
                         <p class="penerangan-seksyen-profil">
-                            Kosongkan kedua-dua ruangan di bawah jika anda tidak mahu menukar kata laluan.
+                            Kosongkan ruangan di bawah jika anda tidak mahu menukar kata laluan.
                         </p>
 
                         <div class="row g-3">
+                            <div class="col-12">
+                                <label for="kata_laluan_semasa" class="form-label">
+                                    Kata Laluan Semasa
+                                </label>
+
+                                <div class="input-group-profil input-kata-laluan">
+                                    <span><i class="bi bi-key"></i></span>
+
+                                    <input
+                                        type="password"
+                                        class="form-control @error('kata_laluan_semasa') is-invalid @enderror"
+                                        id="kata_laluan_semasa"
+                                        name="kata_laluan_semasa"
+                                        autocomplete="current-password"
+                                        placeholder="Wajib diisi jika menukar kata laluan"
+                                    >
+
+                                    <button
+                                        type="button"
+                                        class="btn butang-lihat-kata-laluan"
+                                        data-togol-kata-laluan="#kata_laluan_semasa"
+                                        aria-label="Papar kata laluan"
+                                        title="Papar kata laluan"
+                                    >
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+
+                                @error('kata_laluan_semasa')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+
                             <div class="col-12 col-md-6">
                                 <label for="usr_password" class="form-label">
                                     Kata Laluan Baharu
@@ -164,7 +197,7 @@
                                         id="usr_password"
                                         name="usr_password"
                                         autocomplete="new-password"
-                                        placeholder="Minimum 8 aksara"
+                                        placeholder="Min. 8 aksara, huruf besar, kecil & nombor"
                                     >
 
                                     <button
@@ -181,7 +214,7 @@
                                 @error('usr_password')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
-                            </div>
+                            </diKata>
 
                             <div class="col-12 col-md-6">
                                 <label for="usr_password_confirmation" class="form-label">

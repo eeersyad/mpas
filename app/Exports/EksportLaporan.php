@@ -5,12 +5,20 @@ namespace App\Exports;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use PhpOffice\PhpSpreadsheet\Cell\StringValueBinder;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class EksportLaporan implements
+/**
+ * StringValueBinder memaksa setiap sel ditulis sebagai teks.
+ * Ini menghalang suntikan formula Excel daripada input awam
+ * (contoh nama pengadu bermula dengan "=").
+ */
+class EksportLaporan extends StringValueBinder implements
+    WithCustomValueBinder,
     FromCollection,
     WithHeadings,
     ShouldAutoSize,

@@ -96,7 +96,7 @@
                                 </button>
 
                                 <div class="form-text">
-                                    Gunakan sekurang-kurangnya 8 aksara.
+                                    Min. 8 aksara, huruf besar, kecil & nombor
                                 </div>
 
                                 @error('usr_password')

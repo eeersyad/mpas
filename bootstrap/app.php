@@ -15,6 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'peranan' => \App\Http\Middleware\PerananMiddleware::class,
         ]);
+
+        $middleware->append(\App\Http\Middleware\HeaderKeselamatan::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

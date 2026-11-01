@@ -8,6 +8,7 @@ use App\Support\Susunan;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
 class PengurusanPenggunaController extends Controller
@@ -67,7 +68,7 @@ class PengurusanPenggunaController extends Controller
         $data = $request->validate(
             [
                 'usr_name' => ['required', 'string', 'max:100', 'unique:users,usr_name'],
-                'usr_password' => ['required', 'string', 'min:8', 'confirmed'],
+                'usr_password' => ['required', 'string', 'confirmed', Password::min(8)->mixedCase()->numbers()],
                 'usr_level' => ['required', 'in:'.implode(',', $peranan)],
                 'usr_status' => ['required', 'in:ACTIVE,INACTIVE'],
             ],
@@ -76,6 +77,8 @@ class PengurusanPenggunaController extends Controller
                 'usr_name.unique' => 'Nama pengguna ini telah digunakan.',
                 'usr_password.required' => 'Sila masukkan kata laluan.',
                 'usr_password.min' => 'Kata laluan mesti sekurang-kurangnya 8 aksara.',
+                'usr_password.password.mixed' => 'Kata laluan mesti mengandungi huruf besar dan huruf kecil.',
+                'usr_password.password.numbers' => 'Kata laluan mesti mengandungi sekurang-kurangnya satu nombor.',
                 'usr_password.confirmed' => 'Pengesahan kata laluan tidak sepadan.',
                 'usr_level.required' => 'Sila pilih peranan pengguna.',
                 'usr_level.in' => 'Anda tidak dibenarkan mencipta peranan ini.',
@@ -119,7 +122,7 @@ class PengurusanPenggunaController extends Controller
                     'max:100',
                     Rule::unique('users', 'usr_name')->ignore($pengguna->usr_id, 'usr_id'),
                 ],
-                'usr_password' => ['nullable', 'string', 'min:8', 'confirmed'],
+                'usr_password' => ['nullable', 'string', 'confirmed', Password::min(8)->mixedCase()->numbers()],
                 'usr_level' => ['required', 'in:'.implode(',', $peranan)],
                 'usr_status' => ['required', 'in:ACTIVE,INACTIVE'],
             ],
@@ -127,6 +130,8 @@ class PengurusanPenggunaController extends Controller
                 'usr_name.required' => 'Sila masukkan nama pengguna.',
                 'usr_name.unique' => 'Nama pengguna ini telah digunakan.',
                 'usr_password.min' => 'Kata laluan mesti sekurang-kurangnya 8 aksara.',
+                'usr_password.password.mixed' => 'Kata laluan mesti mengandungi huruf besar dan huruf kecil.',
+                'usr_password.password.numbers' => 'Kata laluan mesti mengandungi sekurang-kurangnya satu nombor.',
                 'usr_password.confirmed' => 'Pengesahan kata laluan tidak sepadan.',
                 'usr_level.required' => 'Sila pilih peranan pengguna.',
                 'usr_level.in' => 'Anda tidak dibenarkan menukar kepada peranan ini.',

@@ -246,7 +246,7 @@
                                         id="usr_password"
                                         name="usr_password"
                                         autocomplete="new-password"
-                                        placeholder="Minimum 8 aksara"
+                                        placeholder="Min. 8 aksara, huruf besar, kecil & nombor"
                                     >
 
                                     <button
