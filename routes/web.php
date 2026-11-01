@@ -21,7 +21,9 @@ Route::get('/', function () {
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'login'])->name('login');
-    Route::post('/login', [LoginController::class, 'authenticate'])->name('authenticate');
+    Route::post('/login', [LoginController::class, 'authenticate'])
+        ->middleware('throttle:10,1')
+        ->name('authenticate');
 
     
 });
@@ -165,6 +167,9 @@ Route::middleware('auth')->group(function () {
 
         Route::delete('/aset-tanah/{tanah}/dokumen/{dokumen}', [PengurusanTanahController::class, 'hapusDokumen'])
             ->name('tanah.dokumen.hapus');
+            
+        Route::get('/aset-tanah/{tanah}/dokumen/{dokumen}', [PengurusanTanahController::class, 'lihatDokumen'])
+            ->name('tanah.dokumen.lihat');
     });
 
     Route::middleware('peranan:SYSTEM,BPH')->group(function () {
@@ -190,6 +195,11 @@ Route::middleware('auth')->group(function () {
             '/aset-bangunan/{bangunan}/dokumen/{dokumen}',
             [PengurusanBangunanController::class, 'hapusDokumen']
         )->name('bangunan.dokumen.hapus');
+        
+        Route::get(
+            '/aset-bangunan/{bangunan}/dokumen/{dokumen}',
+            [PengurusanBangunanController::class, 'lihatDokumen']
+        )->name('bangunan.dokumen.lihat');
     });
 
     // Butiran bangunan: akses disemak dalam controller

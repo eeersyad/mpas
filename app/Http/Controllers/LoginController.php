@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class LoginController extends Controller
@@ -30,6 +32,18 @@ class LoginController extends Controller
                 'password.required' => 'Sila masukkan kata laluan.',
             ]
         );
+        
+        $kunciHad = 'login:' . Str::lower($data['usr_name']) . '|' . $request->ip();
+
+        if (RateLimiter::tooManyAttempts($kunciHad, 5)) {
+            $saat = RateLimiter::availableIn($kunciHad);
+
+            return back()
+                ->withInput($request->only('usr_name'))
+                ->withErrors([
+                    'usr_name' => "Terlalu banyak cubaan. Sila cuba semula dalam {$saat} saat.",
+                ]);
+        }
 
         $authenticated = Auth::attempt([
             'usr_name' => $data['usr_name'],
@@ -38,13 +52,15 @@ class LoginController extends Controller
         ]);
 
         if (! $authenticated) {
+            RateLimiter::hit($kunciHad, 300);
+
             return back()
                 ->withInput($request->only('usr_name'))
                 ->withErrors([
                     'usr_name' => 'Nama pengguna atau kata laluan tidak sah.',
                 ]);
         }
-
+        RateLimiter::clear($kunciHad);
         $request->session()->regenerate();
 
         return redirect()

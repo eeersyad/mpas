@@ -1078,7 +1078,7 @@
 
                                                 <div class="d-flex gap-2 mt-3">
                                                     <a
-                                                        href="{{ asset('storage/' . $dokumen->asbdoc_path) }}"
+                                                        href="{{ route('bangunan.dokumen.lihat', [$bangunan, $dokumen]) }}"
                                                         target="_blank"
                                                         rel="noopener"
                                                         class="btn btn-sm btn-outline-primary"
@@ -1087,7 +1087,7 @@
                                                     </a>
 
                                                     <a
-                                                        href="{{ asset('storage/' . $dokumen->asbdoc_path) }}"
+                                                        href="{{ route('bangunan.dokumen.lihat', [$bangunan, $dokumen]) }}"
                                                         download="{{ $dokumen->asbdoc_name }}"
                                                         class="btn btn-sm btn-outline-secondary"
                                                     >

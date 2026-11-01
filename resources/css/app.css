@@ -5893,3 +5893,32 @@ body.menu-telefon-terbuka {
         text-align: center;
     }
 }
+
+@media (min-width: 992px) and (max-width: 1399.98px) {
+    .kandungan-sistem > main {
+        padding: 1.5rem !important;
+    }
+
+    .sidebar {
+        width: 240px;
+        padding-inline: 0.75rem;
+    }
+
+    .menu-pautan {
+        padding: 0.65rem 0.7rem;
+        font-size: 0.84rem;
+    }
+
+    .tajuk-halaman {
+        font-size: 1.5rem;
+    }
+
+    .kad-ringkasan {
+        min-height: 110px;
+        padding: 1rem;
+    }
+
+    .nilai-ringkasan {
+        font-size: 1.45rem;
+    }
+}

@@ -523,7 +523,7 @@
 
         @forelse ($bangunan->dokumen as $dokumen)
             <a
-                href="{{ asset('storage/' . $dokumen->asbdoc_path) }}"
+                href="{{ route('bangunan.dokumen.lihat', [$bangunan, $dokumen]) }}"
                 target="_blank"
                 rel="noopener"
                 class="d-flex align-items-center gap-3 border rounded-3 p-3 mb-2 text-decoration-none"

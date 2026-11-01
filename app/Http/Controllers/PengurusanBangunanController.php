@@ -368,7 +368,7 @@ class PengurusanBangunanController extends Controller
 
             $path = $fail->store(
                 'dokumen/bangunan/' . $bangunan->asb_id,
-                'public'
+                'local'
             );
 
             $bangunan->dokumen()->create([
@@ -385,6 +385,23 @@ class PengurusanBangunanController extends Controller
         }
     }
 
+    public function lihatDokumen(Bangunan $bangunan, DokumenBangunan $dokumen)
+    {
+        abort_unless($dokumen->asb_id === $bangunan->asb_id, 404);
+
+        // Fail baru di disk peribadi; fail lama mungkin masih di disk public
+        foreach (['local', 'public'] as $disk) {
+            if (Storage::disk($disk)->exists($dokumen->asbdoc_path)) {
+                return Storage::disk($disk)->response(
+                    $dokumen->asbdoc_path,
+                    $dokumen->asbdoc_name
+                );
+            }
+        }
+
+        abort(404);
+    }
+
     public function hapusDokumen(
         Bangunan $bangunan,
         DokumenBangunan $dokumen
@@ -394,6 +411,7 @@ class PengurusanBangunanController extends Controller
             404
         );
 
+        Storage::disk('local')->delete($dokumen->asbdoc_path);
         Storage::disk('public')->delete($dokumen->asbdoc_path);
 
         $dokumen->delete();

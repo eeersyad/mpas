@@ -215,6 +215,23 @@ class PengurusanTanahController extends Controller
             ->with('berjaya', 'Maklumat aset tanah berjaya dikemaskini.');
     }
 
+    public function lihatDokumen(Tanah $tanah, DokumenTanah $dokumen)
+    {
+        abort_unless($dokumen->asl_id === $tanah->asl_id, 404);
+
+        // Fail baru di disk peribadi; fail lama mungkin masih di disk public
+        foreach (['local', 'public'] as $disk) {
+            if (Storage::disk($disk)->exists($dokumen->asldoc_path)) {
+                return Storage::disk($disk)->response(
+                    $dokumen->asldoc_path,
+                    $dokumen->asldoc_name
+                );
+            }
+        }
+
+        abort(404);
+    }
+
     public function hapusDokumen(
         Tanah $tanah,
         DokumenTanah $dokumen
@@ -224,6 +241,7 @@ class PengurusanTanahController extends Controller
             404
         );
 
+        Storage::disk('local')->delete($dokumen->asldoc_path);
         Storage::disk('public')->delete($dokumen->asldoc_path);
 
         $dokumen->delete();
@@ -269,7 +287,7 @@ class PengurusanTanahController extends Controller
 
             $path = $fail->store(
                 'dokumen/tanah/' . $tanah->asl_id,
-                'public'
+                'local'
             );
 
             $tanah->dokumen()->create([
