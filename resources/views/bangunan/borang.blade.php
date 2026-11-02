@@ -664,13 +664,14 @@
                                                 @php
                                                     $namaInput = "pemeriksaan[nilai][{$komponen->amc_id}][{$item['id']}]";
                                                     $kunciOld = "pemeriksaan.nilai.{$komponen->amc_id}.{$item['id']}";
+                                                    $nilaiTerkini = $pemeriksaanTerkini?->nilaiItem($komponen->amc_id, $item['id']);
                                                     $nilaiSemasa = old(
                                                         $kunciOld,
-                                                        $pemeriksaanTerkini?->nilaiItem($komponen->amc_id, $item['id'])
+                                                        $modPemeriksaan === 'KEMASKINI' ? $nilaiTerkini : null
                                                     );
                                                 @endphp
 
-                                                <div class="baris-pemeriksaan" data-baris-pemeriksaan>
+                                                <div class="baris-pemeriksaan" data-baris-pemeriksaan data-nilai-terkini="{{ $nilaiTerkini }}">
                                                     <div class="nama-item-pemeriksaan">
                                                         {{ $item['nama'] }}
 
@@ -1279,12 +1280,28 @@
                 if (mod === 'BARU') {
                     tarikh.value = hariIni;
                     catatan.value = '';
+
+                    // Pemeriksaan baharu: kosongkan semua pilihan item
+                    bekas.querySelectorAll('[data-baris-pemeriksaan] input:checked').forEach((input) => {
+                        input.checked = false;
+                    });
                 }
 
                 if (mod === 'KEMASKINI') {
                     tarikh.value = bekas.dataset.tarikhTerkini || '';
                     catatan.value = bekas.dataset.catatanTerkini || '';
+
+                    // Kemas kini: isi semula pilihan item daripada rekod terkini
+                    bekas.querySelectorAll('[data-baris-pemeriksaan]').forEach((baris) => {
+                        const nilai = baris.dataset.nilaiTerkini;
+
+                        baris.querySelectorAll('input[type="radio"]').forEach((input) => {
+                            input.checked = nilai !== '' && input.value === nilai;
+                        });
+                    });
                 }
+
+                kemaskiniKemajuan();
             };
 
             bekas.querySelectorAll('input[type="radio"][name="pemeriksaan[mod]"]').forEach((pilihan) => {

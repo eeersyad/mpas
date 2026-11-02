@@ -5922,3 +5922,95 @@ body.menu-telefon-terbuka {
         font-size: 1.45rem;
     }
 }
+
+/*
+|--------------------------------------------------------------------------
+| Penunjuk langkah borang: lajur sama lebar, nombor di atas, label di bawah
+|--------------------------------------------------------------------------
+*/
+.penunjuk-borang,
+.borang-aset .penunjuk-borang {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    gap: 0.5rem;
+    overflow: visible;
+    padding-bottom: 0;
+}
+
+.penunjuk-item,
+.borang-aset .penunjuk-item {
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 0.45rem;
+    min-width: 0;
+    text-align: center;
+}
+
+.penunjuk-item strong {
+    display: block;
+    line-height: 1.25;
+    white-space: normal;
+    overflow-wrap: normal;
+    word-break: normal;
+}
+
+/* Laptop kecil / tablet: label langkah aktif sahaja */
+@media (min-width: 768px) and (max-width: 1199.98px) {
+    .penunjuk-item strong {
+        display: none;
+    }
+
+    .penunjuk-item.aktif strong {
+        display: block;
+        white-space: nowrap;
+    }
+}
+
+/* Telefon: nombor sahaja */
+@media (max-width: 767.98px) {
+    .penunjuk-item strong {
+        display: none;
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Elak pertembungan Tailwind dengan kelas Bootstrap "collapse"
+|--------------------------------------------------------------------------
+| Tailwind menjana .collapse { visibility: collapse } yang menyembunyikan
+| accordion/collapse Bootstrap selepas dibuka. Bootstrap sendiri sudah
+| mengawal paparan melalui display, jadi visibility dikembalikan ke asal.
+*/
+.collapse {
+    visibility: visible;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Accordion: ikut tema MPAS (ganti biru lalai Bootstrap)
+|--------------------------------------------------------------------------
+*/
+.accordion {
+    --bs-accordion-border-color: #e5edec;
+    --bs-accordion-border-radius: 12px;
+    --bs-accordion-inner-border-radius: 11px;
+    --bs-accordion-btn-focus-box-shadow: none;
+    --bs-accordion-active-bg: #f0faf8;
+    --bs-accordion-active-color: #0d625a;
+    --bs-accordion-btn-active-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23168a7e' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M2 5L8 11L14 5'/%3e%3c/svg%3e");
+}
+
+.accordion-button:focus {
+    border-color: var(--bs-accordion-border-color);
+    box-shadow: none;
+}
+
+/* Gelang fokus lembut untuk pengguna papan kekunci sahaja (Tab) */
+.accordion-button:focus-visible {
+    box-shadow: 0 0 0 3px rgba(22, 138, 126, 0.15);
+}
+
+.accordion-button:not(.collapsed) {
+    box-shadow: inset 0 -1px 0 #e5edec;
+}
