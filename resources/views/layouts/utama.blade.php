@@ -25,6 +25,22 @@
     >
 
     @stack('gaya')
+
+    <script>
+        (() => {
+            const akar = document.documentElement;
+            akar.classList.add('sidebar-memuat');
+
+            try {
+                const status = localStorage.getItem('mpas_sidebar');
+
+                if (status === 'mini' || status === 'runtuh') {
+                    akar.classList.add('sidebar-mini');
+                }
+            } catch (e) {}
+        })();
+    </script>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
@@ -104,26 +120,19 @@
         id="aplikasi"
         data-user-id="{{ $user->usr_id }}"
     >
-        <aside class="sidebar d-none d-lg-flex flex-column">
-            <a
-                href="{{ route('dashboard') }}"
-                class="jenama jenama-logo text-decoration-none"
-                aria-label="Dashboard MPAS"
-            >
-                <img
-                    src="{{ asset('images/logo-mpas.png') }}"
-                    alt="Logo MPAS"
-                    class="logo-sidebar"
-                >
+        <aside class="sidebar d-none d-lg-flex flex-column" aria-label="Menu utama">
+            <a href="{{ route('dashboard') }}" class="jenama jenama-logo text-decoration-none" aria-label="Dashboard MPAS" data-tooltip-sidebar="Dashboard MPAS">
+                <img src="{{ asset('images/logo-mpas.png') }}" alt="Logo MPAS" class="logo-sidebar logo-penuh">
+                <img src="{{ asset('images/logo-mpas-mini.png') }}" alt="" class="logo-mini" aria-hidden="true">
             </a>
 
-            <p class="menu-label">MENU UTAMA</p>
+            <p class="menu-label"><span>MENU UTAMA</span></p>
 
             <nav class="nav flex-column menu-sisi">
                 @foreach ($menu as $item)
                     @if (in_array($user->usr_level, $item['roles']))
-                        <a href="{{ $item['url'] }}" class="menu-pautan {{ $item['active'] ? 'aktif' : '' }}">
-                            <i class="bi {{ $item['icon'] }}"></i>
+                        <a href="{{ $item['url'] }}" class="menu-pautan {{ $item['active'] ? 'aktif' : '' }}" aria-label="{{ $item['label'] }}" data-tooltip-sidebar="{{ $item['label'] }}" @if ($item['active']) aria-current="page" @endif>
+                            <i class="bi {{ $item['icon'] }}" aria-hidden="true"></i>
                             <span>{{ $item['label'] }}</span>
                         </a>
                     @endif
@@ -131,11 +140,11 @@
             </nav>
 
             <div class="mt-auto">
-                <p class="menu-label">AKAUN</p>
+                <p class="menu-label"><span>AKAUN</span></p>
 
                 <nav class="nav flex-column menu-sisi">
-                    <a href="{{ route('profil.edit') }}" class="menu-pautan">
-                        <i class="bi bi-person-circle"></i>
+                    <a href="{{ route('profil.edit') }}" class="menu-pautan {{ request()->routeIs('profil.*') ? 'aktif' : '' }}" aria-label="Profil Saya" data-tooltip-sidebar="Profil Saya">
+                        <i class="bi bi-person-circle" aria-hidden="true"></i>
                         <span>Profil Saya</span>
                     </a>
                 </nav>
@@ -145,14 +154,8 @@
         <div class="kandungan-sistem flex-grow-1">
             <header class="bar-atas d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center gap-2">
-                    <button
-                        class="butang-toggle d-none d-lg-grid"
-                        type="button"
-                        id="toggleSidebar"
-                        aria-label="Kecilkan sidebar"
-                        aria-expanded="true"
-                    >
-                        <i class="bi bi-layout-sidebar-inset"></i>
+                    <button class="butang-toggle d-none d-lg-grid" type="button" id="toggleSidebar" aria-label="Kecilkan sidebar" aria-expanded="true" title="Kecilkan sidebar">
+                        <i class="bi bi-layout-sidebar-inset" aria-hidden="true"></i>
                     </button>
 
                     <button

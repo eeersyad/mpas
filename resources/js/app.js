@@ -11,28 +11,62 @@ document.addEventListener('DOMContentLoaded', () => {
     | Sidebar
     |--------------------------------------------------------------------------
     */
-    const aplikasi = document.querySelector('#aplikasi');
+    const akar = document.documentElement;
     const toggleSidebar = document.querySelector('#toggleSidebar');
 
-    if (aplikasi && toggleSidebar) {
-        const statusDisimpan = localStorage.getItem('mpas_sidebar');
+    if (toggleSidebar) {
+        let senaraiTooltip = [];
 
-        if (statusDisimpan === 'runtuh') {
-            aplikasi.classList.add('sidebar-runtuh');
-            toggleSidebar.setAttribute('aria-expanded', 'false');
-            toggleSidebar.setAttribute('aria-label', 'Besarkan sidebar');
-        }
+        // Tooltip hanya aktif ketika sidebar mini
+        const pasangTooltip = (mini) => {
+            senaraiTooltip.forEach((tooltip) => tooltip.dispose());
+            senaraiTooltip = [];
+
+            if (! mini || ! window.bootstrap) {
+                return;
+            }
+
+            document.querySelectorAll('.sidebar [data-tooltip-sidebar]').forEach((elemen) => {
+                senaraiTooltip.push(
+                    new window.bootstrap.Tooltip(elemen, {
+                        title: elemen.dataset.tooltipSidebar,
+                        placement: 'right',
+                        trigger: 'hover focus',
+                        container: 'body',
+                        customClass: 'tooltip-sidebar',
+                        offset: [0, 14],
+                    })
+                );
+            });
+        };
+
+        const kemaskiniButang = (mini) => {
+            const label = mini ? 'Besarkan sidebar' : 'Kecilkan sidebar';
+
+            toggleSidebar.setAttribute('aria-expanded', String(! mini));
+            toggleSidebar.setAttribute('aria-label', label);
+            toggleSidebar.setAttribute('title', label);
+        };
+
+        const miniAwal = akar.classList.contains('sidebar-mini');
+
+        kemaskiniButang(miniAwal);
+        pasangTooltip(miniAwal);
+
+        // Hidupkan semula animasi selepas halaman siap dilukis
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => akar.classList.remove('sidebar-memuat'));
+        });
 
         toggleSidebar.addEventListener('click', () => {
-            const runtuh = aplikasi.classList.toggle('sidebar-runtuh');
+            const mini = akar.classList.toggle('sidebar-mini');
 
-            toggleSidebar.setAttribute('aria-expanded', String(!runtuh));
-            toggleSidebar.setAttribute(
-                'aria-label',
-                runtuh ? 'Besarkan sidebar' : 'Kecilkan sidebar'
-            );
+            kemaskiniButang(mini);
+            pasangTooltip(mini);
 
-            localStorage.setItem('mpas_sidebar', runtuh ? 'runtuh' : 'besar');
+            try {
+                localStorage.setItem('mpas_sidebar', mini ? 'mini' : 'besar');
+            } catch (e) {}
         });
     }
 

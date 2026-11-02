@@ -6014,3 +6014,184 @@ body.menu-telefon-terbuka {
 .accordion-button:not(.collapsed) {
     box-shadow: inset 0 -1px 0 #e5edec;
 }
+
+/*
+|--------------------------------------------------------------------------
+| Sidebar mini (mod ikon)
+|--------------------------------------------------------------------------
+*/
+:root {
+    --lebar-sidebar: 270px;
+    --lebar-sidebar-mini: 84px;
+    --peralihan-sidebar: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (min-width: 992px) and (max-width: 1399.98px) {
+    :root {
+        --lebar-sidebar: 240px;
+    }
+}
+
+.sidebar {
+    flex: 0 0 var(--lebar-sidebar);
+    width: var(--lebar-sidebar);
+    margin-left: 0;
+    padding: 1.5rem 1rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: none;
+    transition: width var(--peralihan-sidebar), flex-basis var(--peralihan-sidebar), padding var(--peralihan-sidebar);
+}
+
+.sidebar::-webkit-scrollbar {
+    display: none;
+}
+
+/* Logo */
+.sidebar .jenama-logo {
+    position: relative;
+    overflow: hidden;
+}
+
+.sidebar .logo-penuh {
+    transition: opacity 200ms ease, transform 240ms ease;
+}
+
+.sidebar .logo-mini {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -50%) scale(0.7);
+    transition: opacity 200ms ease, transform 240ms ease;
+}
+
+/* Label seksyen */
+.sidebar .menu-label {
+    position: relative;
+    white-space: nowrap;
+}
+
+.sidebar .menu-label span {
+    transition: opacity 160ms ease;
+}
+
+.sidebar .menu-label::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 22px;
+    height: 2px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.25);
+    transform: translate(-50%, -50%) scaleX(0);
+    transition: transform 220ms ease;
+}
+
+/* Pautan menu */
+.sidebar .menu-pautan {
+    overflow: hidden;
+    white-space: nowrap;
+    transition: background-color 180ms ease, color 180ms ease, transform 180ms ease, padding var(--peralihan-sidebar), gap var(--peralihan-sidebar);
+}
+
+.sidebar .menu-pautan i {
+    flex: 0 0 auto;
+    width: 1.25rem;
+    font-size: 1.05rem;
+    text-align: center;
+    transition: transform 200ms ease;
+}
+
+.sidebar .menu-pautan span {
+    transition: opacity 160ms ease;
+}
+
+/* ---------- Keadaan mini ---------- */
+html.sidebar-mini .sidebar {
+    flex-basis: var(--lebar-sidebar-mini);
+    width: var(--lebar-sidebar-mini);
+    padding-inline: 0.85rem;
+}
+
+html.sidebar-mini .sidebar .logo-penuh {
+    opacity: 0;
+    transform: scale(0.8);
+}
+
+html.sidebar-mini .sidebar .logo-mini {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+html.sidebar-mini .sidebar .menu-label span {
+    opacity: 0;
+}
+
+html.sidebar-mini .sidebar .menu-label::after {
+    transform: translate(-50%, -50%) scaleX(1);
+}
+
+html.sidebar-mini .sidebar .menu-pautan {
+    gap: 0;
+    padding-right: 0;
+    padding-left: calc((var(--lebar-sidebar-mini) - 1.7rem - 1.25rem) / 2);
+}
+
+html.sidebar-mini .sidebar .menu-pautan span {
+    width: 0;
+    opacity: 0;
+}
+
+html.sidebar-mini .sidebar .menu-pautan:hover {
+    transform: none;
+}
+
+html.sidebar-mini .sidebar .menu-pautan:hover i {
+    transform: scale(1.15);
+}
+
+/* Butang toggle */
+.butang-toggle i {
+    transition: transform var(--peralihan-sidebar);
+}
+
+html.sidebar-mini .butang-toggle i {
+    transform: rotate(180deg);
+}
+
+/* Tiada animasi semasa halaman dibuka (elak kelip) */
+html.sidebar-memuat .sidebar,
+html.sidebar-memuat .sidebar *,
+html.sidebar-memuat .sidebar *::after,
+html.sidebar-memuat .butang-toggle i {
+    transition: none !important;
+}
+
+/* Hormati tetapan "kurangkan animasi" */
+@media (prefers-reduced-motion: reduce) {
+    .sidebar,
+    .sidebar *,
+    .sidebar *::after,
+    .butang-toggle i {
+        transition: none !important;
+    }
+}
+
+/* Tooltip sidebar */
+.tooltip-sidebar {
+    --bs-tooltip-bg: #0d625a;
+    --bs-tooltip-color: #ffffff;
+    --bs-tooltip-font-size: 0.78rem;
+    --bs-tooltip-padding-x: 0.75rem;
+    --bs-tooltip-padding-y: 0.42rem;
+    --bs-tooltip-border-radius: 8px;
+    --bs-tooltip-opacity: 1;
+    font-weight: 600;
+    pointer-events: none;
+}
