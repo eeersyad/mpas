@@ -214,7 +214,7 @@
                                 @error('usr_password')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
-                            </diKata>
+                            </div>
 
                             <div class="col-12 col-md-6">
                                 <label for="usr_password_confirmation" class="form-label">

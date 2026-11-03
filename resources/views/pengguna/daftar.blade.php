@@ -76,31 +76,20 @@
                                     Kata Laluan <span class="text-danger">*</span>
                                 </label>
 
-                                <input
-                                    type="password"
-                                    class="form-control @error('usr_password') is-invalid @enderror"
-                                    id="usr_password"
-                                    name="usr_password"
-                                    autocomplete="new-password"
-                                    required
-                                >
+                                <div class="input-kata-laluan">
+                                    <input type="password" class="form-control @error('usr_password') is-invalid @enderror" id="usr_password" name="usr_password" autocomplete="new-password" required>
 
-                                <button
-                                    type="button"
-                                    class="btn butang-lihat-kata-laluan"
-                                    data-togol-kata-laluan="#usr_password"
-                                    aria-label="Papar kata laluan"
-                                    title="Papar kata laluan"
-                                >
-                                    <i class="bi bi-eye"></i>
-                                </button>
+                                    <button type="button" class="btn butang-lihat-kata-laluan" data-togol-kata-laluan="#usr_password" aria-label="Papar kata laluan" title="Papar kata laluan">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
 
                                 <div class="form-text">
                                     Min. 8 aksara, huruf besar, kecil & nombor
                                 </div>
 
                                 @error('usr_password')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
                             </div>
 
@@ -109,24 +98,13 @@
                                     Pengesahan Kata Laluan <span class="text-danger">*</span>
                                 </label>
 
-                                <input
-                                    type="password"
-                                    class="form-control"
-                                    id="usr_password_confirmation"
-                                    name="usr_password_confirmation"
-                                    autocomplete="new-password"
-                                    required
-                                >
+                                <div class="input-kata-laluan">
+                                    <input type="password" class="form-control" id="usr_password_confirmation" name="usr_password_confirmation" autocomplete="new-password" required>
 
-                                <button
-                                    type="button"
-                                    class="btn butang-lihat-kata-laluan"
-                                    data-togol-kata-laluan="#usr_password_confirmation"
-                                    aria-label="Papar kata laluan"
-                                    title="Papar kata laluan"
-                                >
-                                    <i class="bi bi-eye"></i>
-                                </button>
+                                    <button type="button" class="btn butang-lihat-kata-laluan" data-togol-kata-laluan="#usr_password_confirmation" aria-label="Papar kata laluan" title="Papar kata laluan">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
                             </div>
 
                             <div class="col-12 col-md-6">
