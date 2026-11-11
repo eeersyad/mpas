@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
 
 class Aduan extends Model
 {
@@ -25,6 +27,8 @@ class Aduan extends Model
         'tnt_id',
         'cmp_reporter_name',
         'cmp_reporter_phone',
+        'cmp_reporter_email',
+        'cmp_ref_no',
         'cmp_received_date',
         'cmp_note',
         'cmp_damage_type',
@@ -47,6 +51,40 @@ class Aduan extends Model
             'cmp_maintenance_date' => 'date',
             'cmp_completed_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Jana no. rujukan, contoh ADU-2026-00042.
+     */
+    public static function binaNoRujukan(self $aduan): string
+    {
+        return sprintf(
+            'ADU-%s-%05d',
+            ($aduan->cmp_received_date ?? now())->format('Y'),
+            $aduan->cmp_id
+        );
+    }
+
+    /**
+     * Pautan bertandatangan ke halaman status awam (untuk emel).
+     */
+    public function urlStatus(): string
+    {
+        return URL::signedRoute('aduan.status.papar', ['rujukan' => $this->cmp_ref_no]);
+    }
+
+    /**
+     * Aduan yang ditolak BPH disimpan sebagai SELESAI dengan catatan khas.
+     */
+    public function ditolak(): bool
+    {
+        return $this->cmp_status === 'SELESAI'
+            && Str::startsWith((string) $this->cmp_completion_note, 'Aduan ditolak oleh BPH:');
+    }
+
+    public function sebabDitolak(): string
+    {
+        return trim(Str::after((string) $this->cmp_completion_note, 'Aduan ditolak oleh BPH:'));
     }
 
     public function bangunan(): BelongsTo

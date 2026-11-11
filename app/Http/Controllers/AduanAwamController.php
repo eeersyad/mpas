@@ -10,6 +10,7 @@ use App\Services\NotifikasiAduan;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -109,11 +110,14 @@ class AduanAwamController extends Controller
                 'tnt_id' => $tenantId,
                 'cmp_reporter_name' => $reporterName,
                 'cmp_reporter_phone' => $reporterPhone,
+                'cmp_reporter_email' => Str::lower(trim($data['cmp_reporter_email'])),
                 'cmp_received_date' => now(),
                 'cmp_note' => $data['cmp_note'],
                 'cmp_damage_type' => $data['cmp_damage_type'],
                 'cmp_status' => 'BARU',
             ]);
+
+            $aduan->update(['cmp_ref_no' => Aduan::binaNoRujukan($aduan)]);
 
             $kedudukanGambar = [
                 'KIRI',
@@ -143,9 +147,10 @@ class AduanAwamController extends Controller
         });
         
         $notifikasiAduan->aduanBaharu($aduan);
+        $notifikasiAduan->maklumkanPengadu($aduan, 'DITERIMA_SISTEM');
 
         return redirect()
             ->route('aduan.awam.create', $kod)
-            ->with('berjaya', 'Aduan anda telah berjaya dihantar untuk tindakan BPH.');
+            ->with('berjaya', "Aduan anda telah berjaya dihantar. No. rujukan: {$aduan->cmp_ref_no}. Makluman telah dihantar ke emel anda.");
     }
 }

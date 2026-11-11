@@ -11,6 +11,7 @@ use App\Http\Controllers\PengurusanBangunanController;
 use App\Http\Controllers\PengurusanAduanController;
 use App\Http\Controllers\PengurusanKodQrController;
 use App\Http\Controllers\AduanAwamController;
+use App\Http\Controllers\StatusAduanController;
 use App\Http\Controllers\PengurusanLaporanController;
 use App\Http\Controllers\NotifikasiController;
 use Illuminate\Support\Facades\Route;
@@ -36,6 +37,19 @@ Route::get('/laporan/{kod}', [AduanAwamController::class, 'create'])
 Route::post('/laporan/{kod}', [AduanAwamController::class, 'store'])
     ->middleware('throttle:5,10,aduan-awam')
     ->name('aduan.awam.store');
+
+// Semak status aduan (awam, tanpa log masuk)
+Route::middleware('throttle:20,1')->group(function () {
+    Route::get('/status-aduan', [StatusAduanController::class, 'borang'])
+        ->name('aduan.status');
+
+    Route::post('/status-aduan', [StatusAduanController::class, 'cari'])
+        ->name('aduan.status.cari');
+
+    Route::get('/status-aduan/{rujukan}', [StatusAduanController::class, 'papar'])
+        ->middleware('signed')
+        ->name('aduan.status.papar');
+});
 
 // KUMPULAN SYSTEM
 Route::middleware('peranan:SYSTEM')->group(function () {

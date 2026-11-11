@@ -35,6 +35,8 @@ class SimpanAduanAwamRequest extends FormRequest
                 'regex:/^[0-9+\-\s()]{8,20}$/',
             ],
 
+            'cmp_reporter_email' => ['required', 'email:rfc', 'max:150'],
+
             'cmp_damage_type' => ['required', 'string', 'max:255'],
             'cmp_note' => ['required', 'string', 'max:2000'],
 
@@ -59,6 +61,9 @@ class SimpanAduanAwamRequest extends FormRequest
             'cmp_reporter_name.required_if' => 'Sila masukkan nama pengadu.',
             'cmp_reporter_phone.required_if' => 'Sila masukkan nombor telefon pengadu.',
             'cmp_reporter_phone.regex' => 'Sila masukkan nombor telefon yang sah.',
+            'cmp_reporter_email.required' => 'Sila masukkan alamat emel untuk menerima makluman status aduan.',
+            'cmp_reporter_email.email' => 'Sila masukkan alamat emel yang sah.',
+            'cmp_reporter_email.max' => 'Alamat emel tidak boleh melebihi 150 aksara.',
         ];
     }
 }

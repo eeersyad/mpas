@@ -1931,4 +1931,79 @@ document.addEventListener('DOMContentLoaded', () => {
 
     kemaskiniPenunjukBangunan();
     kemaskiniMesejPenyewa();
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Elak hantar borang dua kali
+    |--------------------------------------------------------------------------
+    |
+    */
+    const pemilihButangHantar = 'button[type="submit"], button:not([type]), input[type="submit"]';
+
+    const borangPerluDikunci = (borang) => borang instanceof HTMLFormElement
+        && borang.method.toLowerCase() !== 'get'
+        && borang.target !== '_blank'
+        && ! borang.hasAttribute('data-tanpa-kunci');
+
+    // Ingat butang mana yang diklik (untuk paparan "Menyimpan...")
+    document.addEventListener('click', (event) => {
+        const butang = event.target.closest(pemilihButangHantar);
+
+        if (butang?.form) {
+            butang.form.butangDiklik = butang;
+        }
+    }, true);
+
+    // Sekat hantaran kedua semasa borang sedang dihantar
+    document.addEventListener('submit', (event) => {
+        if (event.target.dataset?.sedangHantar === '1') {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+        }
+    }, true);
+
+    // Kunci butang bila borang benar-benar dihantar
+    document.addEventListener('formdata', (event) => {
+        const borang = event.target;
+
+        if (! borangPerluDikunci(borang)) {
+            return;
+        }
+
+        borang.dataset.sedangHantar = '1';
+
+        const butangUtama = borang.butangDiklik ?? borang.querySelector(pemilihButangHantar);
+
+        // Tunggu senarai data borang siap dibina, kemudian kunci
+        setTimeout(() => {
+            borang.querySelectorAll(pemilihButangHantar).forEach((butang) => {
+                butang.disabled = true;
+            });
+
+            if (butangUtama && butangUtama.tagName === 'BUTTON') {
+                butangUtama.dataset.teksAsal = butangUtama.innerHTML;
+                butangUtama.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>${butangUtama.dataset.teksMenghantar ?? 'Menyimpan...'}`;
+            }
+        }, 0);
+    }, true);
+
+    // Pulihkan butang bila pengguna kembali dengan butang Back pelayar
+    window.addEventListener('pageshow', (event) => {
+        if (! event.persisted) {
+            return;
+        }
+
+        document.querySelectorAll('form[data-sedang-hantar="1"]').forEach((borang) => {
+            delete borang.dataset.sedangHantar;
+
+            borang.querySelectorAll(pemilihButangHantar).forEach((butang) => {
+                butang.disabled = false;
+
+                if (butang.dataset.teksAsal) {
+                    butang.innerHTML = butang.dataset.teksAsal;
+                    delete butang.dataset.teksAsal;
+                }
+            });
+        });
+    });
 });

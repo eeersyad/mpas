@@ -5,10 +5,24 @@ namespace App\Services;
 use App\Models\Aduan;
 use App\Models\User;
 use App\Notifications\NotifikasiAduan as NotifikasiAduanRekod;
+use App\Notifications\StatusAduanPengadu;
 use Illuminate\Support\Facades\Notification;
 
 class NotifikasiAduan
 {
+    /**
+     * Hantar emel status kepada pengadu (DITERIMA_SISTEM, SELESAI atau DITOLAK).
+     */
+    public function maklumkanPengadu(Aduan $aduan, string $jenis): void
+    {
+        if (blank($aduan->cmp_reporter_email) || blank($aduan->cmp_ref_no)) {
+            return;
+        }
+
+        Notification::route('mail', $aduan->cmp_reporter_email)
+            ->notify(new StatusAduanPengadu($aduan, $jenis));
+    }
+
     public function aduanBaharu(Aduan $aduan): void
     {
         $this->hantar(

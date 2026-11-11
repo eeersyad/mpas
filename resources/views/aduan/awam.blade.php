@@ -280,6 +280,23 @@
             </div>
 
             <div class="mb-3">
+                <label for="cmp_reporter_email" class="form-label fw-semibold">
+                    Alamat Emel <span class="text-danger">*</span>
+                </label>
+
+                <input id="cmp_reporter_email" type="email" name="cmp_reporter_email" class="form-control @error('cmp_reporter_email') is-invalid @enderror" value="{{ old('cmp_reporter_email') }}" inputmode="email" autocomplete="email" maxlength="150" placeholder="Contoh: nama@email.com" required>
+
+                <div class="form-text">
+                    <i class="bi bi-envelope-check me-1"></i>
+                    No. rujukan dan makluman status aduan akan dihantar ke emel ini. Emel anda tidak digunakan untuk tujuan lain.
+                </div>
+
+                @error('cmp_reporter_email')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="mb-3">
                 <label for="cmp_damage_type" class="form-label fw-semibold">
                     Jenis Kerosakan <span class="text-danger">*</span>
                 </label>
@@ -402,6 +419,10 @@
                 <i class="bi bi-send-fill me-2"></i>
                 Hantar Aduan
             </button>
+
+            <p class="text-center small text-secondary mt-3 mb-0">
+                Sudah membuat aduan? <a href="{{ route('aduan.status') }}">Semak status aduan</a>
+            </p>
         </form>
     </section>
 

@@ -135,7 +135,8 @@ class PengurusanAduanController extends Controller
 
     public function tolak(
         TolakAduanRequest $request,
-        Aduan $aduan
+        Aduan $aduan,
+        NotifikasiAduan $notifikasiAduan
     ): RedirectResponse {
         if ($aduan->cmp_status !== 'BARU') {
             return back()->with(
@@ -150,6 +151,8 @@ class PengurusanAduanController extends Controller
                 $request->string('cmp_completion_note')->toString(),
             'updated_by' => $request->user()->usr_id,
         ]);
+
+        $notifikasiAduan->maklumkanPengadu($aduan, 'DITOLAK');
 
         return back()->with(
             'berjaya',
@@ -215,6 +218,10 @@ class PengurusanAduanController extends Controller
             $aduan,
             $request->input('cmp_status')
         );
+
+        if ($status === 'SELESAI') {
+            $notifikasiAduan->maklumkanPengadu($aduan->refresh(), 'SELESAI');
+        }
 
         return back()->with(
             'berjaya',
