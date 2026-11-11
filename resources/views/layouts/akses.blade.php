@@ -43,5 +43,17 @@
             });
         </script>
     @endif
+    
+    @if (session('sesi_tamat'))
+        <script>
+            Swal.fire({
+                icon: 'info',
+                title: 'Sesi tamat',
+                text: @json(session('sesi_tamat')),
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#168A7E',
+            });
+        </script>
+    @endif
 </body>
 </html>

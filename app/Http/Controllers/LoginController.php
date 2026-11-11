@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -70,11 +71,27 @@ class LoginController extends Controller
 
     public function logout(Request $request): RedirectResponse
     {
+        $sesiTamat = $request->input('sebab') === 'tamat';
+
         Auth::logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
+        if ($sesiTamat) {
+            return redirect()
+                ->route('login')
+                ->with('sesi_tamat', 'Sesi anda telah tamat kerana tiada aktiviti. Sila log masuk semula.');
+        }
+
         return redirect()->route('login');
+    }
+
+    /**
+     * Panjangkan sesi (dipanggil oleh amaran sesi atau bila pengguna aktif).
+     */
+    public function kekalSesi(): Response
+    {
+        return response()->noContent();
     }
 }

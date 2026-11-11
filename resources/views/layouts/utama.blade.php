@@ -334,6 +334,182 @@
     @endif
 
     
+    {{-- Pengurusan tamat sesi --}}
+    <form method="POST" action="{{ route('logout') }}" id="borangSesiTamat" class="d-none">
+        @csrf
+        <input type="hidden" name="sebab" value="tamat">
+    </form>
+
+    <script>
+        (() => {
+            const TEMPOH_MS = @json((int) config('session.lifetime')) * 60 * 1000;
+            const AMARAN_MS = Math.min(2 * 60 * 1000, TEMPOH_MS / 2);
+            const SELANG_PING_MS = Math.min(5 * 60 * 1000, TEMPOH_MS / 3);
+            const URL_KEKAL = @json(route('sesi.kekal'));
+            const URL_LOGIN = @json(route('login'));
+            const KUNCI_SERVER = 'mpas_sesi_server_terakhir';
+            const KUNCI_KELUAR = 'mpas_sesi_log_keluar';
+            const token = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+
+            const baca = (kunci, lalai) => {
+                try {
+                    return Number(localStorage.getItem(kunci)) || lalai;
+                } catch (e) {
+                    return lalai;
+                }
+            };
+
+            const tulis = (kunci, nilai) => {
+                try {
+                    localStorage.setItem(kunci, String(nilai));
+                } catch (e) {}
+            };
+
+            // Halaman ini baru dimuat = permintaan terkini ke server
+            let serverTerakhir = Date.now();
+            let aktivitiTerakhir = Date.now();
+            let amaranDibuka = false;
+            let sedangLogKeluar = false;
+
+            tulis(KUNCI_SERVER, serverTerakhir);
+
+            const formatMasa = (ms) => {
+                const saat = Math.max(0, Math.ceil(ms / 1000));
+                return `${Math.floor(saat / 60)}:${String(saat % 60).padStart(2, '0')}`;
+            };
+
+            const logKeluar = () => {
+                if (sedangLogKeluar) {
+                    return;
+                }
+
+                sedangLogKeluar = true;
+                tulis(KUNCI_KELUAR, Date.now());
+                document.getElementById('borangSesiTamat').submit();
+            };
+
+            const kekalkanSesi = async () => {
+                try {
+                    const respons = await fetch(URL_KEKAL, {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            'X-CSRF-TOKEN': token,
+                            'X-Requested-With': 'XMLHttpRequest',
+                            Accept: 'application/json',
+                        },
+                    });
+
+                    if (respons.status === 401 || respons.status === 419) {
+                        window.location.href = URL_LOGIN;
+                        return;
+                    }
+
+                    if (respons.ok) {
+                        serverTerakhir = Date.now();
+                        tulis(KUNCI_SERVER, serverTerakhir);
+                    }
+                } catch (e) {
+                    // Tiada sambungan: cuba semula pada semakan seterusnya
+                }
+            };
+
+            const bukaAmaran = () => {
+                amaranDibuka = true;
+
+                const tamatPada = serverTerakhir + TEMPOH_MS;
+                let selang;
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Sesi hampir tamat',
+                    html: `Anda tidak aktif untuk satu tempoh. Sesi akan tamat dalam <strong id="kiraanSesi">${formatMasa(tamatPada - Date.now())}</strong>.`,
+                    showCancelButton: true,
+                    confirmButtonText: 'Teruskan',
+                    cancelButtonText: 'Log Keluar',
+                    confirmButtonColor: '#168A7E',
+                    cancelButtonColor: '#6B7C7A',
+                    reverseButtons: true,
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    timer: Math.max(0, tamatPada - Date.now()),
+                    timerProgressBar: true,
+                    didOpen: () => {
+                        selang = setInterval(() => {
+                            const kiraan = document.getElementById('kiraanSesi');
+
+                            if (kiraan) {
+                                kiraan.textContent = formatMasa(tamatPada - Date.now());
+                            }
+                        }, 500);
+                    },
+                    willClose: () => clearInterval(selang),
+                }).then((hasil) => {
+                    amaranDibuka = false;
+
+                    if (hasil.isConfirmed) {
+                        aktivitiTerakhir = Date.now();
+                        kekalkanSesi();
+                    } else if (hasil.dismiss === Swal.DismissReason.cancel || hasil.dismiss === Swal.DismissReason.timer) {
+                        logKeluar();
+                    }
+                });
+            };
+
+            // Rekod aktiviti pengguna (diabaikan semasa amaran dibuka)
+            ['mousedown', 'keydown', 'scroll', 'touchstart', 'mousemove'].forEach((jenis) => {
+                window.addEventListener(jenis, () => {
+                    if (! amaranDibuka) {
+                        aktivitiTerakhir = Date.now();
+                    }
+                }, { passive: true });
+            });
+
+            // Semakan berkala
+            setInterval(() => {
+                if (sedangLogKeluar) {
+                    return;
+                }
+
+                const sekarang = Date.now();
+
+                // Ambil masa permintaan terkini daripada tab lain
+                serverTerakhir = Math.max(serverTerakhir, baca(KUNCI_SERVER, serverTerakhir));
+
+                // Pengguna aktif: panjangkan sesi secara senyap
+                if (! amaranDibuka && sekarang - aktivitiTerakhir < SELANG_PING_MS && sekarang - serverTerakhir > SELANG_PING_MS) {
+                    kekalkanSesi();
+                    return;
+                }
+
+                const baki = serverTerakhir + TEMPOH_MS - sekarang;
+
+                if (baki <= 0) {
+                    Swal.close();
+                    logKeluar();
+                } else if (baki <= AMARAN_MS && ! amaranDibuka) {
+                    bukaAmaran();
+                }
+            }, 15000);
+
+            // Selaraskan dengan tab lain
+            window.addEventListener('storage', (event) => {
+                if (event.key === KUNCI_KELUAR) {
+                    window.location.href = URL_LOGIN;
+                }
+
+                if (event.key === KUNCI_SERVER && amaranDibuka) {
+                    const baru = Number(event.newValue) || 0;
+
+                    if (baru + TEMPOH_MS - Date.now() > AMARAN_MS) {
+                        serverTerakhir = baru;
+                        Swal.close();
+                    }
+                }
+            });
+        })();
+    </script>
+    
     @stack('skrip')
 </body>
 </html>

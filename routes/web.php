@@ -143,6 +143,8 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+    
+    Route::post('/sesi/kekal', [LoginController::class, 'kekalSesi'])->name('sesi.kekal');
 
     Route::middleware('peranan:SYSTEM,BPH,BP')->group(function () {
         Route::get('/aset-tanah', [PengurusanTanahController::class, 'index'])
