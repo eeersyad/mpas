@@ -120,6 +120,26 @@
                         @enderror
                     </div>
 
+                    <div class="col-12 col-md-4">
+                        <label for="asl_mukim" class="form-label fw-semibold">
+                            Mukim <span class="text-danger">*</span>
+                        </label>
+
+                        <select id="asl_mukim" name="asl_mukim" class="form-select @error('asl_mukim') is-invalid @enderror" required>
+                            <option value="">-- Pilih Mukim --</option>
+
+                            @foreach (\App\Models\Tanah::SENARAI_MUKIM as $mukim)
+                                <option value="{{ $mukim }}" @selected(old('asl_mukim', $tanah?->asl_mukim) === $mukim)>
+                                    {{ \App\Support\Paparan::label($mukim) }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        @error('asl_mukim')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
                     <div class="col-12">
                         <label for="asl_location" class="form-label fw-semibold">
                             Lokasi Tanah <span class="text-danger">*</span>
@@ -137,6 +157,18 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+
+                    <div class="col-12">
+                        <label for="asl_note" class="form-label fw-semibold">
+                            Catatan
+                        </label>
+
+                        <textarea id="asl_note" name="asl_note" class="form-control @error('asl_note') is-invalid @enderror" rows="3" maxlength="2000" placeholder="Catatan tambahan berkaitan aset tanah ini (jika ada)">{{ old('asl_note', $tanah?->asl_note) }}</textarea>
+
+                        @error('asl_note')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>                    
                 </div>
 
                 <div class="d-flex justify-content-end mt-5">
@@ -360,14 +392,20 @@
                         <label for="asl_status_cukaiT" class="form-label fw-semibold">
                             Status Cukai Tanah
                         </label>
-                        <input
-                            type="text"
-                            class="form-control"
-                            id="asl_status_cukaiT"
-                            name="asl_status_cukaiT"
-                            value="{{ old('asl_status_cukaiT', $tanah?->asl_status_cukaiT) }}"
-                            placeholder="Contoh: Telah Dibayar"
-                        >
+
+                        <select id="asl_status_cukaiT" name="asl_status_cukaiT" class="form-select @error('asl_status_cukaiT') is-invalid @enderror">
+                            <option value="">-- Pilih Status Cukai --</option>
+
+                            @foreach (\App\Models\Tanah::SENARAI_STATUS_CUKAI as $statusCukai)
+                                <option value="{{ $statusCukai }}" @selected(old('asl_status_cukaiT', $tanah?->asl_status_cukaiT) === $statusCukai)>
+                                    {{ \App\Support\Paparan::label($statusCukai) }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        @error('asl_status_cukaiT')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
 

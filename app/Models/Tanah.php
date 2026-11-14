@@ -23,6 +23,8 @@ class Tanah extends Model
         'asl_lot_no',
         'asl_no_file',
         'asl_location',
+        'asl_mukim',
+        'asl_note',
         'asl_gmaps_location',
         'asl_latitude',
         'asl_longitude',
@@ -50,6 +52,20 @@ class Tanah extends Model
         ];
     }
 
+    public const SENARAI_STATUS_CUKAI = [
+        'TELAH_DIBAYAR',
+        'BELUM_DIBAYAR',
+    ];
+
+    public const SENARAI_MUKIM = [
+        'ALOR_LIMBAT',
+        'BUKIT_PAYUNG',
+        'JERUNG',
+        'MERCHANG',
+        'PULAU_KERENGGA',
+        'RUSILA',
+    ];
+    
     public function aset(): BelongsTo
     {
         return $this->belongsTo(Aset::class, 'ast_id', 'ast_id');

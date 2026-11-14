@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Models\Tanah;
+use Illuminate\Validation\Rule;
 
 class SimpanTanahRequest extends FormRequest
 {
@@ -17,6 +19,8 @@ class SimpanTanahRequest extends FormRequest
             'asl_lot_no' => ['required', 'string', 'max:100'],
             'asl_no_file' => ['nullable', 'string', 'max:100'],
             'asl_location' => ['required', 'string', 'max:255'],
+            'asl_mukim' => ['required', Rule::in(Tanah::SENARAI_MUKIM)],
+            'asl_note' => ['nullable', 'string', 'max:2000'],
             'asl_land_size' => ['required', 'numeric', 'min:0'],
 
             'asl_hakmilik_no' => ['nullable', 'string', 'max:100'],
@@ -32,7 +36,7 @@ class SimpanTanahRequest extends FormRequest
             'asl_land_price' => ['nullable', 'numeric', 'min:0'],
             'asl_land_skp' => ['nullable', 'numeric', 'min:0'],
             'asl_cukaiT' => ['nullable', 'numeric', 'min:0'],
-            'asl_status_cukaiT' => ['nullable', 'string', 'max:100'],
+            'asl_status_cukaiT' => ['nullable', Rule::in(Tanah::SENARAI_STATUS_CUKAI)],
 
             'dokumen' => ['nullable', 'array', 'max:4'],
             'dokumen.*.jenis' => [
@@ -55,6 +59,10 @@ class SimpanTanahRequest extends FormRequest
         return [
             'asl_lot_no.required' => 'Sila masukkan nombor lot.',
             'asl_location.required' => 'Sila masukkan lokasi tanah.',
+            'asl_mukim.required' => 'Sila pilih mukim.',
+            'asl_mukim.in' => 'Mukim yang dipilih tidak sah.',
+            'asl_note.max' => 'Catatan tidak boleh melebihi 2000 aksara.',
+            'asl_status_cukaiT.in' => 'Status cukai tanah yang dipilih tidak sah.',
             'asl_land_size.required' => 'Sila masukkan keluasan tanah.',
             'asl_land_size.numeric' => 'Keluasan tanah mesti dalam bentuk nombor.',
             'asl_gmaps_location.url' => 'Sila masukkan pautan Google Maps yang sah.',

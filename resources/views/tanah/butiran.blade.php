@@ -76,10 +76,24 @@
                 </dl>
             </div>
 
+            <div class="col-12 col-md-6">
+                <dl class="butiran-medan">
+                    <dt>Mukim</dt>
+                    <dd>{{ \App\Support\Paparan::label($tanah->asl_mukim) }}</dd>
+                </dl>
+            </div>
+
             <div class="col-12">
                 <dl class="butiran-medan">
                     <dt>Lokasi Tanah</dt>
                     <dd>{{ $tanah->asl_location ?: '-' }}</dd>
+                </dl>
+            </div>
+
+            <div class="col-12">
+                <dl class="butiran-medan">
+                    <dt>Catatan</dt>
+                    <dd style="white-space: pre-line;">{{ $tanah->asl_note ?: '-' }}</dd>
                 </dl>
             </div>
         </div>
@@ -206,7 +220,15 @@
             <div class="col-12">
                 <dl class="butiran-medan">
                     <dt>Status Cukai Tanah</dt>
-                    <dd>{{ $tanah->asl_status_cukaiT ?: '-' }}</dd>
+                    <dd>
+                        @if ($tanah->asl_status_cukaiT)
+                            <span class="badge rounded-pill {{ $tanah->asl_status_cukaiT === 'TELAH_DIBAYAR' ? 'text-bg-success' : 'text-bg-danger' }}">
+                                {{ \App\Support\Paparan::label($tanah->asl_status_cukaiT) }}
+                            </span>
+                        @else
+                            -
+                        @endif
+                    </dd>
                 </dl>
             </div>
         </div>

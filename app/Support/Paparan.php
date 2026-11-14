@@ -41,6 +41,9 @@ final class Paparan
             'BAIK' => 'Baik',
             'ROSAK' => 'Rosak',
             'TIDAK_BERKAITAN' => 'Tidak berkaitan',
+            
+            'TELAH_DIBAYAR' => 'Telah dibayar',
+            'BELUM_DIBAYAR' => 'Belum dibayar',
 
             default => Str::of($nilai)
                 ->replace('_', ' ')
