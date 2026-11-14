@@ -9665,3 +9665,214 @@ button.baris-tetapan-medan:active,
     }
 }
 
+/* =========================================================
+   Halaman awam: semak status aduan
+   ========================================================= */
+.medan-ikon-awam {
+    position: relative;
+}
+
+.medan-ikon-awam > i {
+    position: absolute;
+    z-index: 5;
+    top: 50%;
+    left: 0.9rem;
+    color: #8aa09c;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.medan-ikon-awam .form-control {
+    min-height: 48px;
+    padding-left: 2.5rem;
+    border-radius: 12px;
+    font-size: 16px;
+}
+
+.butang-hantar-awam,
+.butang-sekunder-awam {
+    min-height: 48px;
+    border-radius: 12px;
+    font-weight: 700;
+}
+
+.butang-sekunder-awam {
+    border: 1px solid #e3eceb;
+    background: #ffffff;
+    color: #173b36;
+}
+
+.nota-status-awam {
+    display: flex;
+    gap: 0.8rem;
+    color: #526563;
+    font-size: 0.84rem;
+}
+
+.nota-status-awam > i {
+    color: #168a7e;
+    font-size: 1.2rem;
+}
+
+.nota-status-awam strong {
+    display: block;
+    margin-bottom: 0.2rem;
+    color: #173b36;
+}
+
+.kad-aduan-ikon.ditolak {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.senarai-maklumat-status {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin: 1.25rem 0 0;
+    padding-top: 1rem;
+    border-top: 1px solid #edf3f2;
+}
+
+.senarai-maklumat-status dt {
+    color: #7a8e8b;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.senarai-maklumat-status dd {
+    margin: 0.15rem 0 0;
+    color: #173b36;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+/* Garis masa perjalanan aduan */
+.garis-masa-aduan {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.garis-masa-aduan li {
+    position: relative;
+    display: flex;
+    gap: 0.9rem;
+    padding-bottom: 1.25rem;
+}
+
+.garis-masa-aduan li:last-child {
+    padding-bottom: 0;
+}
+
+.garis-masa-aduan li:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    top: 38px;
+    bottom: 2px;
+    left: 18px;
+    width: 2px;
+    background: #e3eceb;
+}
+
+.garis-masa-aduan li.selesai:not(:last-child)::before {
+    background: #168a7e;
+}
+
+.titik-garis-masa {
+    position: relative;
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border: 2px solid #e3eceb;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #9fb4b1;
+}
+
+.garis-masa-aduan li.selesai .titik-garis-masa {
+    border-color: #168a7e;
+    background: #168a7e;
+    color: #ffffff;
+}
+
+.garis-masa-aduan li.semasa .titik-garis-masa {
+    border-color: #168a7e;
+    background: #e1f3f1;
+    color: #0d625a;
+    box-shadow: 0 0 0 5px rgba(22, 138, 126, 0.15);
+}
+
+.isi-garis-masa {
+    padding-top: 0.3rem;
+}
+
+.isi-garis-masa strong {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    color: #173b36;
+    font-size: 0.92rem;
+}
+
+.garis-masa-aduan li.akan-datang .isi-garis-masa strong {
+    color: #9fb4b1;
+}
+
+.isi-garis-masa p {
+    margin: 0.15rem 0 0;
+    color: #7a8e8b;
+    font-size: 0.8rem;
+}
+
+.garis-masa-aduan li.akan-datang .isi-garis-masa p {
+    color: #b7c6c3;
+}
+
+.lencana-semasa-awam {
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    background: #e1f3f1;
+    color: #0d625a;
+    font-size: 0.68rem;
+    font-weight: 700;
+}
+
+.nota-selesai-awam {
+    margin-top: 0.5rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: 10px;
+    background: #f2f9f8;
+    color: #315a54;
+    font-size: 0.82rem;
+}
+
+.kotak-ditolak-awam {
+    display: flex;
+    gap: 0.8rem;
+    padding: 1rem;
+    border: 1px solid #fecaca;
+    border-radius: 12px;
+    background: #fff5f5;
+    color: #7f1d1d;
+}
+
+.kotak-ditolak-awam > i {
+    color: #dc2626;
+    font-size: 1.4rem;
+}
+
+.kotak-ditolak-awam strong {
+    display: block;
+    margin-bottom: 0.2rem;
+}
+
+.kotak-ditolak-awam p {
+    font-size: 0.85rem;
+}
+
