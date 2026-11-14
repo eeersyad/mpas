@@ -3,7 +3,9 @@
 @section('tajuk', 'Daftar Pengguna')
 
 @section('kandungan')
-    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+    @include('tetapan._bar-apl', ['tajuk' => 'Daftar Pengguna', 'borang' => 'borangPengguna', 'kembali' => route('pengguna.index')])
+
+    <div class="d-none d-md-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
         <div>
             <p class="teks-kecil mb-1">PENGURUSAN SISTEM</p>
             <h1 class="tajuk-halaman mb-2">Daftar Pengguna</h1>
@@ -19,12 +21,14 @@
 
     <div class="row justify-content-center">
         <div class="col-12 col-xl-9">
-            <div class="kad-data">
-                <div class="p-4 p-md-5">
-                    <form method="POST" action="{{ route('pengguna.store') }}">
+            <div class="kad-data borang-pengguna-apl">
+                <div class="p-0 p-md-5">
+                    <form method="POST" action="{{ route('pengguna.store') }}" id="borangPengguna" data-pantau-ubah="telefon" data-borang-apl>
                         @csrf
 
-                        <div class="row g-4">
+                        @include('pengguna._borang-apl', ['pengguna' => null])
+
+                        <div class="row g-4 d-none d-md-flex">
                             <div class="col-12 col-md-6">
                                 <label for="usr_name" class="form-label fw-semibold">
                                     Nama Pengguna <span class="text-danger">*</span>
@@ -132,7 +136,7 @@
                             </div>
                         </div>
 
-                        <div class="d-flex flex-column flex-sm-row justify-content-end gap-2 border-top mt-5 pt-4">
+                        <div class="d-none d-md-flex flex-column flex-sm-row justify-content-end gap-2 border-top mt-5 pt-4">
                             <a href="{{ route('pengguna.index') }}" class="btn btn-light px-4">
                                 Batal
                             </a>
@@ -146,4 +150,7 @@
             </div>
         </div>
     </div>
+
+    @include('tetapan._lembaran-sunting')
+    @include('pengguna._lembaran-apl', ['wajib' => true])
 @endsection

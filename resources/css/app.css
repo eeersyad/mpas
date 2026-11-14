@@ -50,7 +50,7 @@ body {
 }
 
 .sidebar {
-    width: 270px;
+    width: var(--lebar-sidebar);
     min-height: 100vh;
     padding: 1.5rem 1rem;
     background: linear-gradient(180deg, var(--warna-gelap), #084740);
@@ -530,8 +530,8 @@ body {
 }
 
 .sidebar {
-    flex: 0 0 270px;
-    width: 270px;
+    flex: 0 0 var(--lebar-sidebar);
+    width: var(--lebar-sidebar);
     overflow: hidden;
     white-space: nowrap;
     transition: width 360ms cubic-bezier(0.4, 0, 0.2, 1),
@@ -544,14 +544,14 @@ body {
 }
 
 .sidebar {
-    flex: 0 0 270px;
-    width: 270px;
+    flex: 0 0 var(--lebar-sidebar);
+    width: var(--lebar-sidebar);
     margin-left: 0;
     transition: margin-left 360ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 #aplikasi.sidebar-runtuh .sidebar {
-    margin-left: -270px;
+    margin-left: calc(-1 * var(--lebar-sidebar));
 }
 
 #aplikasi.sidebar-runtuh .butang-toggle i {
@@ -6021,14 +6021,14 @@ body.menu-telefon-terbuka {
 |--------------------------------------------------------------------------
 */
 :root {
-    --lebar-sidebar: 270px;
+    --lebar-sidebar: 240px;
     --lebar-sidebar-mini: 84px;
     --peralihan-sidebar: 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @media (min-width: 992px) and (max-width: 1399.98px) {
     :root {
-        --lebar-sidebar: 240px;
+        --lebar-sidebar: 220px;
     }
 }
 
@@ -6335,3 +6335,3333 @@ html.sidebar-memuat .butang-toggle i {
         padding-right: 0.5rem;
     }
 }
+
+/* =========================================================
+   MOBILE 1: Jadual senarai dipaparkan sebagai kad (< 768px)
+   Kelas .jadual-kad ditambah oleh app.js
+   ========================================================= */
+@media (max-width: 767.98px) {
+    .kad-data:has(> .table-responsive > .jadual-kad) {
+        background: transparent;
+        border: 0;
+        box-shadow: none;
+    }
+
+    .table-responsive:has(> .jadual-kad) {
+        overflow: visible;
+    }
+
+    .jadual-sistem.jadual-kad,
+    .jadual-sistem.jadual-kad tbody,
+    .jadual-sistem.jadual-kad tr,
+    .jadual-sistem.jadual-kad td {
+        display: block;
+        width: 100% !important;
+    }
+
+    .jadual-sistem.jadual-kad thead {
+        display: none;
+    }
+
+    .jadual-sistem.jadual-kad tbody tr {
+        margin-bottom: 0.75rem;
+        padding: 0.35rem 0.95rem;
+        background: #ffffff;
+        border: 1px solid #e3eceb;
+        border-radius: 14px;
+        box-shadow: 0 4px 14px rgba(13, 98, 90, 0.05);
+    }
+
+    .jadual-sistem.jadual-kad tbody tr:hover {
+        box-shadow: 0 6px 18px rgba(13, 98, 90, 0.1);
+    }
+
+    /* Label di lajur kiri; semua kandungan sel bertindan di lajur kanan */
+    .jadual-sistem.jadual-kad tbody td {
+        display: grid;
+        grid-template-columns: minmax(0, 40%) minmax(0, 1fr);
+        column-gap: 0.75rem;
+        row-gap: 0.3rem;
+        justify-items: end;
+        align-items: start;
+        padding: 0.55rem 0 !important;
+        border: 0;
+        border-bottom: 1px dashed #e8f0ef;
+        background: transparent !important;
+        box-shadow: none !important;
+        text-align: right;
+        white-space: normal;
+        overflow-wrap: break-word;
+        word-break: normal;
+    }
+
+    .jadual-sistem.jadual-kad tbody td > * {
+        grid-column: 2;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .jadual-sistem.jadual-kad tbody td:last-child {
+        border-bottom: 0;
+    }
+
+    .jadual-sistem.jadual-kad tbody td::before {
+        content: attr(data-label);
+        grid-column: 1;
+        grid-row: 1 / span 6;
+        justify-self: start;
+        padding-top: 0.1rem;
+        overflow-wrap: normal;
+        word-break: normal;
+        hyphens: none;
+        color: #69837e;
+        font-size: 0.66rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-align: left;
+        text-transform: uppercase;
+    }
+
+    /* Kolum Bil. ringkas di atas kad */
+    .jadual-sistem.jadual-kad tbody td:first-child {
+        padding-bottom: 0.35rem !important;
+        font-size: 0.72rem;
+    }
+
+    /* Baris "tiada rekod" */
+    .jadual-sistem.jadual-kad tbody td[colspan] {
+        display: block;
+        text-align: center;
+        border-bottom: 0;
+    }
+
+    .jadual-sistem.jadual-kad tbody td[colspan]::before {
+        content: none;
+    }
+
+    /* Penanda perjanjian penyewa: warna pada kad */
+    .jadual-sistem.jadual-kad tbody tr.baris-perjanjian-tamat {
+        background: #fdeeee;
+        border-color: #f4b4b0;
+    }
+
+    .jadual-sistem.jadual-kad tbody tr.baris-perjanjian-hampir {
+        background: #fff8e6;
+        border-color: #f5d27a;
+    }
+
+    .jadual-sistem.jadual-kad tbody tr.baris-perjanjian-tamat:hover,
+    .jadual-sistem.jadual-kad tbody tr.baris-perjanjian-hampir:hover {
+        box-shadow: 0 6px 18px rgba(13, 98, 90, 0.1);
+    }
+}
+
+/* =========================================================
+   MOBILE 2: Modal butiran skrin penuh dan lebih padat (< 576px)
+   ========================================================= */
+@media (max-width: 575.98px) {
+    #modalButiranAset .modal-dialog,
+    #modalButiranPengguna .modal-dialog {
+        width: 100%;
+        max-width: none;
+        height: 100%;
+        min-height: 100%;
+        margin: 0;
+    }
+
+    #modalButiranAset .modal-content,
+    #modalButiranPengguna .modal-content {
+        height: 100%;
+        max-height: 100%;
+        border: 0 !important;
+        border-radius: 0;
+    }
+
+    #modalButiranAset .modal-header,
+    #modalButiranPengguna .modal-header {
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+    }
+
+    #modalButiranAset .modal-header .teks-kecil,
+    #modalButiranPengguna .modal-header .teks-kecil {
+        display: none;
+    }
+
+    #modalButiranAset .modal-title,
+    #modalButiranPengguna .modal-title {
+        display: -webkit-box;
+        overflow: hidden;
+        font-size: 1rem;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+
+    #modalButiranAset .modal-body,
+    #modalButiranPengguna .modal-body {
+        padding: 1rem !important;
+    }
+
+    #modalButiranAset .tab-butiran-melekat {
+        top: -1rem;
+        margin: -1rem -1rem 0.85rem;
+        padding: 0.6rem 1rem 0.1rem;
+    }
+
+    #modalButiranAset .label-tab-aktif {
+        margin-bottom: 0.3rem;
+        font-size: 0.72rem;
+    }
+
+    #modalButiranAset .panel-butiran .row,
+    #modalButiranPengguna .row {
+        --bs-gutter-y: 0.5rem;
+    }
+
+    #modalButiranAset .butiran-medan,
+    #modalButiranPengguna .butiran-medan {
+        padding: 0.6rem 0.75rem;
+        border-radius: 0.65rem;
+    }
+
+    #modalButiranAset .butiran-medan dt,
+    #modalButiranPengguna .butiran-medan dt {
+        margin-bottom: 0.15rem;
+        font-size: 0.64rem;
+    }
+
+    #modalButiranAset .butiran-medan dd,
+    #modalButiranPengguna .butiran-medan dd {
+        font-size: 0.86rem;
+    }
+
+    #modalButiranAset .modal-footer,
+    #modalButiranPengguna .modal-footer {
+        padding-top: 0.6rem;
+        padding-bottom: 0.6rem;
+    }
+}
+
+/* =========================================================
+   MOBILE 3: Kad ringkasan dashboard 2 x 2 (< 576px)
+   ========================================================= */
+@media (max-width: 575.98px) {
+    .kad-ringkasan {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.55rem;
+        min-height: 0;
+        padding: 0.9rem;
+    }
+
+    .ikon-ringkasan {
+        width: 38px;
+        height: 38px;
+        border-radius: 11px;
+        font-size: 1rem;
+    }
+
+    .nilai-ringkasan {
+        font-size: 1.4rem;
+    }
+
+    .kad-ringkasan .label-ringkasan {
+        margin-bottom: 0;
+        font-size: 0.72rem;
+    }
+
+    .kad-ringkasan .teks-status {
+        font-size: 0.68rem;
+    }
+}
+
+/* =========================================================
+   MOBILE 1B: Senarai sebagai kad gaya aplikasi (< 768px)
+   Peranan sel ditetapkan oleh atribut data-kad-apl pada <table>
+   ========================================================= */
+.susun-mobile {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.susun-mobile-label {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 0;
+    color: #526563;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.susun-mobile .form-select {
+    border-radius: 10px;
+    font-size: 0.82rem;
+}
+
+@media (max-width: 767.98px) {
+    .kad-data:has(> .table-responsive > .jadual-kad-apl) {
+        background: transparent;
+        border: 0;
+        box-shadow: none;
+    }
+
+    .table-responsive:has(> .jadual-kad-apl) {
+        overflow: visible;
+    }
+
+    .jadual-sistem.jadual-kad-apl,
+    .jadual-sistem.jadual-kad-apl tbody {
+        display: block;
+        width: 100% !important;
+    }
+
+    .jadual-sistem.jadual-kad-apl thead {
+        display: none;
+    }
+
+    .jadual-sistem.jadual-kad-apl tbody tr {
+        position: relative;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.2rem 0.4rem;
+        margin-bottom: 0.7rem;
+        padding: 0.9rem 2.1rem 0.9rem 1rem;
+        background: #ffffff;
+        border: 1px solid #e3eceb;
+        border-radius: 16px;
+        box-shadow: 0 4px 14px rgba(13, 98, 90, 0.05);
+    }
+
+    .jadual-sistem.jadual-kad-apl tbody tr:active {
+        transform: scale(0.99);
+    }
+
+    /* Tanda › di kanan atas */
+    .jadual-sistem.jadual-kad-apl tbody tr::after {
+        content: "\203A";
+        position: absolute;
+        top: 0.65rem;
+        right: 0.9rem;
+        color: #9fb4b1;
+        font-size: 1.5rem;
+        line-height: 1;
+    }
+
+    .jadual-sistem.jadual-kad-apl tbody tr:has(> td[colspan])::after {
+        content: none;
+    }
+
+    .jadual-sistem.jadual-kad-apl tbody td {
+        display: block;
+        width: auto !important;
+        padding: 0 !important;
+        border: 0;
+        background: transparent !important;
+        box-shadow: none !important;
+        text-align: left;
+        white-space: normal;
+        overflow-wrap: break-word;
+        word-break: normal;
+    }
+
+    .jadual-sistem.jadual-kad-apl tbody td[colspan] {
+        flex: 0 0 100%;
+        text-align: center;
+    }
+
+    .jadual-sistem.jadual-kad-apl td[data-kad="sembunyi"] {
+        display: none;
+    }
+
+    .jadual-sistem.jadual-kad-apl td[data-kad="tajuk"] {
+        order: 1;
+        flex: 0 0 100%;
+        color: #173b36;
+        font-size: 0.95rem;
+        font-weight: 700;
+        line-height: 1.35;
+    }
+
+    .jadual-sistem.jadual-kad-apl td[data-kad="tajuk"] small {
+        display: block;
+        margin-top: 0.1rem;
+        font-size: 0.74rem;
+        font-weight: 500;
+    }
+
+    .jadual-sistem.jadual-kad-apl td[data-kad="tajuk"] .mt-2 {
+        margin-top: 0.4rem !important;
+    }
+
+    .jadual-sistem.jadual-kad-apl td[data-kad="sub"] {
+        order: 2;
+        flex: 0 0 100%;
+        color: #526563;
+        font-size: 0.8rem;
+        font-weight: 500 !important;
+    }
+
+    .jadual-sistem.jadual-kad-apl td[data-kad="meta"] {
+        order: 3;
+        flex: 0 0 100%;
+        color: #7a8e8b;
+        font-size: 0.74rem;
+        font-weight: 500 !important;
+    }
+
+    .jadual-sistem.jadual-kad-apl td[data-kad="lencana"] {
+        order: 4;
+        margin-top: 0.55rem;
+    }
+
+    .jadual-sistem.jadual-kad-apl td[data-kad="info"] {
+        order: 5;
+        margin-top: 0.55rem;
+        color: #7a8e8b;
+        font-size: 0.74rem;
+    }
+
+    .jadual-sistem.jadual-kad-apl td[data-kad="info"] small.d-block {
+        display: inline !important;
+        margin-left: 0.25rem;
+    }
+
+    .jadual-sistem.jadual-kad-apl td[data-kad="tindakan"] {
+        order: 6;
+        margin-top: 0.55rem;
+        margin-left: auto;
+    }
+
+    .jadual-sistem.jadual-kad-apl td[data-awalan]::before {
+        content: attr(data-awalan) " ";
+        font-weight: 600;
+    }
+
+    /* Penanda perjanjian penyewa */
+    .jadual-sistem.jadual-kad-apl tbody tr.baris-perjanjian-tamat {
+        background: #fdeeee;
+        border-color: #f4b4b0;
+    }
+
+    .jadual-sistem.jadual-kad-apl tbody tr.baris-perjanjian-hampir {
+        background: #fff8e6;
+        border-color: #f5d27a;
+    }
+}
+
+/* =========================================================
+   MOBILE 4: Penapis gaya aplikasi (bar carian, cip, bottom sheet)
+   ========================================================= */
+.bar-penapis-mobile {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.carian-penapis-mobile {
+    position: relative;
+    flex: 1 1 auto;
+}
+
+.carian-penapis-mobile > i {
+    position: absolute;
+    top: 50%;
+    left: 0.85rem;
+    color: #7a8e8b;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.carian-penapis-mobile .form-control {
+    height: 44px;
+    padding-left: 2.4rem;
+    border: 1px solid #dce9e7;
+    border-radius: 12px;
+    background: #ffffff;
+    font-size: 0.88rem;
+}
+
+.butang-tapis-mobile {
+    position: relative;
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0.4rem;
+    height: 44px;
+    padding: 0 0.9rem;
+    border: 1px solid #dce9e7;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #304542;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.butang-tapis-mobile.aktif {
+    border-color: #168a7e;
+    background: #e8f5f3;
+    color: #0d625a;
+}
+
+.bilangan-tapis {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    padding: 0 0.3rem;
+    border-radius: 999px;
+    background: #168a7e;
+    color: #ffffff;
+    font-size: 0.68rem;
+}
+
+.cip-penapis-mobile {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.6rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.cip-penapis-mobile::-webkit-scrollbar {
+    display: none;
+}
+
+.cip-penapis {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.7rem;
+    border: 1px solid #b9ddd8;
+    border-radius: 999px;
+    background: #e8f5f3;
+    color: #0d625a;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.cip-penapis .bi-x-lg {
+    font-size: 0.65rem;
+}
+
+.cip-kosongkan {
+    flex: 0 0 auto;
+    padding: 0.35rem 0.4rem;
+    color: #7a8e8b;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+/* Bottom sheet */
+.panel-penapis-mobile.offcanvas-bottom {
+    height: auto;
+    max-height: 85vh;
+    border-top: 0;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -10px 30px rgba(8, 71, 64, 0.15);
+}
+
+.pemegang-panel {
+    width: 42px;
+    height: 5px;
+    margin: 0.6rem auto 0;
+    border-radius: 999px;
+    background: #d5e2e0;
+}
+
+.panel-penapis-mobile .offcanvas-header {
+    padding: 0.6rem 1.1rem 0.4rem;
+}
+
+.panel-penapis-mobile .offcanvas-title {
+    color: #173b36;
+    font-size: 1.05rem;
+    font-weight: 800;
+}
+
+.borang-penapis-mobile {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.panel-penapis-mobile .offcanvas-body {
+    padding: 0.4rem 1.1rem 1rem;
+    overflow-y: auto;
+}
+
+.kumpulan-pill {
+    margin-bottom: 1.1rem;
+}
+
+.kumpulan-pill legend {
+    margin-bottom: 0.55rem;
+    color: #69837e;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.senarai-pill {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+}
+
+.pill-pilihan {
+    padding: 0.45rem 0.85rem;
+    border: 1px solid #dce9e7;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #304542;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+}
+
+.btn-check:checked + .pill-pilihan {
+    border-color: #168a7e;
+    background: #168a7e;
+    color: #ffffff;
+}
+
+.btn-check:focus-visible + .pill-pilihan {
+    outline: 2px solid rgba(22, 138, 126, 0.45);
+    outline-offset: 2px;
+}
+
+.kaki-penapis-mobile {
+    display: flex;
+    gap: 0.6rem;
+    padding: 0.75rem 1.1rem calc(0.75rem + env(safe-area-inset-bottom));
+    border-top: 1px solid #e5edec;
+    background: #ffffff;
+}
+
+.kaki-penapis-mobile .btn {
+    min-height: 46px;
+    border-radius: 12px;
+    font-weight: 700;
+}
+
+/* =========================================================
+   MOBILE 5: FAB, bilangan, tag perjanjian, menu titik tiga
+   ========================================================= */
+.teks-bilangan-mobile {
+    color: #69837e;
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.fab-tambah {
+    position: fixed;
+    right: 1.1rem;
+    bottom: calc(1.1rem + env(safe-area-inset-bottom));
+    z-index: 1035;
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
+    background: #168a7e;
+    color: #ffffff;
+    font-size: 1.5rem;
+    text-decoration: none;
+    box-shadow: 0 10px 24px rgba(13, 98, 90, 0.35);
+    transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.fab-tambah:hover,
+.fab-tambah:focus-visible {
+    color: #ffffff;
+    background: #0d625a;
+}
+
+.fab-tambah:active {
+    transform: scale(0.94);
+}
+
+.ruang-fab {
+    height: 4.5rem;
+}
+
+.tag-perjanjian {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-top: 0.4rem;
+    padding: 0.18rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.tag-perjanjian.tamat {
+    background: #fdeeee;
+    color: #b42318;
+}
+
+.tag-perjanjian.hampir {
+    background: #fff4d6;
+    color: #8a5a00;
+}
+
+.butang-menu-kad {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: #69837e;
+    font-size: 1.1rem;
+}
+
+.butang-menu-kad:hover,
+.butang-menu-kad[aria-expanded="true"] {
+    background: #eef5f4;
+    color: #173b36;
+}
+
+.menu-kad {
+    min-width: 12rem;
+    padding: 0.35rem;
+    border: 1px solid #e3eceb;
+    border-radius: 14px;
+    box-shadow: 0 12px 30px rgba(13, 98, 90, 0.16);
+}
+
+.menu-kad .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem 0.8rem;
+    border-radius: 10px;
+    color: #304542;
+    font-size: 0.86rem;
+    font-weight: 600;
+}
+
+.menu-kad .dropdown-item i {
+    color: #69837e;
+}
+
+.menu-kad .dropdown-item:active {
+    background: #168a7e;
+    color: #ffffff;
+}
+
+@media (max-width: 767.98px) {
+    /* Butang ⋮ di kanan atas kad, menggantikan tanda › */
+    .jadual-sistem.jadual-kad-apl td[data-kad="tindakan"] {
+        position: absolute;
+        top: 0.45rem;
+        right: 0.35rem;
+        margin: 0;
+    }
+
+    .jadual-sistem.jadual-kad-apl tbody tr:has(td[data-kad="tindakan"] .dropdown)::after {
+        content: none;
+    }
+
+    /* Perjanjian: jalur warna di kiri, bukan seluruh kad berwarna */
+    .jadual-sistem.jadual-kad-apl tbody tr.baris-perjanjian-tamat,
+    .jadual-sistem.jadual-kad-apl tbody tr.baris-perjanjian-hampir {
+        background: #ffffff;
+        border-color: #e3eceb;
+    }
+
+    .jadual-sistem.jadual-kad-apl tbody tr.baris-perjanjian-tamat::before,
+    .jadual-sistem.jadual-kad-apl tbody tr.baris-perjanjian-hampir::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 4px;
+        border-radius: 16px 0 0 16px;
+        background: #d92d20;
+    }
+
+    .jadual-sistem.jadual-kad-apl tbody tr.baris-perjanjian-hampir::before {
+        background: #f0a500;
+    }
+}
+
+/* Lencana jumlah rekod di sebelah tajuk halaman (telefon) */
+.lencana-bilangan-tajuk {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.9rem;
+    height: 1.6rem;
+    margin-left: 0.35rem;
+    padding: 0 0.55rem;
+    border-radius: 999px;
+    background: #e8f5f3;
+    color: #0d625a;
+    font-size: 0.8rem;
+    font-weight: 800;
+    vertical-align: middle;
+}
+
+/* =========================================================
+   MOBILE 7: Muat lagi / tatal tanpa henti
+   ========================================================= */
+.muat-lagi-mobile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0 0.5rem;
+}
+
+.butang-muat-lagi {
+    width: 100%;
+    min-height: 46px;
+    border: 1px solid #b9ddd8;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #0d625a;
+    font-size: 0.88rem;
+    font-weight: 700;
+}
+
+.butang-muat-lagi:hover,
+.butang-muat-lagi:focus-visible {
+    background: #e8f5f3;
+    color: #0d625a;
+}
+
+.status-muat-lagi {
+    color: #8aa09c;
+    font-size: 0.76rem;
+    font-weight: 600;
+}
+
+.status-muat-lagi:not(:empty)::before,
+.status-muat-lagi:not(:empty)::after {
+    content: "";
+    display: inline-block;
+    width: 2rem;
+    height: 1px;
+    margin: 0 0.6rem;
+    vertical-align: middle;
+    background: #d5e2e0;
+}
+
+/* =========================================================
+   MOBILE 8: Saiz tulisan kad dikecilkan sedikit (< 768px)
+   ========================================================= */
+@media (max-width: 767.98px) {
+    .jadual-sistem.jadual-kad-apl td[data-kad="tajuk"] {
+        font-size: 0.9rem;
+    }
+
+    .jadual-sistem.jadual-kad-apl td[data-kad="tajuk"] small {
+        font-size: 0.7rem;
+    }
+
+    .jadual-sistem.jadual-kad-apl td[data-kad="sub"] {
+        font-size: 0.76rem;
+    }
+
+    .jadual-sistem.jadual-kad-apl td[data-kad="meta"],
+    .jadual-sistem.jadual-kad-apl td[data-kad="info"] {
+        font-size: 0.7rem;
+    }
+
+    .jadual-sistem.jadual-kad-apl .lencana-jadual,
+    .jadual-sistem.jadual-kad-apl .lencana-bilangan,
+    .jadual-sistem.jadual-kad-apl .lencana-peranan,
+    .jadual-sistem.jadual-kad-apl .lencana-status,
+    .jadual-sistem.jadual-kad-apl .badge {
+        font-size: 0.68rem;
+    }
+
+    .jadual-sistem.jadual-kad-apl .tag-perjanjian {
+        font-size: 0.66rem;
+    }
+}
+
+/* =========================================================
+   MOBILE 9: Bar carian + Tapis melekat di bawah header (< 768px)
+   ========================================================= */
+@media (max-width: 767.98px) {
+    .penapis-mobile {
+        position: sticky;
+        top: 75px; /* ketinggian .bar-atas */
+        z-index: 1010;
+        margin: 0 -1rem 0.75rem;
+        padding: 0.6rem 1rem;
+        background: rgba(246, 249, 249, 0.94);
+        border-bottom: 1px solid transparent;
+        -webkit-backdrop-filter: blur(8px);
+        backdrop-filter: blur(8px);
+    }
+
+    /* Garisan halus bila bar sedang melekat (ditanda oleh app.js) */
+    .penapis-mobile.sedang-melekat {
+        border-bottom-color: #e3eceb;
+        box-shadow: 0 6px 14px rgba(13, 98, 90, 0.06);
+    }
+}
+
+/* =========================================================
+   MOBILE 10: Bar melekat sebagai kapsul kaca terapung (< 768px)
+   - Belum ditatal: telus, tiada kaca
+   - Melekat: kapsul kaca terapung
+   - Medan carian & butang Tapis sentiasa legap (tiada kesan kaca)
+   ========================================================= */
+@media (max-width: 767.98px) {
+    .penapis-mobile {
+        top: 83px; /* 75px header + 8px ruang */
+        margin: 0 -0.25rem 0.85rem;
+        padding: 0.55rem;
+        border: 1px solid transparent;
+        border-radius: 22px;
+        background: transparent;
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+        box-shadow: none;
+        transition:
+            background-color 220ms ease,
+            border-color 220ms ease,
+            box-shadow 220ms ease;
+    }
+
+    .penapis-mobile.sedang-melekat {
+        border-color: rgba(255, 255, 255, 0.8);
+        background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.18) 55%, rgba(255, 255, 255, 0.32) 100%),
+            rgba(232, 245, 243, 0.28);
+        -webkit-backdrop-filter: blur(16px) saturate(200%) brightness(1.05);
+        backdrop-filter: blur(16px) saturate(200%) brightness(1.05);
+        box-shadow:
+            inset 0 1px 1px rgba(255, 255, 255, 0.95),
+            inset 0 -1px 1px rgba(13, 98, 90, 0.08),
+            0 14px 34px rgba(13, 98, 90, 0.18);
+    }
+
+    /* Medan carian & butang Tapis: legap, sama dalam semua keadaan */
+    .penapis-mobile .carian-penapis-mobile .form-control,
+    .penapis-mobile .butang-tapis-mobile:not(.aktif) {
+        border-color: #dce9e7;
+        border-radius: 15px;
+        background: #ffffff;
+    }
+
+    .penapis-mobile .butang-tapis-mobile.aktif {
+        border-radius: 15px;
+        background: #e8f5f3;
+    }
+}
+
+/* Pelayar tanpa sokongan backdrop-filter: latar hampir legap */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    @media (max-width: 767.98px) {
+        .penapis-mobile.sedang-melekat {
+            background: rgba(246, 249, 249, 0.97);
+        }
+    }
+}
+
+/* =========================================================
+   MOBILE 11: Rapatkan tajuk halaman senarai dengan bar carian (< 768px)
+   (hanya halaman yang ada lencana bilangan di sebelah tajuk)
+   ========================================================= */
+@media (max-width: 767.98px) {
+    .tajuk-halaman:has(.lencana-bilangan-tajuk) {
+        margin-bottom: 0 !important;
+    }
+
+    :has(> .tajuk-halaman .lencana-bilangan-tajuk),
+    :has(> * > .tajuk-halaman .lencana-bilangan-tajuk) {
+        margin-bottom: 0.35rem !important;
+        gap: 0 !important;
+    }
+}
+
+/* =========================================================
+   MOBILE 12: Butiran aset gaya aplikasi (< 768px)
+   ========================================================= */
+.label-tab-pendek {
+    display: none;
+    font-style: normal;
+}
+
+@media (max-width: 767.98px) {
+    /* Skrin penuh + animasi masuk dari kanan */
+    #modalButiranAset .modal-dialog {
+        width: 100%;
+        max-width: none;
+        height: 100%;
+        min-height: 100%;
+        margin: 0;
+    }
+
+    #modalButiranAset.fade .modal-dialog {
+        transform: translateX(100%);
+        transition: transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    #modalButiranAset.show .modal-dialog {
+        transform: none;
+    }
+
+    #modalButiranAset .modal-content {
+        height: 100%;
+        max-height: 100%;
+        border: 0 !important;
+        border-radius: 0;
+        box-shadow: none !important;
+    }
+
+    /* 1. Bar aplikasi */
+    #modalButiranAset .modal-header {
+        min-height: 56px;
+        padding: 0 !important;
+        background: #ffffff;
+        border-bottom: 1px solid #e5edec;
+    }
+
+    .bar-apl-butiran {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        width: 100%;
+        padding: 0.4rem 0.5rem;
+    }
+
+    .butang-bar-apl {
+        display: grid;
+        place-items: center;
+        width: 42px;
+        height: 42px;
+        padding: 0;
+        border: 0;
+        border-radius: 12px;
+        background: transparent;
+        color: #173b36;
+        font-size: 1.25rem;
+    }
+
+    .butang-bar-apl:active,
+    .butang-bar-apl[aria-expanded="true"] {
+        background: #eef5f4;
+    }
+
+    .tajuk-bar-apl {
+        flex: 1 1 auto;
+        color: #173b36;
+        font-size: 1rem;
+        font-weight: 800;
+    }
+
+    /* Badan: latar kelabu supaya kad putih menonjol */
+    #modalButiranAset .modal-body {
+        padding: 0 !important;
+        background: #f4f7f7;
+    }
+
+    /* 2. Ringkasan */
+    .hero-butiran-apl {
+        padding: 1rem 1rem 0.95rem;
+        background: #ffffff;
+    }
+
+    .hero-butiran-apl h2 {
+        margin-bottom: 0.2rem;
+        color: #173b36;
+        font-size: 1.1rem;
+        font-weight: 800;
+        line-height: 1.35;
+    }
+
+    .hero-butiran-apl p {
+        margin-bottom: 0.55rem;
+        color: #69837e;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .hero-butiran-apl .lokasi-hero {
+        margin-top: -0.35rem;
+        color: #526563;
+        font-weight: 500;
+    }
+
+    /* 3. Tab teks boleh ditatal, melekat di atas */
+    #modalButiranAset .tab-butiran-melekat {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        margin: 0 0 0.9rem;
+        padding: 0;
+        background: #ffffff;
+        border-bottom: 1px solid #e5edec;
+        box-shadow: 0 4px 10px rgba(13, 98, 90, 0.05);
+    }
+
+    #modalButiranAset .tab-butiran {
+        display: flex !important;
+        gap: 0;
+        margin: 0;
+        padding: 0 0.4rem;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    #modalButiranAset .tab-butiran::-webkit-scrollbar {
+        display: none;
+    }
+
+    #modalButiranAset .tab-butiran-butang {
+        flex: 0 0 auto;
+        flex-direction: row;
+        width: auto;
+        padding: 0.85rem 0.8rem 0.7rem;
+        border-bottom: 2.5px solid transparent;
+        border-radius: 0;
+        background: transparent;
+        color: #69837e;
+        font-size: 0.82rem;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    #modalButiranAset .tab-butiran-butang span,
+    #modalButiranAset .tab-butiran-butang .label-tab,
+    #modalButiranAset .label-tab-aktif {
+        display: none !important;
+    }
+
+    #modalButiranAset .tab-butiran-butang .label-tab-pendek {
+        display: inline;
+    }
+
+    #modalButiranAset .tab-butiran-butang.aktif {
+        border-bottom-color: #168a7e;
+        background: transparent;
+        color: #0d625a;
+    }
+
+    /* 4. Senarai berkumpulan */
+    #modalButiranAset .panel-butiran {
+        padding: 0 1rem 1rem;
+    }
+
+    #modalButiranAset .butiran-seksyen {
+        margin: 0;
+        padding: 0 0.3rem 0.45rem;
+        border: 0;
+    }
+
+    #modalButiranAset .butiran-seksyen h6 {
+        margin: 0;
+        color: #69837e;
+        font-size: 0.68rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    #modalButiranAset .butiran-seksyen p {
+        display: none;
+    }
+
+    #modalButiranAset .panel-butiran > .row {
+        --bs-gutter-x: 0;
+        --bs-gutter-y: 0;
+        margin: 0 0 1rem;
+        overflow: hidden;
+        background: #ffffff;
+        border: 1px solid #e3eceb;
+        border-radius: 14px;
+    }
+
+    #modalButiranAset .panel-butiran > .row > [class*="col"] {
+        padding: 0 0.95rem;
+    }
+
+    #modalButiranAset .panel-butiran > .row > [class*="col"] + [class*="col"] {
+        border-top: 1px solid #edf3f2;
+    }
+
+    /* Sub-tajuk di dalam kad (contoh: Maklumat Pengumpulan) */
+    #modalButiranAset .panel-butiran > .row > .col-12 > h6 {
+        margin: 0 -0.95rem !important;
+        padding: 0.55rem 0.95rem;
+        background: #f7faf9;
+        color: #69837e;
+        font-size: 0.68rem !important;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+
+    #modalButiranAset .panel-butiran > .row .butiran-medan {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 0.9rem;
+        height: auto;
+        margin: 0;
+        padding: 0.72rem 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+    }
+
+    #modalButiranAset .panel-butiran > .row .butiran-medan dt {
+        flex: 0 0 40%;
+        margin: 0;
+        color: #69837e;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0;
+        text-transform: none;
+    }
+
+    #modalButiranAset .panel-butiran > .row .butiran-medan dd {
+        flex: 1 1 auto;
+        min-width: 0;
+        color: #173b36;
+        font-size: 0.84rem;
+        font-weight: 650;
+        text-align: right;
+        overflow-wrap: break-word;
+    }
+
+    /* 5. Bar tindakan melekat di bawah */
+    #modalButiranAset .modal-footer {
+        flex-wrap: nowrap;
+        gap: 0.6rem;
+        padding: 0.65rem 0.9rem calc(0.65rem + env(safe-area-inset-bottom)) !important;
+        background: #ffffff;
+        border-top: 1px solid #e5edec;
+    }
+
+    #modalButiranAset .modal-footer > * {
+        margin: 0;
+    }
+
+    #modalButiranAset .modal-footer .btn {
+        min-height: 46px;
+        border-radius: 12px;
+        font-weight: 700;
+    }
+
+    #modalButiranAset .butang-kemaskini-apl {
+        flex: 1 1 auto;
+    }
+
+    #modalButiranAset .butang-pdf-apl {
+        flex: 0 0 auto;
+        padding-inline: 1.1rem;
+    }
+}
+
+/* =========================================================
+   MOBILE 13: Butiran pengguna & halaman kod QR gaya aplikasi
+   ========================================================= */
+.kad-senarai-apl {
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid #e3eceb;
+    border-radius: 14px;
+}
+
+.baris-senarai-apl {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.9rem;
+    padding: 0.8rem 0.95rem;
+    font-size: 0.84rem;
+}
+
+.baris-senarai-apl + .baris-senarai-apl {
+    border-top: 1px solid #edf3f2;
+}
+
+.baris-senarai-apl > span {
+    color: #69837e;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.baris-senarai-apl > strong {
+    color: #173b36;
+    font-weight: 650;
+    text-align: right;
+}
+
+.label-kumpulan-apl {
+    margin: 0 0 0.45rem 0.3rem;
+    color: #69837e;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.baris-suis-apl {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0;
+    cursor: pointer;
+}
+
+.baris-suis-apl strong {
+    display: block;
+    color: #173b36;
+    font-size: 0.88rem;
+}
+
+.baris-suis-apl small {
+    display: block;
+    color: #69837e;
+    font-size: 0.74rem;
+}
+
+.baris-suis-apl .form-check-input {
+    width: 2.9rem;
+    height: 1.6rem;
+    cursor: pointer;
+}
+
+.baris-suis-apl .form-check-input:checked {
+    background-color: #168a7e;
+    border-color: #168a7e;
+}
+
+@media (max-width: 767.98px) {
+    /* ---------- Butiran pengguna ---------- */
+    #modalButiranPengguna .modal-dialog {
+        width: 100%;
+        max-width: none;
+        height: 100%;
+        min-height: 100%;
+        margin: 0;
+    }
+
+    #modalButiranPengguna.fade .modal-dialog {
+        transform: translateX(100%);
+        transition: transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    #modalButiranPengguna.show .modal-dialog {
+        transform: none;
+    }
+
+    #modalButiranPengguna .modal-content {
+        height: 100%;
+        border: 0 !important;
+        border-radius: 0;
+        box-shadow: none !important;
+    }
+
+    #modalButiranPengguna .modal-header {
+        min-height: 56px;
+        padding: 0 !important;
+        background: #ffffff;
+        border-bottom: 1px solid #e5edec;
+    }
+
+    #modalButiranPengguna .modal-body {
+        padding: 0 !important;
+        background: #f4f7f7;
+    }
+
+    .hero-pengguna-apl {
+        margin-bottom: 1rem;
+        padding: 1.5rem 1rem 1.2rem;
+        background: #ffffff;
+        border-bottom: 1px solid #e5edec;
+        text-align: center;
+    }
+
+    .avatar-pengguna-besar {
+        display: grid;
+        place-items: center;
+        width: 76px;
+        height: 76px;
+        margin: 0 auto 0.75rem;
+        border-radius: 50%;
+        background: #e1f3f1;
+        color: #0d625a;
+        font-size: 2rem;
+        font-weight: 800;
+    }
+
+    .hero-pengguna-apl h2 {
+        margin-bottom: 0.5rem;
+        color: #173b36;
+        font-size: 1.15rem;
+        font-weight: 800;
+    }
+
+    #modalButiranPengguna .modal-footer {
+        padding: 0.65rem 0.9rem calc(0.65rem + env(safe-area-inset-bottom)) !important;
+        background: #ffffff;
+        border-top: 1px solid #e5edec;
+    }
+
+    #modalButiranPengguna .modal-footer .btn {
+        width: 100%;
+        min-height: 46px;
+        margin: 0;
+        border-radius: 12px;
+        font-weight: 700;
+    }
+
+    /* ---------- Halaman kod QR ---------- */
+    .bar-apl-halaman {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        margin: -0.35rem 0 0.75rem -0.5rem;
+    }
+
+    .bar-apl-halaman .butang-bar-apl {
+        text-decoration: none;
+    }
+
+    .kad-maklumat-qr {
+        padding: 0.9rem 1rem;
+    }
+
+    .kad-maklumat-qr .teks-kecil {
+        display: none !important;
+    }
+
+    .bar-tindakan-apl {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1030;
+        display: flex;
+        gap: 0.6rem;
+        padding: 0.65rem 0.9rem calc(0.65rem + env(safe-area-inset-bottom));
+        background: #ffffff;
+        border-top: 1px solid #e5edec;
+        box-shadow: 0 -6px 16px rgba(13, 98, 90, 0.06);
+    }
+
+    .bar-tindakan-apl .btn {
+        flex: 1 1 0;
+        min-height: 46px;
+        border-radius: 12px;
+        font-weight: 700;
+    }
+}
+
+/* =========================================================
+   MOBILE 14: Borang aset gaya aplikasi (wizard) (< 768px)
+   ========================================================= */
+.senarai-pilihan-apl {
+    display: flex;
+    flex-direction: column;
+}
+
+.baris-pilihan-apl {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 50px;
+    padding: 0.7rem 0.4rem;
+    border: 0;
+    border-bottom: 1px solid #edf3f2;
+    background: transparent;
+    color: #304542;
+    font-size: 0.92rem;
+    font-weight: 600;
+    text-align: left;
+}
+
+.baris-pilihan-apl i {
+    visibility: hidden;
+    color: #168a7e;
+    font-size: 1.15rem;
+}
+
+.baris-pilihan-apl.dipilih {
+    color: #0d625a;
+}
+
+.baris-pilihan-apl.dipilih i {
+    visibility: visible;
+}
+
+@media (max-width: 767.98px) {
+    /* Penunjuk 8 bulatan disembunyikan; ganti kepala wizard */
+    .borang-apl div:has(> .penunjuk-borang) {
+        display: none !important;
+    }
+
+    .borang-apl .nav-langkah-asal {
+        display: none !important;
+    }
+
+    .borang-apl > div:not(.nav-wizard-apl),
+    .borang-apl .p-4.p-md-5 {
+        padding: 1rem !important;
+    }
+
+    .kepala-wizard-apl {
+        margin: -0.25rem 0 1.1rem;
+    }
+
+    .bar-kemajuan-apl {
+        height: 5px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #e3eceb;
+    }
+
+    .bar-kemajuan-apl span {
+        display: block;
+        height: 100%;
+        border-radius: 999px;
+        background: #168a7e;
+        transition: width 300ms ease;
+    }
+
+    .teks-langkah-apl {
+        margin: 0.6rem 0 0;
+        color: #168a7e;
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    /* Medan lebih tinggi & mudah disentuh */
+    .borang-apl .form-control:not(textarea),
+    .borang-apl .form-select {
+        min-height: 48px;
+        border-radius: 12px;
+        font-size: 16px; /* elak zoom automatik iPhone */
+    }
+
+    .borang-apl textarea.form-control {
+        border-radius: 12px;
+        font-size: 16px;
+    }
+
+    /* Bar navigasi melekat di bawah */
+    .nav-wizard-apl {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1030;
+        display: flex;
+        gap: 0.6rem;
+        padding: 0.65rem 0.9rem calc(0.65rem + env(safe-area-inset-bottom));
+        background: #ffffff;
+        border-top: 1px solid #e5edec;
+        box-shadow: 0 -6px 16px rgba(13, 98, 90, 0.06);
+    }
+
+    .nav-wizard-apl .btn {
+        min-height: 48px;
+        border-radius: 12px;
+        font-weight: 700;
+    }
+
+    .nav-wizard-apl [data-wiz-sebelum] {
+        flex: 0 0 auto;
+        padding-inline: 1rem;
+    }
+
+    .nav-wizard-apl [data-wiz-seterusnya] {
+        flex: 1 1 auto;
+    }
+
+    /* Ruang supaya kandungan terakhir tidak ditutup bar navigasi */
+    .borang-apl {
+        padding-bottom: 5rem;
+    }
+}
+
+/* =========================================================
+   MOBILE 15: Pemeriksaan penyelenggaraan & dokumen (< 768px)
+   ========================================================= */
+@media (max-width: 767.98px) {
+    /* ---------- Pilihan mod: butang segmen satu baris ---------- */
+    [data-pemeriksaan] > .row.g-2 {
+        --bs-gutter-x: 0.4rem;
+        flex-wrap: nowrap;
+    }
+
+    [data-pemeriksaan] > .row.g-2 > [class*="col"] {
+        flex: 1 1 0;
+        width: auto;
+        min-width: 0;
+    }
+
+    .pilihan-mod {
+        flex-direction: column;
+        justify-content: center;
+        gap: 0.35rem;
+        min-height: 72px;
+        padding: 0.6rem 0.35rem;
+        border-radius: 12px;
+        text-align: center;
+    }
+
+    .pilihan-mod > i {
+        width: auto !important;
+        height: auto !important;
+        background: transparent !important;
+        font-size: 1.15rem;
+    }
+
+    .pilihan-mod strong {
+        display: block;
+        font-size: 0.72rem;
+        line-height: 1.25;
+    }
+
+    .pilihan-mod small {
+        display: none !important;
+    }
+
+    /* ---------- Panel tarikh / pemeriksa / kemajuan ---------- */
+    .panel-pemeriksaan {
+        padding: 0.9rem;
+        border-radius: 14px;
+    }
+
+    /* Kemajuan asal disembunyikan; diganti ringkasan melekat */
+    .panel-pemeriksaan [data-kemajuan-pemeriksaan] {
+        display: none;
+    }
+
+    .kemajuan-melekat-apl {
+        position: sticky;
+        top: 83px; /* header 75px + 8px ruang */
+        z-index: 20;
+        margin-bottom: 0.75rem;
+        padding: 0.65rem 0.85rem;
+        border: 1px solid #dce9e7;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: 0 8px 20px rgba(13, 98, 90, 0.1);
+        color: #304542;
+        font-size: 0.8rem;
+        -webkit-backdrop-filter: blur(8px);
+        backdrop-filter: blur(8px);
+    }
+
+    .kemajuan-melekat-apl strong {
+        color: #0d625a;
+        font-size: 0.95rem;
+    }
+
+    .kemajuan-melekat-apl .kiraan-nilai {
+        min-width: 1.9rem;
+        justify-content: center;
+    }
+
+    /* ---------- Kad komponen ---------- */
+    .kad-komponen-pemeriksaan {
+        border-radius: 14px;
+    }
+
+    .kepala-komponen-pemeriksaan {
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        padding: 0.8rem 0.9rem;
+    }
+
+    .kepala-komponen-pemeriksaan > .d-flex.flex-shrink-0 {
+        flex: 1 0 100%;
+    }
+
+    .kepala-komponen-pemeriksaan > .d-flex.flex-shrink-0 .btn {
+        flex: 1 1 0;
+        min-height: 38px;
+    }
+
+    .baris-pemeriksaan {
+        padding: 0.8rem 0.9rem;
+    }
+
+    .nama-item-pemeriksaan {
+        font-size: 0.86rem;
+        font-weight: 600;
+    }
+
+    .kumpulan-nilai .pilihan-nilai {
+        min-height: 44px;
+        border-radius: 12px;
+        font-size: 0.78rem;
+    }
+
+    /* ---------- Dokumen ---------- */
+    [data-tambah-dokumen],
+    [data-tambah-dokumen-tanah] {
+        width: 100%;
+        min-height: 48px;
+        border-radius: 12px;
+    }
+
+    .langkah-borang .alert.alert-light {
+        padding: 0.65rem 0.8rem;
+        border-radius: 12px;
+        font-size: 0.74rem;
+    }
+
+    [data-mesej-dokumen] .kad-kosong,
+    [data-mesej-dokumen-tanah] .kad-kosong {
+        padding: 1.25rem 1rem !important;
+    }
+
+    [data-mesej-dokumen] .ilustrasi-kosong,
+    [data-mesej-dokumen-tanah] .ilustrasi-kosong {
+        display: none;
+    }
+
+    .kad-dokumen,
+    .kad-dokumen-baharu {
+        padding: 0.9rem;
+        border-radius: 14px;
+    }
+
+    .kad-dokumen .d-flex.gap-2.mt-3 > * {
+        flex: 1 1 0;
+        min-height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Medan pilih fail: kotak besar bertitik */
+    .borang-apl input[type="file"].form-control {
+        min-height: 64px;
+        padding: 0.9rem;
+        border: 1.5px dashed #9fd3cc;
+        border-radius: 14px;
+        background: #f7fcfb;
+        color: #526563;
+        font-size: 0.8rem;
+    }
+
+    .borang-apl input[type="file"].form-control::file-selector-button {
+        margin: -0.2rem 0.75rem -0.2rem -0.2rem;
+        padding: 0.5rem 0.9rem;
+        border: 0;
+        border-radius: 10px;
+        background: #168a7e;
+        color: #ffffff;
+        font-weight: 700;
+    }
+}
+
+/* =========================================================
+   MOBILE 16: Pembetulan pemeriksaan (ikon mod, nombor, butang nilai)
+   ========================================================= */
+@media (max-width: 767.98px) {
+    /* 1. Ikon mod sentiasa kelihatan */
+    .pilihan-mod > i {
+        color: #7a8e8b !important;
+    }
+
+    .btn-check:checked + .pilihan-mod > i {
+        color: #168a7e !important;
+    }
+
+    /* 2. Nombor & tajuk komponen dalam satu baris */
+    .kepala-komponen-pemeriksaan .nombor-komponen {
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        font-size: 0.85rem;
+    }
+
+    .kepala-komponen-pemeriksaan > .flex-grow-1 {
+        flex: 1 1 0 !important;
+        min-width: 0;
+    }
+
+    /* 3. Tiga butang nilai muat dalam kad */
+    .kumpulan-nilai {
+        width: 100%;
+        gap: 0.35rem;
+    }
+
+    .kumpulan-nilai .pilihan-nilai {
+        flex: 1 1 0;
+        min-width: 0;
+        gap: 0.25rem;
+        padding: 0.4rem 0.3rem;
+        line-height: 1.15;
+        text-align: center;
+        white-space: normal;
+    }
+
+    .kumpulan-nilai .pilihan-nilai i {
+        flex: 0 0 auto;
+    }
+}
+
+@media (max-width: 379.98px) {
+    /* Skrin sangat kecil: sembunyikan ikon supaya teks muat */
+    .kumpulan-nilai .pilihan-nilai i {
+        display: none;
+    }
+}
+
+/* =========================================================
+   MOBILE 17: Butiran aduan gaya aplikasi (< 768px)
+   ========================================================= */
+.latar-lembaran-apl {
+    display: none;
+}
+
+@media (max-width: 767.98px) {
+    /* Ringkasan */
+    .hero-aduan-apl {
+        margin-bottom: 1rem;
+        padding: 1rem;
+        border: 1px solid #e3eceb;
+        border-radius: 16px;
+        background: #ffffff;
+    }
+
+    .hero-aduan-apl h2 {
+        margin-bottom: 0.2rem;
+        color: #173b36;
+        font-size: 1.1rem;
+        font-weight: 800;
+    }
+
+    .hero-aduan-apl p {
+        color: #526563;
+        font-size: 0.84rem;
+        font-weight: 600;
+    }
+
+    .hero-aduan-apl .teks-masa-apl {
+        color: #7a8e8b;
+        font-size: 0.76rem;
+        font-weight: 500;
+    }
+
+    .rujukan-aduan-apl {
+        color: #69837e;
+        font-size: 0.74rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+    }
+
+    /* Penunjuk kemajuan mini */
+    .penunjuk-mini-aduan {
+        display: flex;
+        margin: 1rem 0 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .penunjuk-mini-aduan li {
+        position: relative;
+        display: flex;
+        flex: 1 1 0;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.35rem;
+        text-align: center;
+    }
+
+    .penunjuk-mini-aduan li::before {
+        content: "";
+        position: absolute;
+        top: 6px;
+        right: 50%;
+        left: -50%;
+        height: 2px;
+        background: #e3eceb;
+    }
+
+    .penunjuk-mini-aduan li:first-child::before {
+        content: none;
+    }
+
+    .penunjuk-mini-aduan li.selesai::before,
+    .penunjuk-mini-aduan li.aktif::before,
+    .penunjuk-mini-aduan li.ditolak::before {
+        background: #168a7e;
+    }
+
+    .titik-mini {
+        position: relative;
+        z-index: 1;
+        width: 14px;
+        height: 14px;
+        border: 2px solid #d5e2e0;
+        border-radius: 50%;
+        background: #ffffff;
+    }
+
+    .penunjuk-mini-aduan li.selesai .titik-mini {
+        border-color: #168a7e;
+        background: #168a7e;
+    }
+
+    .penunjuk-mini-aduan li.aktif .titik-mini {
+        border-color: #168a7e;
+        box-shadow: 0 0 0 4px rgba(22, 138, 126, 0.18);
+    }
+
+    .penunjuk-mini-aduan li.ditolak .titik-mini {
+        border-color: #dc2626;
+        background: #dc2626;
+    }
+
+    .penunjuk-mini-aduan small {
+        color: #8aa09c;
+        font-size: 0.66rem;
+        font-weight: 700;
+    }
+
+    .penunjuk-mini-aduan li.selesai small,
+    .penunjuk-mini-aduan li.aktif small {
+        color: #0d625a;
+    }
+
+    .penunjuk-mini-aduan li.ditolak small {
+        color: #b91c1c;
+    }
+
+    /* Senarai pengadu & keterangan */
+    .butang-hubungi-apl {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.35rem 0.75rem;
+        border-radius: 999px;
+        background: #e8f5f3;
+        color: #0d625a;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .catatan-apl {
+        padding: 0.85rem 0.95rem;
+        color: #304542;
+        font-size: 0.86rem;
+        line-height: 1.55;
+        white-space: pre-line;
+    }
+
+    .butang-navigasi-apl {
+        min-height: 46px;
+        border-radius: 12px;
+        font-weight: 700;
+    }
+
+    /* Gambar: satu baris boleh dileret */
+    .kad-butiran-aduan {
+        padding: 1rem !important;
+        border-radius: 16px;
+    }
+
+    .kad-butiran-aduan .row.g-3:has(.gambar-aduan-bingkai) {
+        flex-wrap: nowrap;
+        margin-right: -1rem;
+        padding-right: 1rem;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+    }
+
+    .kad-butiran-aduan .row.g-3:has(.gambar-aduan-bingkai)::-webkit-scrollbar {
+        display: none;
+    }
+
+    .kad-butiran-aduan .row.g-3:has(.gambar-aduan-bingkai) > .col-3 {
+        flex: 0 0 44%;
+        width: 44%;
+        max-width: none;
+        scroll-snap-align: start;
+    }
+
+    /* Lembaran tindakan (bottom sheet) */
+    .latar-lembaran-apl {
+        position: fixed;
+        inset: 0;
+        z-index: 1055;
+        display: block;
+        background: rgba(15, 30, 28, 0.45);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 220ms ease;
+    }
+
+    .latar-lembaran-apl.terbuka {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .lembaran-tindakan-apl {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1060;
+        max-height: 88vh;
+        margin: 0 !important;
+        padding: 0.4rem 1rem calc(1.1rem + env(safe-area-inset-bottom)) !important;
+        overflow-y: auto;
+        border: 0 !important;
+        border-radius: 20px 20px 0 0 !important;
+        background: #ffffff !important;
+        box-shadow: 0 -10px 30px rgba(8, 71, 64, 0.18);
+        transform: translateY(105%);
+        transition: transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .lembaran-tindakan-apl.terbuka {
+        transform: none;
+    }
+
+    .kepala-lembaran-apl {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        margin-bottom: 0.6rem;
+        padding-top: 0.2rem;
+    }
+
+    .kepala-lembaran-apl .btn-close {
+        position: absolute;
+        top: 0.2rem;
+        right: 0;
+    }
+
+    /* Terima ada di bar bawah; dalam lembaran hanya borang tolak */
+    .lembaran-tindakan-apl [data-terima-aduan] {
+        display: none;
+    }
+}
+
+/* =========================================================
+   MOBILE 18: Lightbox gambar aduan skrin penuh (< 768px)
+   ========================================================= */
+@media (max-width: 767.98px) {
+    #modalLightboxAduan .modal-dialog {
+        width: 100%;
+        max-width: none;
+        height: 100%;
+        min-height: 100%;
+        margin: 0;
+    }
+
+    #modalLightboxAduan .modal-content {
+        height: 100%;
+        border: 0 !important;
+        border-radius: 0 !important;
+        background: #000000 !important;
+        box-shadow: none !important;
+    }
+
+    /* Kepala: hanya butang tutup putih di atas kanan */
+    #modalLightboxAduan .modal-header {
+        position: absolute;
+        top: 0;
+        right: 0;
+        left: 0;
+        z-index: 5;
+        justify-content: flex-end;
+        padding: calc(0.75rem + env(safe-area-inset-top)) 0.9rem 0.75rem !important;
+        border: 0 !important;
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0)) !important;
+    }
+
+    #modalLightboxAduan .modal-header > div {
+        display: none;
+    }
+
+    #modalLightboxAduan .modal-header .btn-close {
+        width: 1.4rem;
+        height: 1.4rem;
+        margin: 0;
+        filter: invert(1) grayscale(1) brightness(2);
+        opacity: 1;
+    }
+
+    #modalLightboxAduan .modal-body {
+        display: flex;
+        height: 100%;
+        background: #000000 !important;
+    }
+
+    #modalLightboxAduan .ruang-lightbox-aduan {
+        position: relative;
+        display: flex;
+        flex: 1 1 auto;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        min-height: 0 !important;
+        padding: 0 !important;
+        background: #000000 !important;
+        touch-action: pan-y;
+    }
+
+    /* Butang panah disembunyikan: guna leret */
+    #modalLightboxAduan .butang-navigasi-lightbox {
+        display: none !important;
+    }
+
+    #modalLightboxAduan .gambar-utama-lightbox {
+        position: static;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        max-height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background: transparent !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+    }
+
+    #modalLightboxAduan .gambar-utama-lightbox img {
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        border-radius: 0 !important;
+        user-select: none;
+        -webkit-user-drag: none;
+    }
+
+    /* Mod zum: gambar 2x, boleh digerakkan dengan jari */
+    #modalLightboxAduan .gambar-utama-lightbox.dizum {
+        display: block;
+        overflow: auto;
+        touch-action: pan-x pan-y;
+    }
+
+    #modalLightboxAduan .gambar-utama-lightbox.dizum img {
+        width: 200%;
+        height: 200%;
+        max-width: none;
+        max-height: none;
+    }
+
+    /* Kaunter "2 / 4" di atas tengah */
+    #modalLightboxAduan figcaption {
+        position: absolute;
+        top: calc(0.85rem + env(safe-area-inset-top));
+        left: 50%;
+        z-index: 6;
+        padding: 0.3rem 0.8rem;
+        border-radius: 999px;
+        background: rgba(0, 0, 0, 0.45);
+        color: #ffffff;
+        font-size: 0.8rem;
+        font-weight: 700;
+        transform: translateX(-50%);
+        pointer-events: none;
+    }
+}
+
+/* =========================================================
+   MOBILE 19: Laporan gaya aplikasi
+   ========================================================= */
+.baris-laporan-apl {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.85rem 0.95rem;
+    color: #173b36;
+    text-decoration: none;
+}
+
+.baris-laporan-apl + .baris-laporan-apl {
+    border-top: 1px solid #edf3f2;
+}
+
+.baris-laporan-apl:active {
+    background: #f4f8f7;
+}
+
+.baris-laporan-apl .ikon-pilihan-laporan,
+.ikon-eksport-apl {
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    width: 40px !important;
+    height: 40px !important;
+    margin: 0 !important;
+    border-radius: 12px !important;
+    font-size: 1.1rem !important;
+}
+
+.ikon-eksport-apl.pdf {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.ikon-eksport-apl.excel {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.teks-baris-laporan {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.teks-baris-laporan strong {
+    display: block;
+    font-size: 0.9rem;
+}
+
+.teks-baris-laporan small {
+    display: -webkit-box;
+    overflow: hidden;
+    color: #7a8e8b;
+    font-size: 0.74rem;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+}
+
+.bilangan-baris-laporan {
+    flex: 0 0 auto;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    background: #eef5f4;
+    color: #0d625a;
+    font-size: 0.78rem;
+    font-weight: 800;
+}
+
+.anak-panah-apl {
+    flex: 0 0 auto;
+    color: #9fb4b1;
+}
+
+.label-tarikh-pill {
+    display: block;
+    margin-bottom: 0.3rem;
+    color: #69837e;
+    font-size: 0.74rem;
+    font-weight: 700;
+}
+
+.medan-tarikh-pill {
+    min-height: 44px;
+    border-radius: 12px;
+    font-size: 16px;
+}
+
+@media (max-width: 767.98px) {
+    /* Baris laporan tidak boleh ditekan: tiada tanda › */
+    .jadual-sistem.jadual-kad-apl tbody tr:not([data-url]):not([data-baris-butiran-pengguna])::after {
+        content: none;
+    }
+
+    .jadual-sistem.jadual-kad-apl tbody tr:not([data-url]):not([data-baris-butiran-pengguna]) {
+        padding-right: 1rem;
+    }
+
+    /* Nilai status teks biasa dijadikan lencana */
+    .jadual-sistem.jadual-kad-apl td[data-kad="lencana"]:not(:has(span)) {
+        padding: 0.22rem 0.65rem !important;
+        border-radius: 999px;
+        background: #eef5f4 !important;
+        color: #0d625a;
+        font-size: 0.68rem;
+        font-weight: 700;
+    }
+
+    /* Meta & info yang mengandungi dua baris: rapatkan dalam satu baris */
+    .jadual-sistem.jadual-kad-apl td[data-kad="meta"] strong,
+    .jadual-sistem.jadual-kad-apl td[data-kad="meta"] small {
+        display: inline !important;
+        font-weight: 600;
+    }
+
+    .jadual-sistem.jadual-kad-apl td[data-kad="meta"] small::before {
+        content: " · ";
+    }
+
+    .jadual-sistem.jadual-kad-apl td[data-kad="sub"] strong.d-block {
+        font-weight: 600;
+    }
+
+    .jadual-sistem.jadual-kad-apl td[data-kad="sub"] small {
+        display: block;
+        color: #7a8e8b;
+        font-size: 0.7rem;
+    }
+
+    /* Menu laporan */
+    .baris-laporan-apl.tema-hijau .ikon-pilihan-laporan,
+    .baris-laporan-apl.tema-biru .ikon-pilihan-laporan,
+    .baris-laporan-apl.tema-jingga .ikon-pilihan-laporan,
+    .baris-laporan-apl.tema-ungu .ikon-pilihan-laporan {
+        box-shadow: none;
+    }
+
+    .tajuk-bar-apl .lencana-bilangan-tajuk {
+        height: 1.4rem;
+        font-size: 0.72rem;
+    }
+}
+
+/* =========================================================
+   TETAPAN: penambahbaikan desktop & telefon
+   ========================================================= */
+.lencana-akan-datang {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    background: #f1f5f4;
+    color: #7a8e8b;
+    font-size: 0.68rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.baris-tetapan-apl.tidak-aktif {
+    opacity: 0.6;
+}
+
+.baris-tetapan-apl.tidak-aktif .ikon-pilihan-laporan {
+    background: #eef2f1;
+    color: #8aa09c;
+}
+
+.nilai-tetapan-apl {
+    flex: 0 0 auto;
+    color: #69837e;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* Pratonton nombor rujukan */
+.pratonton-rujukan {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.7rem 0.9rem;
+    border: 1px dashed #b9d6d1;
+    border-radius: 12px;
+    background: #f5faf9;
+    color: #526563;
+    font-size: 0.82rem;
+}
+
+.pratonton-rujukan strong {
+    color: #0d625a;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+}
+
+/* Stepper − / + */
+.kumpulan-stepper .form-control {
+    max-width: 6rem;
+    text-align: center;
+    font-weight: 700;
+}
+
+.kumpulan-stepper .butang-stepper {
+    min-width: 2.75rem;
+}
+
+/* Suis status dalam senarai */
+.suis-status-tetapan .form-check-input {
+    cursor: pointer;
+}
+
+/* Bar perubahan belum disimpan */
+.ada-bar-perubahan .butang-simpan-tetapan,
+.ada-bar-perubahan .bar-simpan-tetapan > .btn {
+    display: none;
+}
+
+.bar-perubahan-tetapan {
+    position: fixed;
+    z-index: 1040;
+    bottom: 1.25rem;
+    left: 50%;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: min(560px, calc(100% - 2rem));
+    padding: 0.6rem 0.65rem 0.6rem 1.1rem;
+    border-radius: 16px;
+    background: #173b36;
+    color: #ffffff;
+    box-shadow: 0 14px 34px rgba(16, 52, 47, 0.28);
+    font-size: 0.88rem;
+    font-weight: 600;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, 140%);
+    transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.bar-perubahan-tetapan.kelihatan {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, 0);
+}
+
+.bar-perubahan-tetapan .btn {
+    padding: 0.4rem 0.9rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+}
+
+body.ada-perubahan-tetapan .pusat-tetapan {
+    padding-bottom: 5rem;
+}
+
+/* Desktop: menu tetapan melekat */
+@media (min-width: 992px) {
+    .pusat-tetapan .tetapan-sisi {
+        position: sticky;
+        top: 5.5rem;
+    }
+}
+
+button.fab-tambah {
+    border: 0;
+}
+
+@media (max-width: 767.98px) {
+    /* Bar perubahan: penuh lebar di bawah */
+    .bar-perubahan-tetapan {
+        bottom: 0;
+        width: 100%;
+        padding: 0.7rem 0.9rem calc(0.7rem + env(safe-area-inset-bottom));
+        border-radius: 18px 18px 0 0;
+        font-size: 0.8rem;
+    }
+
+    .bar-perubahan-tetapan .teks-perubahan i {
+        display: none;
+    }
+
+    /* Kad tetapan lebih padat */
+    .pusat-tetapan .kad-tetapan .kepala-kad-tetapan {
+        padding: 0.9rem 1rem;
+    }
+
+    .pusat-tetapan .kad-tetapan .isi-kad-tetapan {
+        padding: 1rem;
+    }
+
+    .pusat-tetapan .ikon-tetapan {
+        width: 38px;
+        height: 38px;
+        font-size: 1rem;
+    }
+
+    .pusat-tetapan .makluman-tetapan {
+        font-size: 0.76rem;
+    }
+
+    .pusat-tetapan .kumpulan-stepper {
+        flex-wrap: nowrap;
+    }
+
+    .pusat-tetapan .kumpulan-stepper .form-control {
+        max-width: none;
+        min-height: 46px;
+        font-size: 16px;
+    }
+
+    .pusat-tetapan .form-control {
+        font-size: 16px;
+    }
+
+    .nilai-tetapan-apl {
+        font-size: 0.74rem;
+    }
+
+    /* Statistik komponen jadi cip kecil */
+    .pusat-tetapan .statistik-komponen {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.35rem;
+        padding: 0.65rem 0.7rem;
+    }
+
+    .pusat-tetapan .statistik-komponen .ikon {
+        width: 28px;
+        height: 28px;
+        font-size: 0.85rem;
+    }
+
+    .pusat-tetapan .statistik-komponen p {
+        margin: 0;
+        font-size: 0.66rem;
+        line-height: 1.2;
+    }
+
+    .pusat-tetapan .statistik-komponen strong {
+        font-size: 1.05rem;
+    }
+
+    .pusat-tetapan .statistik-komponen strong small {
+        font-size: 0.72rem !important;
+    }
+
+    /* Kad komponen */
+    .kad-komponen .kepala-komponen {
+        gap: 0.6rem;
+    }
+
+    .kad-komponen .suis-status-tetapan .form-check-input,
+    .jadual-pegawai .suis-status-tetapan .form-check-input,
+    .kad-peranan .form-switch .form-check-input {
+        width: 2.6em;
+        height: 1.45em;
+    }
+
+    .kad-komponen .btn-outline-secondary {
+        padding: 0.3rem 0.55rem;
+    }
+
+    /* Pegawai: butang Ubah di kanan atas kad */
+    .jadual-pegawai.jadual-kad-apl td[data-kad="tajuk"] {
+        padding-right: 3rem !important;
+    }
+
+    .jadual-pegawai.jadual-kad-apl td[data-kad="tindakan"] .btn {
+        padding: 0.3rem 0.55rem;
+    }
+
+    /* Akses penyelenggaraan */
+    .kad-peranan .baris-akses {
+        min-height: 56px;
+    }
+
+    .bar-simpan-tetapan {
+        padding: 0.8rem 0.9rem;
+    }
+
+    /* Modal tetapan jadi lembaran bawah */
+    .modal.modal-lembaran-apl .modal-dialog {
+        display: flex;
+        align-items: flex-end;
+        height: 100%;
+        min-height: 100%;
+        max-width: none;
+        margin: 0;
+    }
+
+    .modal.modal-lembaran-apl.fade .modal-dialog {
+        transform: translateY(100%);
+        transition: transform 0.28s ease-out;
+    }
+
+    .modal.modal-lembaran-apl.show .modal-dialog {
+        transform: none;
+    }
+
+    .modal.modal-lembaran-apl .modal-content {
+        width: 100%;
+        max-height: 92vh;
+        border: 0;
+        border-radius: 20px 20px 0 0;
+    }
+
+    .modal.modal-lembaran-apl .modal-content::before {
+        content: "";
+        display: block;
+        width: 40px;
+        height: 4px;
+        margin: 0.55rem auto 0;
+        border-radius: 999px;
+        background: #d5e0de;
+    }
+
+    .modal.modal-lembaran-apl .modal-footer {
+        padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+    }
+}
+
+/* =========================================================
+   TETAPAN 2: halaman tetapan gaya aplikasi (< 768px)
+   ========================================================= */
+.butang-simpan-bar-apl {
+    min-width: 64px;
+    height: 36px;
+    padding: 0 0.85rem;
+    border: 0;
+    border-radius: 10px;
+    background: #0d625a;
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 700;
+    transition: opacity 0.2s ease;
+}
+
+.butang-simpan-bar-apl:disabled {
+    background: transparent;
+    color: #9fb4b1;
+}
+
+.tetapan-apl .label-kumpulan-apl {
+    margin-top: 1.1rem;
+}
+
+.tetapan-apl .label-kumpulan-apl:first-child {
+    margin-top: 0;
+}
+
+.baris-tetapan-medan {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    min-height: 52px;
+    padding: 0.7rem 0.95rem;
+    border: 0;
+    background: #ffffff;
+    color: #173b36;
+    font-size: 0.88rem;
+    text-align: left;
+}
+
+.baris-tetapan-medan + .baris-tetapan-medan {
+    border-top: 1px solid #edf3f2;
+}
+
+button.baris-tetapan-medan:active,
+.kawasan-tekan-apl:active {
+    background: #f4f8f7;
+}
+
+.label-medan-apl {
+    flex: 1 1 auto;
+    font-weight: 600;
+}
+
+.baris-tetapan-medan > strong {
+    max-width: 55%;
+    overflow: hidden;
+    color: #69837e;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.baris-tetapan-medan.dikunci > strong {
+    color: #9fb4b1;
+}
+
+.nota-kumpulan-apl {
+    margin: 0.45rem 0.3rem 0;
+    color: #7a8e8b;
+    font-size: 0.74rem;
+    line-height: 1.45;
+}
+
+.ralat-kumpulan-apl {
+    margin: 0.45rem 0.3rem 0;
+    color: #b42318;
+    font-size: 0.74rem;
+    font-weight: 600;
+}
+
+.ringkasan-tetapan-apl {
+    margin: 0 0.3rem 0.6rem;
+    color: #69837e;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+/* Kad pratonton rujukan */
+.kad-pratonton-apl {
+    margin-bottom: 1.1rem;
+    padding: 0.95rem 1rem;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #0d625a, #17867b);
+    color: #ffffff;
+}
+
+.kad-pratonton-apl > p {
+    margin: 0 0 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    opacity: 0.8;
+    text-transform: uppercase;
+}
+
+.baris-pratonton-apl {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.35rem 0;
+}
+
+.baris-pratonton-apl span {
+    font-size: 0.8rem;
+    opacity: 0.85;
+}
+
+.baris-pratonton-apl strong {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 1.05rem;
+    letter-spacing: 0.02em;
+    word-break: break-all;
+}
+
+/* Stepper dalam baris */
+.stepper-apl {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    overflow: hidden;
+    border: 1px solid #dbe6e4;
+    border-radius: 10px;
+}
+
+.stepper-apl button {
+    width: 38px;
+    height: 34px;
+    padding: 0;
+    border: 0;
+    background: #f4f8f7;
+    color: #0d625a;
+}
+
+.stepper-apl button:active {
+    background: #e3efed;
+}
+
+.stepper-apl strong {
+    min-width: 2.2rem;
+    color: #173b36;
+    text-align: center;
+}
+
+.medan-sunting-apl {
+    min-height: 50px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* Komponen */
+.baris-komponen-apl {
+    padding: 0 0.95rem 0 0;
+}
+
+.kawasan-tekan-apl {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+    padding: 0.75rem 0 0.75rem 0.95rem;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+}
+
+.baris-komponen-apl .nombor-komponen {
+    flex: 0 0 auto;
+}
+
+.baris-komponen-apl.tidak-aktif .kawasan-tekan-apl {
+    opacity: 0.55;
+}
+
+/* Pegawai */
+.avatar-apl {
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e3f1ef;
+    color: #0d625a;
+    font-size: 0.78rem;
+    font-weight: 800;
+}
+
+.lencana-peranan-apl {
+    flex: 0 0 auto;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    background: #e8f0fe;
+    color: #1d4ed8;
+    font-size: 0.66rem;
+    font-weight: 700;
+}
+
+.senarai-tidak-aktif-apl .baris-pegawai-apl {
+    opacity: 0.6;
+}
+
+.butang-lipat-apl {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: calc(100% - 0.6rem);
+    padding: 0;
+    border: 0;
+    background: transparent;
+}
+
+.butang-lipat-apl i {
+    transition: transform 0.2s ease;
+}
+
+.butang-lipat-apl:not(.collapsed) i {
+    transform: rotate(180deg);
+}
+
+/* Matriks akses */
+.kepala-matriks-apl,
+.baris-matriks-apl {
+    display: grid;
+    grid-template-columns: 1fr 56px 56px;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.55rem 0.95rem;
+}
+
+.kepala-matriks-apl {
+    background: #f7faf9;
+    color: #69837e;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.kepala-matriks-apl span:not(:first-child) {
+    text-align: center;
+}
+
+.baris-matriks-apl {
+    grid-template-columns: 40px 1fr 56px 56px;
+    gap: 0.6rem;
+    min-height: 60px;
+    border-top: 1px solid #edf3f2;
+}
+
+.kepala-matriks-apl {
+    grid-template-columns: 1fr 56px 56px;
+    gap: 0.6rem;
+}
+
+.baris-matriks-apl .avatar-apl {
+    font-size: 0.68rem;
+}
+
+.baris-matriks-apl .teks-baris-laporan small {
+    -webkit-line-clamp: 2;
+}
+
+.sel-suis-apl {
+    display: flex;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+}
+
+.sel-suis-apl .form-check-input {
+    width: 2.5em;
+    height: 1.4em;
+    margin: 0;
+    cursor: pointer;
+}
+
+.sel-suis-apl .form-check-input.dikunci,
+.baris-matriks-apl.berkunci .form-check-input {
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+/* Pilihan segmen */
+.segmen-apl {
+    display: grid;
+    grid-auto-columns: 1fr;
+    grid-auto-flow: column;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    border-radius: 12px;
+    background: #eef3f2;
+}
+
+.segmen-apl button {
+    min-height: 40px;
+    padding: 0.35rem 0.25rem;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: #526563;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.segmen-apl button.aktif {
+    background: #ffffff;
+    color: #0d625a;
+    box-shadow: 0 1px 4px rgba(16, 52, 47, 0.14);
+}
+
+@media (max-width: 767.98px) {
+    /* Butang Simpan di bar aplikasi menggantikan bar perubahan bawah */
+    .bar-perubahan-tetapan {
+        display: none !important;
+    }
+
+    body.ada-perubahan-tetapan .pusat-tetapan {
+        padding-bottom: 0;
+    }
+
+    /* Butang dalam modal komponen lebih mudah ditekan */
+    .modal-lembaran-apl .butang-ikon-kecil {
+        width: 36px;
+        height: 36px;
+    }
+
+    .modal-lembaran-apl .baris-item-komponen {
+        gap: 0.4rem;
+    }
+}
+
+/* Senarai bangunan: nama penyewa aktif di bawah bilangan */
+.nama-penyewa-senarai {
+    max-width: 230px;
+    margin-top: 0.35rem;
+    color: #7a8e8b;
+    font-size: 0.68rem; /* sama dengan .lencana-jadual (kategori) */;
+    line-height: 1.3;
+}
+
+/* Setiap nama satu baris sendiri; nama panjang dibalut hingga 2 baris */
+.nama-penyewa-senarai .nama {
+    display: -webkit-box;
+    overflow: hidden;
+    white-space: normal;
+    word-break: break-word;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.nama-penyewa-senarai .nama + .nama {
+    margin-top: 0.15rem;
+}
+
+.nama-penyewa-senarai .lagi {
+    display: inline-block;
+    margin-top: 0.15rem;
+    color: #0d625a;
+    font-weight: 700;
+}
+
+@media (max-width: 1199.98px) {
+    .nama-penyewa-senarai {
+        max-width: 170px;
+    }
+}
+
+/* Telefon: nama penyewa aktif di bawah no. fail dalam kad bangunan */
+.penyewa-kad-apl {
+    display: none;
+}
+
+@media (max-width: 767.98px) {
+    .penyewa-kad-apl {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.35rem;
+        min-width: 0;
+        margin-top: 0.2rem;
+        color: #7a8e8b;
+        font-size: inherit;
+        font-weight: 500;
+    }
+
+    /* Nama panjang dibalut ke baris kedua (tanpa "…") */
+    .penyewa-kad-apl .nama {
+        min-width: 0;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .penyewa-kad-apl i,
+    .penyewa-kad-apl .lagi {
+        margin-top: 0.1rem;
+    }
+
+    .penyewa-kad-apl .lagi {
+        flex: 0 0 auto;
+        padding: 0 0.4rem;
+        border-radius: 999px;
+        background: #e3f1ef;
+        color: #0d625a;
+        font-size: 0.66rem;
+        font-weight: 700;
+        line-height: 1.5;
+    }
+
+    .jadual-bangunan.jadual-kad-apl td.teks-no-fail {
+        min-width: 0;
+        max-width: 100% !important;
+        overflow: hidden;
+        white-space: normal;
+    }
+
+    .jadual-bangunan.jadual-kad-apl td.teks-no-fail .penyewa-kad-apl {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .penyewa-kad-apl .nama {
+        flex: 0 1 auto;
+    }
+}
+
+/* =========================================================
+   PENGGUNA: daftar & kemaskini gaya aplikasi (< 768px)
+   ========================================================= */
+.baris-tetapan-medan > strong.kosong {
+    color: #b7c6c3;
+    font-weight: 500;
+}
+
+.baris-tetapan-medan.ada-ralat {
+    background: #fff5f5;
+}
+
+.baris-tetapan-medan.ada-ralat .label-medan-apl {
+    color: #b42318;
+}
+
+.kepala-profil-apl {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    margin-bottom: 1.2rem;
+    padding: 1rem;
+    border: 1px solid #e3eceb;
+    border-radius: 16px;
+    background: #ffffff;
+}
+
+.kepala-profil-apl strong {
+    color: #173b36;
+    font-size: 1rem;
+}
+
+.avatar-apl.besar {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #0d625a, #17867b);
+    color: #ffffff;
+    font-size: 1.1rem;
+}
+
+.status-profil-apl {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.3rem;
+    color: #69837e;
+    font-size: 0.74rem;
+    font-weight: 600;
+}
+
+.kepala-profil-apl .lencana-peranan-apl {
+    display: inline-block;
+    margin-top: 0.25rem;
+}
+
+.pilihan-apl .teks-baris-laporan small {
+    -webkit-line-clamp: 2;
+}
+
+.tanda-pilih-apl {
+    flex: 0 0 auto;
+    color: #0d625a;
+    font-size: 1.2rem;
+    visibility: hidden;
+}
+
+.pilihan-apl.terpilih {
+    background: #f2f9f8;
+}
+
+.pilihan-apl.terpilih .tanda-pilih-apl {
+    visibility: visible;
+}
+
+.pilihan-apl.terpilih .avatar-apl {
+    background: #0d625a;
+    color: #ffffff;
+}
+
+.petunjuk-kl-apl {
+    margin: 0.6rem 0.1rem 0;
+    color: #7a8e8b;
+    font-size: 0.76rem;
+}
+
+.petunjuk-kl-apl.betul {
+    color: #15803d;
+    font-weight: 700;
+}
+
+.petunjuk-kl-apl.salah {
+    color: #b42318;
+    font-weight: 700;
+}
+
+@media (max-width: 767.98px) {
+    .borang-pengguna-apl {
+        padding: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+}
+
+/* Profil: baris log keluar */
+.baris-log-keluar-apl {
+    justify-content: center;
+    color: #b42318;
+    font-weight: 700;
+}
+
+.baris-log-keluar-apl .label-medan-apl {
+    flex: 0 0 auto;
+}
+
+/* =========================================================
+   Pemilih lokasi (peta) untuk latitud / longitud
+   ========================================================= */
+.butang-pilih-lokasi {
+    min-height: 38px;
+    white-space: nowrap;
+}
+
+.peta-pilih-lokasi {
+    width: 100%;
+    height: min(65vh, 560px);
+    background: #e8eeed;
+}
+
+.kawalan-peta-lokasi {
+    position: absolute;
+    z-index: 500;
+    top: 0.75rem;
+}
+
+.kawalan-peta-lokasi.kiri {
+    left: 3.4rem;
+}
+
+.kawalan-peta-lokasi.kanan {
+    right: 0.75rem;
+}
+
+.kawalan-peta-lokasi .btn {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.segmen-peta-lokasi {
+    display: inline-flex;
+    padding: 0.2rem;
+    border-radius: 10px;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(16, 52, 47, 0.18);
+}
+
+.segmen-peta-lokasi button {
+    padding: 0.3rem 0.8rem;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: #526563;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.segmen-peta-lokasi button.aktif {
+    background: #0d625a;
+    color: #ffffff;
+}
+
+.petunjuk-peta-lokasi {
+    position: absolute;
+    z-index: 500;
+    bottom: 1.6rem;
+    left: 50%;
+    padding: 0.45rem 0.85rem;
+    border-radius: 999px;
+    background: rgba(23, 59, 54, 0.88);
+    color: #ffffff;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    pointer-events: none;
+    transform: translateX(-50%);
+    transition: opacity 0.25s ease;
+}
+
+.petunjuk-peta-lokasi.tersembunyi {
+    opacity: 0;
+}
+
+.pin-pilih-lokasi {
+    border: 0;
+    background: transparent;
+}
+
+.pin-pilih-lokasi i {
+    display: block;
+    color: #d92d20;
+    font-size: 36px;
+    line-height: 36px;
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35));
+}
+
+.koordinat-lokasi {
+    color: #173b36;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.92rem;
+    font-weight: 700;
+}
+
+@media (max-width: 767.98px) {
+    /* Skrin penuh: header ringkas, peta mengisi ruang, footer melekat */
+    .modal-pilih-lokasi .modal-content {
+        border: 0;
+        border-radius: 0;
+    }
+
+    .modal-pilih-lokasi .modal-header {
+        padding: 0.7rem 1rem;
+    }
+
+    .modal-pilih-lokasi .modal-title {
+        font-size: 1.05rem;
+    }
+
+    .modal-pilih-lokasi .modal-body {
+        display: flex;
+        flex: 1 1 auto;
+        min-height: 0;
+    }
+
+    .peta-pilih-lokasi {
+        flex: 1 1 auto;
+        height: auto;
+        min-height: 300px;
+    }
+
+    /* Butang lokasi saya: butang bulat di kanan bawah (gaya Google Maps) */
+    .kawalan-peta-lokasi.kiri {
+        top: auto;
+        right: 0.85rem;
+        bottom: 1.6rem;
+        left: auto;
+    }
+
+    .butang-lokasi-saya {
+        display: grid;
+        place-items: center;
+        width: 52px;
+        height: 52px;
+        padding: 0;
+        border-radius: 50%;
+        background: #ffffff;
+        color: #0d625a;
+        font-size: 1.35rem;
+        box-shadow: 0 4px 14px rgba(16, 52, 47, 0.25) !important;
+    }
+
+    .butang-lokasi-saya .teks-lokasi-saya {
+        display: none;
+    }
+
+    /* Petunjuk di atas, bawah suis Jalan/Satelit */
+    .petunjuk-peta-lokasi {
+        top: 3.6rem;
+        bottom: auto;
+        width: calc(100% - 1.5rem);
+        padding: 0.5rem 0.8rem;
+        border-radius: 12px;
+        font-size: 0.76rem;
+        text-align: center;
+        white-space: normal;
+    }
+
+    /* Footer: koordinat + butang penuh lebar */
+    .modal-pilih-lokasi .modal-footer {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.6rem;
+        padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+        border-top: 1px solid #e5edec;
+    }
+
+    .modal-pilih-lokasi .modal-footer > * {
+        margin: 0;
+    }
+
+    .modal-pilih-lokasi .modal-footer .me-auto {
+        margin-right: 0 !important;
+        text-align: center;
+    }
+
+    .koordinat-lokasi {
+        font-size: 0.95rem;
+    }
+
+    .butang-guna-lokasi {
+        width: 100%;
+        min-height: 48px;
+        border-radius: 12px;
+        font-size: 0.95rem;
+    }
+}
+

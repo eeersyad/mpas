@@ -8,26 +8,96 @@
         $bangunan = $tetapan->get('BANGUNAN');
     @endphp
 
-    <div class="hero-tetapan mb-4">
+    <div class="hero-tetapan mb-4 d-none d-md-block">
         <p class="teks-kecil mb-1">PENGURUSAN SISTEM</p>
         <h1 class="tajuk-halaman mb-2">Tetapan</h1>
     </div>
 
+    @include('tetapan._bar-apl', ['tajuk' => 'Nombor Rujukan', 'borang' => 'borangTetapanRujukan'])
+
     <div class="row g-4 pusat-tetapan">
-        <div class="col-12 col-lg-3">
+        <div class="col-12 col-lg-3 d-none d-md-block">
             @include('tetapan.menu')
         </div>
 
         <div class="col-12 col-lg-9">
-            <form
-                method="POST"
-                action="{{ route('tetapan.rujukan.kemaskini') }}"
-                class="borang-tetapan"
-            >
+            <form method="POST" action="{{ route('tetapan.rujukan.kemaskini') }}" id="borangTetapanRujukan" class="borang-tetapan" data-pantau-ubah>
                 @csrf
                 @method('PUT')
 
-                <div class="kad-data kad-tetapan mb-4">
+                {{-- ===================== TELEFON: senarai gaya Settings ===================== --}}
+                <div class="d-md-none tetapan-apl">
+                    <div class="kad-pratonton-apl">
+                        <p>Rujukan seterusnya</p>
+
+                        <div class="baris-pratonton-apl">
+                            <span><i class="bi bi-map-fill"></i> Tanah</span>
+                            <strong data-pratonton-mobile="tanah">-</strong>
+                        </div>
+
+                        <div class="baris-pratonton-apl">
+                            <span><i class="bi bi-buildings-fill"></i> Bangunan</span>
+                            <strong data-pratonton-mobile="bangunan">-</strong>
+                        </div>
+                    </div>
+
+                    @foreach (['tanah' => ['Tanah', $tanah, 'TANAH'], 'bangunan' => ['Bangunan', $bangunan, 'BANGUNAN']] as $jenis => [$labelJenis, $modelJenis, $kunciJenis])
+                        <p class="label-kumpulan-apl">Aset {{ $labelJenis }}</p>
+
+                        <div class="kad-senarai-apl">
+                            <button type="button" class="baris-tetapan-medan" data-sunting-medan="{{ $jenis }}_awalan" data-label="Awalan Rujukan {{ $labelJenis }}">
+                                <span class="label-medan-apl">Awalan</span>
+                                <strong data-nilai-medan="{{ $jenis }}_awalan">-</strong>
+                                <i class="bi bi-chevron-right anak-panah-apl" aria-hidden="true"></i>
+                            </button>
+
+                            @if ($modelJenis?->ruj_nombor_semasa !== null)
+                                <div class="baris-tetapan-medan dikunci">
+                                    <span class="label-medan-apl">Nombor mula</span>
+                                    <strong data-nilai-medan="{{ $jenis }}_nombor_mula">-</strong>
+                                    <i class="bi bi-lock-fill anak-panah-apl" aria-label="Dikunci"></i>
+                                </div>
+                            @else
+                                <button type="button" class="baris-tetapan-medan" data-sunting-medan="{{ $jenis }}_nombor_mula" data-label="Nombor Mula {{ $labelJenis }}">
+                                    <span class="label-medan-apl">Nombor mula</span>
+                                    <strong data-nilai-medan="{{ $jenis }}_nombor_mula">-</strong>
+                                    <i class="bi bi-chevron-right anak-panah-apl" aria-hidden="true"></i>
+                                </button>
+                            @endif
+
+                            <div class="baris-tetapan-medan">
+                                <span class="label-medan-apl">Panjang nombor</span>
+
+                                <div class="stepper-apl" data-stepper-proksi="{{ $jenis }}_panjang_nombor">
+                                    <button type="button" data-arah="-1" aria-label="Kurangkan panjang nombor"><i class="bi bi-dash-lg"></i></button>
+                                    <strong data-nilai-medan="{{ $jenis }}_panjang_nombor">-</strong>
+                                    <button type="button" data-arah="1" aria-label="Tambah panjang nombor"><i class="bi bi-plus-lg"></i></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        @foreach (['awalan', 'nombor_mula', 'panjang_nombor'] as $medanRalat)
+                            @error($jenis . '_' . $medanRalat)
+                                <p class="ralat-kumpulan-apl">{{ $message }}</p>
+                            @enderror
+                        @endforeach
+
+                        <p class="nota-kumpulan-apl">
+                            @if (! $modelJenis)
+                                Tetapan belum dibuat.
+                            @elseif ($rujukanTerakhir[$kunciJenis])
+                                Rujukan terakhir dijana: {{ $rujukanTerakhir[$kunciJenis] }}
+                            @else
+                                Tiada rujukan telah dijana.
+                            @endif
+                            @if ($modelJenis?->ruj_nombor_semasa !== null)
+                                Nombor mula dikunci selepas rujukan dijana.
+                            @endif
+                        </p>
+                    @endforeach
+                </div>
+
+                <div class="kad-data kad-tetapan mb-4 d-none d-md-block">
                     <div class="kepala-kad-tetapan">
                         <div class="d-flex align-items-center gap-3">
                             <div class="ikon-tetapan tanah">
@@ -125,10 +195,15 @@
                                 @enderror
                             </div>
                         </div>
+
+                        <div class="pratonton-rujukan mt-3" data-pratonton-rujukan="tanah" data-nombor-semasa="{{ $tanah?->ruj_nombor_semasa }}">
+                            <span><i class="bi bi-eye me-1"></i>Rujukan seterusnya</span>
+                            <strong data-pratonton-teks>-</strong>
+                        </div>
                     </div>
                 </div>
 
-                <div class="kad-data kad-tetapan">
+                <div class="kad-data kad-tetapan d-none d-md-block">
                     <div class="kepala-kad-tetapan">
                         <div class="d-flex align-items-center gap-3">
                             <div class="ikon-tetapan bangunan">
@@ -226,6 +301,11 @@
                                 @enderror
                             </div>
                         </div>
+
+                        <div class="pratonton-rujukan mt-3" data-pratonton-rujukan="bangunan" data-nombor-semasa="{{ $bangunan?->ruj_nombor_semasa }}">
+                            <span><i class="bi bi-eye me-1"></i>Rujukan seterusnya</span>
+                            <strong data-pratonton-teks>-</strong>
+                        </div>
                     </div>
                 </div>
 
@@ -237,4 +317,6 @@
             </form>
         </div>
     </div>
+
+    @include('tetapan._lembaran-sunting')
 @endsection

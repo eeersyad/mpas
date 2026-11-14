@@ -8,13 +8,15 @@
         $perananIsi = old('peranan_isi', $tetapan->tpn_peranan_isi ?? []);
     @endphp
 
-    <div class="hero-tetapan mb-4">
+    <div class="hero-tetapan mb-4 d-none d-md-block">
         <p class="teks-kecil mb-1">PENGURUSAN SISTEM</p>
         <h1 class="tajuk-halaman mb-2">Tetapan</h1>
     </div>
 
+    @include('tetapan._bar-apl', ['tajuk' => 'Akses Penyelenggaraan', 'borang' => 'borangAksesPenyelenggaraan'])
+
     <div class="row g-4 pusat-tetapan">
-        <div class="col-12 col-lg-3">
+        <div class="col-12 col-lg-3 d-none d-md-block">
             @include('tetapan.menu')
         </div>
 
@@ -29,16 +31,49 @@
                 </div>
             @endif
 
-            <form
-                method="POST"
-                action="{{ route('tetapan.penyelenggaraan.kemaskini') }}"
-                data-borang-akses-penyelenggaraan
-            >
+            <form method="POST" action="{{ route('tetapan.penyelenggaraan.kemaskini') }}" id="borangAksesPenyelenggaraan" data-borang-akses-penyelenggaraan data-pantau-ubah>
                 @csrf
                 @method('PUT')
 
                 {{-- Kepala --}}
-                <div class="kad-data kad-tetapan mb-4">
+                {{-- ===================== TELEFON: matriks akses ===================== --}}
+                <div class="d-md-none tetapan-apl">
+                    <p class="nota-kumpulan-apl mt-0 mb-2">Peranan yang boleh <strong>isi</strong> akan boleh <strong>lihat</strong> secara automatik.</p>
+
+                    <div class="kad-senarai-apl matriks-akses-apl">
+                        <div class="kepala-matriks-apl">
+                            <span>Peranan</span>
+                            <span>Lihat</span>
+                            <span>Isi</span>
+                        </div>
+
+                        <div class="baris-matriks-apl berkunci">
+                            <span class="avatar-apl">SYS</span>
+                            <span class="teks-baris-laporan">
+                                <strong>SYSTEM <i class="bi bi-lock-fill text-secondary small"></i></strong>
+                                <small>Super Admin</small>
+                            </span>
+                            <span class="form-check form-switch sel-suis-apl"><input class="form-check-input" type="checkbox" role="switch" checked disabled aria-label="SYSTEM boleh lihat"></span>
+                            <span class="form-check form-switch sel-suis-apl"><input class="form-check-input" type="checkbox" role="switch" checked disabled aria-label="SYSTEM boleh isi"></span>
+                        </div>
+
+                        @foreach ($peranan as $kod)
+                            <div class="baris-matriks-apl">
+                                <span class="avatar-apl">{{ $kod }}</span>
+                                <span class="teks-baris-laporan">
+                                    <strong>{{ $kod }}</strong>
+                                    <small>{{ $namaPeranan[$kod] ?? '' }}</small>
+                                </span>
+                                <span class="form-check form-switch sel-suis-apl"><input class="form-check-input" type="checkbox" role="switch" data-proksi-suis="lihat{{ $kod }}" aria-label="{{ $kod }} boleh lihat"></span>
+                                <span class="form-check form-switch sel-suis-apl"><input class="form-check-input" type="checkbox" role="switch" data-proksi-suis="isi{{ $kod }}" aria-label="{{ $kod }} boleh isi"></span>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <p class="nota-kumpulan-apl">Rekod pemeriksaan tidak boleh dihapus oleh mana-mana peranan.</p>
+                </div>
+
+                <div class="kad-data kad-tetapan mb-4 d-none d-md-block">
                     <div class="kepala-kad-tetapan">
                         <div class="d-flex align-items-center gap-3 w-100">
                             <div class="ikon-tetapan bangunan">
@@ -57,7 +92,7 @@
                 </div>
 
                 {{-- Kad peranan --}}
-                <div class="row g-3 mb-4">
+                <div class="row g-3 mb-4 d-none d-md-flex">
                     {{-- SYSTEM: sentiasa ada akses --}}
                     <div class="col-12 col-md-6">
                         <div class="kad-peranan ada-akses berkunci">
@@ -172,7 +207,7 @@
                 </div>
 
                 {{-- Bar simpan --}}
-                <div class="bar-simpan-tetapan">
+                <div class="bar-simpan-tetapan d-none d-md-flex">
                     <p class="small text-secondary mb-0">
                         <i class="bi bi-info-circle me-1 text-success"></i>
                         Peranan yang boleh <strong>isi</strong> akan boleh <strong>lihat</strong> secara automatik.

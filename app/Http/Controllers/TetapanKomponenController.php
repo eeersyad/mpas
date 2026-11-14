@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\KomponenPenyelenggaraan;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -73,6 +74,28 @@ class TetapanKomponenController extends Controller
         return redirect()
             ->route('tetapan.komponen')
             ->with('berjaya', "Komponen {$komponen->amc_name} berjaya dikemaskini.");
+    }
+
+    /**
+     * Tukar status aktif / tidak aktif terus dari senarai (AJAX).
+     */
+    public function togolStatus(Request $request, KomponenPenyelenggaraan $komponen): JsonResponse
+    {
+        $data = $request->validate(['aktif' => ['required', 'boolean']]);
+        $status = $data['aktif'] ? 'ACTIVE' : 'INACTIVE';
+
+        $komponen->update([
+            'amc_status' => $status,
+            'updated_by' => $request->user()->usr_id,
+        ]);
+
+        return response()->json([
+            'status' => $status,
+            'label' => \App\Support\Paparan::label($status),
+            'mesej' => $data['aktif']
+                ? "{$komponen->amc_name} diaktifkan."
+                : "{$komponen->amc_name} dinyahaktifkan.",
+        ]);
     }
 
     private function sahkan(

@@ -96,6 +96,16 @@ class Bangunan extends Model
         return $this->hasMany(Penyewa::class, 'asb_id', 'asb_id');
     }
 
+    /**
+     * Penyewa yang masih aktif sahaja.
+     */
+    public function penyewaAktif(): HasMany
+    {
+        return $this->hasMany(Penyewa::class, 'asb_id', 'asb_id')
+            ->where('tnt_status', 'AKTIF')
+            ->orderBy('tnt_name');
+    }
+
     public function kod(): HasOne
     {
         return $this->hasOne(KodBangunan::class, 'asb_id', 'asb_id');

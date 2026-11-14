@@ -5,21 +5,21 @@
 @section('kandungan')
     <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
         <div>
-            <p class="teks-kecil mb-1">PENGURUSAN ASET</p>
-            <h1 class="tajuk-halaman mb-2">Aset Tanah</h1>
-            <p class="teks-penerangan mb-0">
+            <p class="teks-kecil mb-1 d-none d-md-block">PENGURUSAN ASET</p>
+            <h1 class="tajuk-halaman mb-2">Aset Tanah <span class="lencana-bilangan-tajuk d-md-none">{{ number_format($tanah->total()) }}</span></h1>
+            <p class="teks-penerangan mb-0 d-none d-md-block">
                 Senarai aset tanah yang telah didaftarkan.
             </p>
         </div>
 
-        <a href="{{ route('tanah.create') }}" class="btn btn-primary px-3 py-2">
+        <a href="{{ route('tanah.create') }}" class="btn btn-primary px-3 py-2 d-none d-md-inline-block">
             <i class="bi bi-plus-circle-fill me-2"></i>Daftar Aset Tanah
         </a>
     </div>
 
     <form
         method="GET"
-        class="panel-penapis mb-4"
+        class="panel-penapis mb-4 d-none d-md-block"
         data-penapis-automatik
     >
         <input type="hidden" name="had" value="{{ request('had', 15) }}">
@@ -96,9 +96,19 @@
         </div>
     </form>
 
+    @php
+        // Penapis untuk paparan telefon (bottom sheet)
+        $penapisMobile = [
+            'status_hakmilik' => ['label' => 'Status Hakmilik', 'pilihan' => ['HAKMILIK', 'RIZAB', 'STRATA', 'LAIN_LAIN']],
+            'status_tanah' => ['label' => 'Status Tanah', 'pilihan' => ['SEWA', 'TIDAK_DISEWA', 'PAJAK', 'TIDAK_DIPAJAK']],
+        ];
+    @endphp
+
+    <x-penapis-mobile placeholder="Cari no. rujukan, lot atau lokasi..." :penapis="$penapisMobile" :susun="['rujukan' => 'No. Rujukan', 'lot' => 'No. Lot', 'lokasi' => 'Lokasi', 'keluasan' => 'Keluasan']" :url-semula="route('tanah.index')" />
+
     <div class="kad-data">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 jadual-sistem jadual-tanah">
+            <table class="table table-hover align-middle mb-0 jadual-sistem jadual-tanah" data-kad-apl="sembunyi|meta|tajuk=Lot|meta=No. fail:|sub|meta=Keluasan:|lencana|lencana|tindakan">
                 <thead>
                     <tr>
                         <th>Bil.</th>
@@ -156,7 +166,20 @@
                                 </span>
                             </td>
                             <td class="text-end">
-                                <div class="d-inline-flex gap-2">
+                                {{-- Menu titik tiga (telefon) --}}
+                                <div class="dropdown d-md-none">
+                                    <button type="button" class="btn butang-menu-kad" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Pilihan tindakan">
+                                        <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
+                                    </button>
+
+                                    <ul class="dropdown-menu dropdown-menu-end menu-kad">
+                                        <li><button type="button" class="dropdown-item" data-buka-butiran-kad><i class="bi bi-eye" aria-hidden="true"></i>Lihat butiran</button></li>
+                                        <li><a class="dropdown-item" href="{{ route('tanah.pdf', $item) }}"><i class="bi bi-download" aria-hidden="true"></i>Muat turun PDF</a></li>
+                                        <li><a class="dropdown-item" href="{{ route('tanah.edit', $item) }}"><i class="bi bi-pencil-square" aria-hidden="true"></i>Kemaskini</a></li>
+                                    </ul>
+                                </div>
+
+                                <div class="d-none d-md-inline-flex gap-2">
                                     <a
                                         href="{{ route('tanah.pdf', $item) }}"
                                         class="btn btn-sm btn-outline-secondary"
@@ -206,4 +229,10 @@
             </div>
         </div>
     </div>
+    {{-- Butang tambah terapung (telefon) --}}
+    <a href="{{ route('tanah.create') }}" class="fab-tambah d-md-none" aria-label="Daftar Aset Tanah" title="Daftar Aset Tanah">
+        <i class="bi bi-plus-lg" aria-hidden="true"></i>
+    </a>
+
+    <div class="ruang-fab d-md-none" aria-hidden="true"></div>
 @endsection

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PegawaiAset;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -47,6 +48,28 @@ class TetapanPegawaiController extends Controller
         return redirect()
             ->route('tetapan.pegawai')
             ->with('berjaya', "Maklumat pegawai {$pegawai->pgw_nama} berjaya dikemaskini.");
+    }
+
+    /**
+     * Tukar status aktif / tidak aktif terus dari senarai (AJAX).
+     */
+    public function togolStatus(Request $request, PegawaiAset $pegawai): JsonResponse
+    {
+        $data = $request->validate(['aktif' => ['required', 'boolean']]);
+        $status = $data['aktif'] ? 'ACTIVE' : 'INACTIVE';
+
+        $pegawai->update([
+            'pgw_status' => $status,
+            'updated_by' => $request->user()->usr_id,
+        ]);
+
+        return response()->json([
+            'status' => $status,
+            'label' => \App\Support\Paparan::label($status),
+            'mesej' => $data['aktif']
+                ? "{$pegawai->pgw_nama} diaktifkan."
+                : "{$pegawai->pgw_nama} dinyahaktifkan.",
+        ]);
     }
 
     private function sahkan(Request $request, ?PegawaiAset $pegawai = null): array

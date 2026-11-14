@@ -21,7 +21,7 @@
 @endphp
 
 <div
-    class="modal fade"
+    class="modal fade modal-lembaran-apl"
     id="{{ $idModal }}"
     tabindex="-1"
     aria-labelledby="{{ $idModal }}Tajuk"

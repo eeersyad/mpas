@@ -3,7 +3,16 @@
 @section('tajuk', 'Butiran Kod QR')
 
 @section('kandungan')
-    <div class="d-flex flex-column flex-md-row align-items-md-start justify-content-between gap-3 mb-4">
+    {{-- Bar aplikasi (telefon) --}}
+    <div class="bar-apl-halaman d-md-none">
+        <a href="{{ route('kodqr.index') }}" class="butang-bar-apl" aria-label="Kembali ke senarai">
+            <i class="bi bi-arrow-left" aria-hidden="true"></i>
+        </a>
+
+        <span class="tajuk-bar-apl">Kod QR</span>
+    </div>
+
+    <div class="d-none d-md-flex flex-column flex-md-row align-items-md-start justify-content-between gap-3 mb-4">
         <div>
             <p class="teks-kecil mb-1">PENGURUSAN ASET · KOD QR</p>
             <h1 class="tajuk-halaman mb-2">Kod QR Aset Bangunan</h1>
@@ -18,7 +27,7 @@
     </div>
 
     <div class="kad-maklumat-qr mb-4">
-        <div class="ikon-maklumat-qr">
+        <div class="ikon-maklumat-qr d-none d-md-grid">
             <i class="bi bi-buildings"></i>
         </div>
 
@@ -34,7 +43,7 @@
             </p>
         </div>
 
-        <span class="lencana-status-qr ms-md-auto">
+        <span class="lencana-status-qr ms-md-auto d-none d-md-inline-flex">
             <i class="bi {{ $kod->qr_status === 'ACTIVE' ? 'bi-check-circle-fill' : 'bi-pause-circle-fill' }}"></i>
             {{ $kod->qr_status === 'ACTIVE' ? 'QR Aktif' : 'QR Tidak Aktif' }}
         </span>
@@ -68,7 +77,35 @@
             </div>
         </div>
 
-        <div class="col-12 col-lg-7">
+        {{-- Telefon: suis status & maklumat dalam senarai berkumpulan --}}
+        <div class="col-12 d-md-none">
+            <div class="kad-senarai-apl">
+                <form method="POST" action="{{ route('kodqr.status', $bangunan) }}" class="baris-senarai-apl" data-suis-status-qr>
+                    @csrf
+                    @method('PUT')
+
+                    <input type="hidden" name="qr_status" value="{{ $kod->qr_status }}">
+
+                    <label class="baris-suis-apl" for="suisStatusQr">
+                        <span>
+                            <strong>Terima aduan awam</strong>
+                            <small data-teks-suis-qr>{{ $kod->qr_status === 'ACTIVE' ? 'Orang awam boleh membuat aduan' : 'Aduan awam ditutup' }}</small>
+                        </span>
+
+                        <span class="form-check form-switch m-0">
+                            <input class="form-check-input" type="checkbox" role="switch" id="suisStatusQr" @checked($kod->qr_status === 'ACTIVE')>
+                        </span>
+                    </label>
+                </form>
+
+                <div class="baris-senarai-apl">
+                    <span>Tarikh dijana</span>
+                    <strong>{{ $kod->generated_at?->format('d/m/Y, h:i A') ?? '-' }}</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-7 d-none d-md-block">
             <div class="kad-status-qr h-100">
                 <div class="d-flex align-items-start justify-content-between gap-3 mb-4">
                     <div>
@@ -159,4 +196,17 @@
             </div>
         </div>
     </div>
+
+    {{-- Bar tindakan melekat (telefon) --}}
+    <div class="bar-tindakan-apl d-md-none">
+        <button type="button" class="btn btn-outline-secondary" data-salin-pautan data-pautan="{{ $pautanAduan }}">
+            <i class="bi bi-link-45deg me-1"></i>Salin pautan
+        </button>
+
+        <button type="button" class="btn btn-primary" data-kongsi-pautan data-pautan="{{ $pautanAduan }}" data-tajuk="Aduan {{ $bangunan->asb_name }}">
+            <i class="bi bi-share me-1"></i>Kongsi
+        </button>
+    </div>
+
+    <div class="ruang-fab d-md-none" aria-hidden="true"></div>
 @endsection

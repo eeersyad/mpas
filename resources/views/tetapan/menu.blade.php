@@ -87,7 +87,7 @@
 
             <span>
                 <strong>Maklumat Organisasi</strong>
-                <small>Akan datang</small>
+                <small><span class="lencana-akan-datang">Akan datang</span></small>
             </span>
         </span>
 
@@ -96,7 +96,7 @@
 
             <span>
                 <strong>Logo Sistem</strong>
-                <small>Akan datang</small>
+                <small><span class="lencana-akan-datang">Akan datang</span></small>
             </span>
         </span>
 
@@ -105,7 +105,7 @@
 
             <span>
                 <strong>Paparan Sistem</strong>
-                <small>Akan datang</small>
+                <small><span class="lencana-akan-datang">Akan datang</span></small>
             </span>
         </span>
     </nav>

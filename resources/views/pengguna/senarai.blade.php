@@ -5,21 +5,21 @@
 @section('kandungan')
     <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
         <div>
-            <p class="teks-kecil mb-1">PENGURUSAN SISTEM</p>
-            <h1 class="tajuk-halaman mb-2">Pengguna</h1>
-            <p class="teks-penerangan mb-0">
+            <p class="teks-kecil mb-1 d-none d-md-block">PENGURUSAN SISTEM</p>
+            <h1 class="tajuk-halaman mb-2">Pengguna <span class="lencana-bilangan-tajuk d-md-none">{{ number_format($pengguna->total()) }}</span></h1>
+            <p class="teks-penerangan mb-0 d-none d-md-block">
                 Urus rekod pengguna dan akses sistem.
             </p>
         </div>
 
-        <a href="{{ route('pengguna.create') }}" class="btn btn-primary px-3 py-2">
+        <a href="{{ route('pengguna.create') }}" class="btn btn-primary px-3 py-2 d-none d-md-inline-block">
             <i class="bi bi-person-plus-fill me-2"></i>Daftar Pengguna
         </a>
     </div>
 
     <form
         method="GET"
-        class="panel-penapis mb-4"
+        class="panel-penapis mb-4 d-none d-md-block"
         data-penapis-automatik
     >
         <input type="hidden" name="had" value="{{ request('had', 15) }}">
@@ -96,9 +96,19 @@
         </div>
     </form>
 
+    @php
+        // Penapis untuk paparan telefon (bottom sheet)
+        $penapisMobile = [
+            'peranan' => ['label' => 'Peranan', 'pilihan' => ['BPH' => 'BPH', 'BP' => 'BP', 'KJ' => 'KJ']],
+            'status' => ['label' => 'Status Akaun', 'pilihan' => ['ACTIVE' => 'Aktif', 'INACTIVE' => 'Tidak Aktif']],
+        ];
+    @endphp
+
+    <x-penapis-mobile placeholder="Cari nama pengguna..." :penapis="$penapisMobile" :susun="['nama' => 'Nama', 'peranan' => 'Peranan', 'status' => 'Status', 'tarikh' => 'Tarikh Daftar']" :url-semula="route('pengguna.index')" />
+
     <div class="kad-data">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 jadual-sistem">
+            <table class="table table-hover align-middle mb-0 jadual-sistem" data-kad-apl="sembunyi|tajuk|sub|lencana|info=Daftar|tindakan">
                 <thead>
                     <tr>
                         <th>Bil.</th>
@@ -148,7 +158,19 @@
                             </td>
 
                             <td class="text-end">
-                                <div class="d-inline-flex gap-2">
+                                {{-- Menu titik tiga (telefon) --}}
+                                <div class="dropdown d-md-none">
+                                    <button type="button" class="btn butang-menu-kad" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Pilihan tindakan">
+                                        <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
+                                    </button>
+
+                                    <ul class="dropdown-menu dropdown-menu-end menu-kad">
+                                        <li><button type="button" class="dropdown-item" data-buka-butiran-kad><i class="bi bi-eye" aria-hidden="true"></i>Lihat butiran</button></li>
+                                        <li><a class="dropdown-item" href="{{ route('pengguna.edit', $item) }}"><i class="bi bi-pencil-square" aria-hidden="true"></i>Kemaskini</a></li>
+                                    </ul>
+                                </div>
+
+                                <div class="d-none d-md-inline-flex gap-2">
                                     <button
                                         type="button"
                                         class="btn btn-sm btn-outline-secondary"
@@ -157,6 +179,8 @@
                                         data-peranan="{{ $item->usr_level }}"
                                         data-status="{{ $item->usr_status === 'ACTIVE' ? 'Aktif' : 'Tidak Aktif' }}"
                                         data-tarikh="{{ $item->created_at?->format('d/m/Y, h:i A') ?? '-' }}"
+                                        data-nama-peranan="{{ $namaPeranan[$item->usr_level] ?? $item->usr_level }}"
+                                        data-url-kemaskini="{{ route('pengguna.edit', $item) }}"
                                         title="Lihat butiran pengguna"
                                     >
                                         <i class="bi bi-eye"></i>
@@ -195,7 +219,26 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header">
-                    <div>
+                    {{-- Bar aplikasi (telefon) --}}
+                    <div class="bar-apl-butiran d-md-none">
+                        <button type="button" class="butang-bar-apl" data-bs-dismiss="modal" aria-label="Kembali">
+                            <i class="bi bi-arrow-left" aria-hidden="true"></i>
+                        </button>
+
+                        <span class="tajuk-bar-apl">Butiran Pengguna</span>
+
+                        <div class="dropdown">
+                            <button type="button" class="butang-bar-apl" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Pilihan lain">
+                                <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
+                            </button>
+
+                            <ul class="dropdown-menu dropdown-menu-end menu-kad">
+                                <li><a class="dropdown-item" href="#" data-pautan-kemaskini-pengguna><i class="bi bi-pencil-square" aria-hidden="true"></i>Kemaskini</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="d-none d-md-block">
                         <p class="teks-kecil mb-1">MAKLUMAT PENGGUNA</p>
                         <h5 class="modal-title" id="tajukModalButiranPengguna">
                             Butiran Pengguna
@@ -204,14 +247,27 @@
 
                     <button
                         type="button"
-                        class="btn-close"
+                        class="btn-close d-none d-md-block"
                         data-bs-dismiss="modal"
                         aria-label="Tutup"
                     ></button>
                 </div>
 
                 <div class="modal-body" data-kandungan-butiran-pengguna></div>
+
+                {{-- Bar tindakan (telefon) --}}
+                <div class="modal-footer d-md-none">
+                    <a href="#" class="btn btn-primary butang-kemaskini-apl" data-pautan-kemaskini-pengguna>
+                        <i class="bi bi-pencil-square me-1"></i>Kemaskini Pengguna
+                    </a>
+                </div>
             </div>
         </div>
     </div>
+    {{-- Butang tambah terapung (telefon) --}}
+    <a href="{{ route('pengguna.create') }}" class="fab-tambah d-md-none" aria-label="Daftar Pengguna" title="Daftar Pengguna">
+        <i class="bi bi-plus-lg" aria-hidden="true"></i>
+    </a>
+
+    <div class="ruang-fab d-md-none" aria-hidden="true"></div>
 @endsection

@@ -4,16 +4,16 @@
 
 @section('kandungan')
     <div class="mb-4">
-        <p class="teks-kecil mb-1">PENGURUSAN ADUAN</p>
-        <h1 class="tajuk-halaman mb-2">Aduan Aset Bangunan</h1>
-        <p class="teks-penerangan mb-0">
+        <p class="teks-kecil mb-1 d-none d-md-block">PENGURUSAN ADUAN</p>
+        <h1 class="tajuk-halaman mb-2">Aduan Aset Bangunan <span class="lencana-bilangan-tajuk d-md-none">{{ number_format($aduan->total()) }}</span></h1>
+        <p class="teks-penerangan mb-0 d-none d-md-block">
             Senarai aduan kerosakan aset bangunan.
         </p>
     </div>
 
     <form
         method="GET"
-        class="panel-penapis mb-4"
+        class="panel-penapis mb-4 d-none d-md-block"
         data-penapis-automatik
     >
         <input type="hidden" name="had" value="{{ request('had', 15) }}">
@@ -92,9 +92,19 @@
         </div>
     </form>
 
+    @php
+        // Penapis untuk paparan telefon (bottom sheet)
+        $penapisMobile = [
+            'status' => ['label' => 'Status', 'pilihan' => ['BARU', 'DITERIMA', 'DALAM_PENYELENGGARAAN', 'SELESAI']],
+            'jenis_pengadu' => ['label' => 'Pengadu', 'pilihan' => ['PENYEWA' => 'Penyewa', 'AWAM' => 'Orang Awam']],
+        ];
+    @endphp
+
+    <x-penapis-mobile placeholder="Cari aset, rujukan atau kerosakan..." :penapis="$penapisMobile" :susun="['tarikh' => 'Tarikh', 'aset' => 'Aset', 'kerosakan' => 'Kerosakan', 'status' => 'Status']" :url-semula="route('aduan.index')" />
+
     <div class="kad-data">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 jadual-sistem">
+            <table class="table table-hover align-middle mb-0 jadual-sistem" data-kad-apl="sembunyi|info|tajuk|sub|lencana|sembunyi">
                 <thead>
                     <tr>
                         <th>Bil.</th>

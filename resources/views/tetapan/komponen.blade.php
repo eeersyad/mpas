@@ -3,13 +3,15 @@
 @section('tajuk', 'Tetapan Komponen Penyelenggaraan')
 
 @section('kandungan')
-    <div class="hero-tetapan mb-4">
+    <div class="hero-tetapan mb-4 d-none d-md-block">
         <p class="teks-kecil mb-1">PENGURUSAN SISTEM</p>
         <h1 class="tajuk-halaman mb-2">Tetapan</h1>
     </div>
 
+    @include('tetapan._bar-apl', ['tajuk' => 'Komponen Penyelenggaraan'])
+
     <div class="row g-4 pusat-tetapan">
-        <div class="col-12 col-lg-3">
+        <div class="col-12 col-lg-3 d-none d-md-block">
             @include('tetapan.menu')
         </div>
 
@@ -26,7 +28,7 @@
             @endif
 
             {{-- Kepala --}}
-            <div class="kad-data kad-tetapan mb-4">
+            <div class="kad-data kad-tetapan mb-4 d-none d-md-block">
                 <div class="kepala-kad-tetapan">
                     <div class="d-flex align-items-center justify-content-between gap-3 w-100">
                         <div class="d-flex align-items-center gap-3 min-w-0">
@@ -57,8 +59,51 @@
             </div>
 
             {{-- Statistik --}}
-            <div class="row g-3 mb-4">
-                <div class="col-12 col-sm-4">
+            {{-- ===================== TELEFON: senarai komponen ===================== --}}
+            <div class="d-md-none tetapan-apl">
+                <p class="ringkasan-tetapan-apl">
+                    {{ $komponen->count() }} komponen · {{ $jumlahItemAktif }} item aktif
+                </p>
+
+                @if ($komponen->isEmpty())
+                    <div class="kad-kosong">
+                        <div class="ilustrasi-kosong"><i class="bi bi-tools"></i></div>
+                        <h3>Tiada komponen</h3>
+                        <p>Tekan butang + untuk tambah komponen pertama.</p>
+                    </div>
+                @else
+                    <div class="kad-senarai-apl">
+                        @foreach ($komponen as $item)
+                            @php
+                                $aktifMobile = $item->amc_status === 'ACTIVE';
+                            @endphp
+
+                            <div @class(['baris-tetapan-medan', 'baris-komponen-apl', 'tidak-aktif' => ! $aktifMobile]) data-baris-togol>
+                                <button type="button" class="kawasan-tekan-apl" data-bs-toggle="modal" data-bs-target="#modalKomponen{{ $item->amc_id }}">
+                                    <span class="nombor-komponen">{{ $item->amc_order }}</span>
+
+                                    <span class="teks-baris-laporan">
+                                        <strong>{{ $item->amc_name }}</strong>
+                                        <small>{{ count($item->itemAktif()) }} item aktif</small>
+                                    </span>
+                                </button>
+
+                                <div class="form-check form-switch suis-status-tetapan mb-0">
+                                    <input class="form-check-input" type="checkbox" role="switch" data-togol-status="{{ route('tetapan.komponen.status', $item) }}" data-modal-sasaran="#modalKomponen{{ $item->amc_id }}" aria-label="Komponen {{ $item->amc_name }} aktif" @checked($aktifMobile)>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+
+                <p class="nota-kumpulan-apl">
+                    Tekan komponen untuk ubah nama, turutan dan item. Komponen tidak boleh dihapus;
+                    matikan suis untuk sembunyikan daripada borang pemeriksaan baru.
+                </p>
+            </div>
+
+            <div class="row g-3 mb-4 d-none d-md-flex">
+                <div class="col-4">
                     <div class="statistik-komponen">
                         <span class="ikon hijau"><i class="bi bi-diagram-3-fill"></i></span>
                         <div>
@@ -68,7 +113,7 @@
                     </div>
                 </div>
 
-                <div class="col-6 col-sm-4">
+                <div class="col-4">
                     <div class="statistik-komponen">
                         <span class="ikon biru"><i class="bi bi-check2-square"></i></span>
                         <div>
@@ -78,7 +123,7 @@
                     </div>
                 </div>
 
-                <div class="col-6 col-sm-4">
+                <div class="col-4">
                     <div class="statistik-komponen">
                         <span class="ikon jingga"><i class="bi bi-slash-circle"></i></span>
                         <div>
@@ -90,7 +135,7 @@
             </div>
 
             {{-- Senarai komponen --}}
-            <div class="d-flex flex-column gap-3 mb-4">
+            <div class="d-none d-md-flex flex-column gap-3 mb-4">
                 @forelse ($komponen as $item)
                     @php
                         $bilAktif = count($item->itemAktif());
@@ -115,17 +160,22 @@
                                 </p>
                             </div>
 
-                            <span class="lencana-jadual {{ $aktif ? 'utama' : 'kelabu' }}">
+                            <span class="lencana-jadual {{ $aktif ? 'utama' : 'kelabu' }} d-none d-md-inline-flex" data-lencana-status>
                                 {{ \App\Support\Paparan::label($item->amc_status) }}
                             </span>
+
+                            <div class="form-check form-switch suis-status-tetapan mb-0" title="Aktif / Tidak aktif">
+                                <input class="form-check-input" type="checkbox" role="switch" data-togol-status="{{ route('tetapan.komponen.status', $item) }}" data-modal-sasaran="#modalKomponen{{ $item->amc_id }}" aria-label="Komponen {{ $item->amc_name }} aktif" @checked($aktif)>
+                            </div>
 
                             <button
                                 type="button"
                                 class="btn btn-sm btn-outline-secondary"
                                 data-bs-toggle="modal"
                                 data-bs-target="#modalKomponen{{ $item->amc_id }}"
+                                aria-label="Ubah komponen {{ $item->amc_name }}"
                             >
-                                <i class="bi bi-pencil-square me-1"></i>Ubah
+                                <i class="bi bi-pencil-square"></i><span class="d-none d-sm-inline ms-1">Ubah</span>
                             </button>
                         </div>
 
@@ -158,13 +208,20 @@
                 @endforelse
             </div>
 
-            <div class="makluman-tetapan">
+            <div class="makluman-tetapan d-none d-md-block">
                 <i class="bi bi-info-circle me-2 text-success"></i>
                 Komponen dan item tidak boleh dihapus supaya rekod pemeriksaan lama kekal lengkap.
                 Matikan suis <strong>Aktif</strong> untuk menyembunyikannya daripada borang pemeriksaan baru.
             </div>
         </div>
     </div>
+
+    {{-- Butang tambah terapung (telefon) --}}
+    <button type="button" class="fab-tambah d-md-none" data-bs-toggle="modal" data-bs-target="#modalKomponenBaru" aria-label="Tambah Komponen" title="Tambah Komponen">
+        <i class="bi bi-plus-lg" aria-hidden="true"></i>
+    </button>
+
+    <div class="ruang-fab d-md-none" aria-hidden="true"></div>
 
     {{-- Modal tambah --}}
     @include('tetapan._modal-komponen', [

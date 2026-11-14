@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Bangunan;
+use App\Models\KomponenPenyelenggaraan;
+use App\Models\PegawaiAset;
 use App\Models\Tanah;
 use App\Models\TetapanRujukan;
 use App\Models\TetapanAduan;
@@ -15,6 +17,89 @@ use Illuminate\View\View;
 
 class TetapanController extends Controller
 {
+    /**
+     * Halaman utama tetapan: senarai berkumpulan dengan nilai semasa.
+     */
+    public function index(): View
+    {
+        $awalan = TetapanRujukan::query()
+            ->whereIn('ruj_jenis', ['TANAH', 'BANGUNAN'])
+            ->pluck('ruj_awalan', 'ruj_jenis');
+
+        $akses = TetapanPenyelenggaraan::semasa();
+        $bilPerananAkses = count(array_unique(array_merge(
+            $akses->tpn_peranan_lihat ?? [],
+            $akses->tpn_peranan_isi ?? []
+        ))) + 1; // + SYSTEM
+
+        $tempohAduan = TetapanAduan::query()->value('adu_tempoh_papar_selesai') ?? 30;
+        $tempohPenyewa = TetapanPenyewa::query()->value('tpy_tempoh_hampir_tamat_perjanjian') ?? 30;
+
+        $kumpulan = [
+            'Aset' => [
+                [
+                    'tajuk' => 'Nombor Rujukan',
+                    'penerangan' => 'Format aset tanah dan bangunan',
+                    'ikon' => 'bi-upc-scan',
+                    'tema' => 'hijau',
+                    'url' => route('tetapan.rujukan'),
+                    'nilai' => $awalan->count() === 2 ? 'Ditetapkan' : 'Belum lengkap',
+                ],
+                [
+                    'tajuk' => 'Komponen Penyelenggaraan',
+                    'penerangan' => 'Komponen dan item pemeriksaan',
+                    'ikon' => 'bi-tools',
+                    'tema' => 'jingga',
+                    'url' => route('tetapan.komponen'),
+                    'nilai' => KomponenPenyelenggaraan::query()->where('amc_status', 'ACTIVE')->count() . ' aktif',
+                ],
+                [
+                    'tajuk' => 'Pegawai Aset',
+                    'penerangan' => 'Pegawai pengumpul dan pengesah',
+                    'ikon' => 'bi-person-badge',
+                    'tema' => 'biru',
+                    'url' => route('tetapan.pegawai'),
+                    'nilai' => PegawaiAset::query()->where('pgw_status', 'ACTIVE')->count() . ' aktif',
+                ],
+            ],
+            'Operasi' => [
+                [
+                    'tajuk' => 'Aduan Awam',
+                    'penerangan' => 'Tempoh papar aduan selesai melalui QR',
+                    'ikon' => 'bi-clipboard2-pulse',
+                    'tema' => 'ungu',
+                    'url' => route('tetapan.aduan'),
+                    'nilai' => $tempohAduan . ' hari',
+                ],
+                [
+                    'tajuk' => 'Penyewa',
+                    'penerangan' => 'Tempoh amaran tamat perjanjian',
+                    'ikon' => 'bi-people-fill',
+                    'tema' => 'hijau',
+                    'url' => route('tetapan.penyewa'),
+                    'nilai' => $tempohPenyewa . ' hari',
+                ],
+            ],
+            'Akses' => [
+                [
+                    'tajuk' => 'Akses Penyelenggaraan',
+                    'penerangan' => 'Peranan boleh lihat dan isi',
+                    'ikon' => 'bi-shield-lock',
+                    'tema' => 'jingga',
+                    'url' => route('tetapan.penyelenggaraan'),
+                    'nilai' => $bilPerananAkses . ' peranan',
+                ],
+            ],
+            'Akan Datang' => [
+                ['tajuk' => 'Maklumat Organisasi', 'penerangan' => 'Nama, alamat dan maklumat MDM', 'ikon' => 'bi-buildings', 'url' => null],
+                ['tajuk' => 'Logo Sistem', 'penerangan' => 'Logo pada sistem dan laporan', 'ikon' => 'bi-image', 'url' => null],
+                ['tajuk' => 'Paparan Sistem', 'penerangan' => 'Warna dan rupa sistem', 'ikon' => 'bi-palette-fill', 'url' => null],
+            ],
+        ];
+
+        return view('tetapan.utama', compact('kumpulan'));
+    }
+
     public function rujukan(): View
     {
         $tetapan = TetapanRujukan::query()

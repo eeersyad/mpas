@@ -3,18 +3,20 @@
 @section('tajuk', 'Tetapan Penyewa')
 
 @section('kandungan')
-    <div class="hero-tetapan mb-4">
+    <div class="hero-tetapan mb-4 d-none d-md-block">
         <p class="teks-kecil mb-1">PENGURUSAN SISTEM</p>
         <h1 class="tajuk-halaman mb-2">Tetapan</h1>
     </div>
 
+    @include('tetapan._bar-apl', ['tajuk' => 'Penyewa', 'borang' => 'borangTetapanPenyewa'])
+
     <div class="row g-4 pusat-tetapan">
-        <div class="col-12 col-lg-3">
+        <div class="col-12 col-lg-3 d-none d-md-block">
             @include('tetapan.menu')
         </div>
 
         <div class="col-12 col-lg-9">
-            <form method="POST" action="{{ route('tetapan.penyewa.kemaskini') }}" class="borang-tetapan">
+            <form method="POST" action="{{ route('tetapan.penyewa.kemaskini') }}" id="borangTetapanPenyewa" class="borang-tetapan" data-pantau-ubah>
                 @csrf
                 @method('PUT')
 
@@ -43,16 +45,7 @@
                                 </label>
 
                                 <div class="input-group">
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        max="365"
-                                        id="tpy_tempoh_hampir_tamat_perjanjian"
-                                        name="tpy_tempoh_hampir_tamat_perjanjian"
-                                        value="{{ old('tpy_tempoh_hampir_tamat_perjanjian', $tetapan?->tpy_tempoh_hampir_tamat_perjanjian ?? 30) }}"
-                                        class="form-control @error('tpy_tempoh_hampir_tamat_perjanjian') is-invalid @enderror"
-                                        required
-                                    >
+                                    <input type="number" min="1" max="365" id="tpy_tempoh_hampir_tamat_perjanjian" name="tpy_tempoh_hampir_tamat_perjanjian" value="{{ old('tpy_tempoh_hampir_tamat_perjanjian', $tetapan?->tpy_tempoh_hampir_tamat_perjanjian ?? 30) }}" class="form-control @error('tpy_tempoh_hampir_tamat_perjanjian') is-invalid @enderror" data-stepper required>
                                     <span class="input-group-text">hari</span>
                                 </div>
 

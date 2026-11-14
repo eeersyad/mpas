@@ -1,5 +1,25 @@
 <div class="modal-header">
-    <div>
+    {{-- Bar aplikasi (telefon) --}}
+    <div class="bar-apl-butiran d-md-none">
+        <button type="button" class="butang-bar-apl" data-bs-dismiss="modal" aria-label="Kembali">
+            <i class="bi bi-arrow-left" aria-hidden="true"></i>
+        </button>
+
+        <span class="tajuk-bar-apl">Butiran Bangunan</span>
+
+        <div class="dropdown">
+            <button type="button" class="butang-bar-apl" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Pilihan lain">
+                <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-end menu-kad">
+                <li><a class="dropdown-item" href="{{ route('bangunan.pdf', $bangunan) }}"><i class="bi bi-download" aria-hidden="true"></i>Muat turun PDF</a></li>
+                <li><a class="dropdown-item" href="{{ route('bangunan.edit', $bangunan) }}"><i class="bi bi-pencil-square" aria-hidden="true"></i>Kemaskini</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="d-none d-md-block">
         <p class="teks-kecil mb-1">BUTIRAN ASET BANGUNAN</p>
         <h5 class="modal-title fw-bold">{{ $bangunan->asb_name }}</h5>
         <small class="text-secondary">{{ $bangunan->asb_ref_no }}</small>
@@ -7,13 +27,33 @@
 
     <button
         type="button"
-        class="btn-close"
+        class="btn-close d-none d-md-block"
         data-bs-dismiss="modal"
         aria-label="Tutup"
     ></button>
 </div>
 
 <div class="modal-body p-4">
+    {{-- Ringkasan (telefon) --}}
+    <div class="hero-butiran-apl d-md-none">
+        <h2>{{ $bangunan->asb_name }}</h2>
+        <p>{{ $bangunan->asb_ref_no }}</p>
+
+        <div class="d-flex flex-wrap gap-1">
+            @if ($bangunan->asb_category)
+                <span class="lencana-jadual kelabu">{{ \App\Support\Paparan::label($bangunan->asb_category) }}</span>
+            @endif
+
+            @if ($bangunan->asb_premise_status)
+                <span class="lencana-jadual premis-{{ str_replace('_', '-', strtolower($bangunan->asb_premise_status)) }}">{{ \App\Support\Paparan::label($bangunan->asb_premise_status) }}</span>
+            @endif
+
+            @if ($bangunan->asb_maintenance_status)
+                <span class="lencana-jadual penyelenggaraan-{{ strtolower($bangunan->asb_maintenance_status) }}">{{ \App\Support\Paparan::label($bangunan->asb_maintenance_status) }}</span>
+            @endif
+        </div>
+    </div>
+
     <div class="tab-butiran-melekat">
         <div class="tab-butiran" role="tablist" aria-label="Submenu butiran aset bangunan">
             @foreach ([
@@ -38,6 +78,7 @@
                 >
                     <span>{{ $nombor }}</span>
                     <em class="label-tab">{{ $label }}</em>
+                    <em class="label-tab-pendek">{{ [1 => 'Asas', 2 => 'Lokasi', 3 => 'Fizikal', 4 => 'Kos', 5 => 'Status', 6 => 'Pengesahan', 7 => 'Penyewa', 8 => 'Dokumen'][$nombor] }}</em>
                 </button>
             @endforeach
         </div>
@@ -585,11 +626,15 @@
 </div>
 
 <div class="modal-footer">
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+    <button type="button" class="btn btn-light d-none d-md-inline-block" data-bs-dismiss="modal">
         Tutup
     </button>
 
-    <a href="{{ route('bangunan.edit', $bangunan) }}" class="btn btn-primary">
+    <a href="{{ route('bangunan.pdf', $bangunan) }}" class="btn btn-outline-secondary butang-pdf-apl d-md-none">
+        <i class="bi bi-download me-1"></i>PDF
+    </a>
+
+    <a href="{{ route('bangunan.edit', $bangunan) }}" class="btn btn-primary butang-kemaskini-apl">
         <i class="bi bi-pencil-square me-1"></i>Kemaskini
     </a>
 </div>

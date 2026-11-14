@@ -1,5 +1,25 @@
 <div class="modal-header">
-    <div>
+    {{-- Bar aplikasi (telefon) --}}
+    <div class="bar-apl-butiran d-md-none">
+        <button type="button" class="butang-bar-apl" data-bs-dismiss="modal" aria-label="Kembali">
+            <i class="bi bi-arrow-left" aria-hidden="true"></i>
+        </button>
+
+        <span class="tajuk-bar-apl">Butiran Tanah</span>
+
+        <div class="dropdown">
+            <button type="button" class="butang-bar-apl" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Pilihan lain">
+                <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-end menu-kad">
+                <li><a class="dropdown-item" href="{{ route('tanah.pdf', $tanah) }}"><i class="bi bi-download" aria-hidden="true"></i>Muat turun PDF</a></li>
+                <li><a class="dropdown-item" href="{{ route('tanah.edit', $tanah) }}"><i class="bi bi-pencil-square" aria-hidden="true"></i>Kemaskini</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="d-none d-md-block">
         <p class="teks-kecil mb-1">BUTIRAN ASET TANAH</p>
         <h5 class="modal-title fw-bold">{{ $tanah->asl_ref_no }}</h5>
         <small class="text-secondary">{{ $tanah->asl_lot_no ?: 'Tiada nombor lot' }}</small>
@@ -7,13 +27,33 @@
 
     <button
         type="button"
-        class="btn-close"
+        class="btn-close d-none d-md-block"
         data-bs-dismiss="modal"
         aria-label="Tutup"
     ></button>
 </div>
 
 <div class="modal-body p-4">
+    {{-- Ringkasan (telefon) --}}
+    <div class="hero-butiran-apl d-md-none">
+        <h2>Lot {{ $tanah->asl_lot_no ?: '-' }}</h2>
+        <p>{{ $tanah->asl_ref_no }}</p>
+
+        @if ($tanah->asl_location)
+            <p class="lokasi-hero">{{ $tanah->asl_location }}</p>
+        @endif
+
+        <div class="d-flex flex-wrap gap-1">
+            @if ($tanah->asl_status_hakmilik)
+                <span class="lencana-jadual biru">{{ \App\Support\Paparan::label($tanah->asl_status_hakmilik) }}</span>
+            @endif
+
+            @if ($tanah->asl_status_tanah)
+                <span class="lencana-jadual jenis-{{ str_replace('_', '-', strtolower($tanah->asl_status_tanah)) }}">{{ \App\Support\Paparan::label($tanah->asl_status_tanah) }}</span>
+            @endif
+        </div>
+    </div>
+
     <div class="tab-butiran-melekat">
         <div class="tab-butiran" role="tablist" aria-label="Submenu butiran aset tanah">
             @foreach ([
@@ -31,7 +71,8 @@
                     aria-selected="false"
                 >
                     <span>{{ $nombor }}</span>
-                    {{ $label }}
+                    <em class="label-tab">{{ $label }}</em>
+                    <em class="label-tab-pendek">{{ [1 => 'Tanah', 2 => 'Hakmilik', 3 => 'Peta', 4 => 'Nilai & Cukai', 5 => 'Dokumen'][$nombor] }}</em>
                 </button>
             @endforeach
         </div>
@@ -293,11 +334,15 @@
 </div>
 
 <div class="modal-footer">
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+    <button type="button" class="btn btn-light d-none d-md-inline-block" data-bs-dismiss="modal">
         Tutup
     </button>
 
-    <a href="{{ route('tanah.edit', $tanah) }}" class="btn btn-primary">
+    <a href="{{ route('tanah.pdf', $tanah) }}" class="btn btn-outline-secondary butang-pdf-apl d-md-none">
+        <i class="bi bi-download me-1"></i>PDF
+    </a>
+
+    <a href="{{ route('tanah.edit', $tanah) }}" class="btn btn-primary butang-kemaskini-apl">
         <i class="bi bi-pencil-square me-1"></i>Kemaskini
     </a>
 </div>

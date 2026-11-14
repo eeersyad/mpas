@@ -3,7 +3,16 @@
 @section('tajuk', 'Kemaskini Aset Bangunan')
 
 @section('kandungan')
-    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+    {{-- Bar aplikasi (telefon) --}}
+    <div class="bar-apl-halaman d-md-none">
+        <a href="{{ route('bangunan.index') }}" class="butang-bar-apl" data-keluar-borang aria-label="Batal dan keluar">
+            <i class="bi bi-x-lg" aria-hidden="true"></i>
+        </a>
+
+        <span class="tajuk-bar-apl">Kemaskini Aset Bangunan</span>
+    </div>
+
+    <div class="d-none d-md-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
         <div>
             <p class="teks-kecil mb-1">PENGURUSAN ASET</p>
             <h1 class="tajuk-halaman mb-2">Kemaskini Aset Bangunan</h1>

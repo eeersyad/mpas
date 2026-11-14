@@ -296,36 +296,25 @@
                         @enderror
                     </div>
 
-                    <div class="col-12 col-md-6">
+                    <div class="col-12 col-md-5">
                         <label for="asl_latitude" class="form-label fw-semibold">Latitud</label>
-                        <input
-                            type="number"
-                            step="0.0000001"
-                            class="form-control @error('asl_latitude') is-invalid @enderror"
-                            id="asl_latitude"
-                            name="asl_latitude"
-                            value="{{ old('asl_latitude', $tanah?->asl_latitude) }}"
-                            placeholder="Contoh: 5.206625"
-                        >
+                        <input type="number" step="0.0000001" class="form-control @error('asl_latitude') is-invalid @enderror" id="asl_latitude" name="asl_latitude" value="{{ old('asl_latitude', $tanah?->asl_latitude) }}" placeholder="Contoh: 5.206625">
                         @error('asl_latitude')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
 
-                    <div class="col-12 col-md-6">
+                    <div class="col-12 col-md-5">
                         <label for="asl_longitude" class="form-label fw-semibold">Longitud</label>
-                        <input
-                            type="number"
-                            step="0.0000001"
-                            class="form-control @error('asl_longitude') is-invalid @enderror"
-                            id="asl_longitude"
-                            name="asl_longitude"
-                            value="{{ old('asl_longitude', $tanah?->asl_longitude) }}"
-                            placeholder="Contoh: 103.142013"
-                        >
+                        <input type="number" step="0.0000001" class="form-control @error('asl_longitude') is-invalid @enderror" id="asl_longitude" name="asl_longitude" value="{{ old('asl_longitude', $tanah?->asl_longitude) }}" placeholder="Contoh: 103.142013">
                         @error('asl_longitude')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
+                    </div>
+                    <div class="col-12 col-md-2 d-flex align-items-end">
+                        <button type="button" class="btn btn-outline-primary w-100 butang-pilih-lokasi" data-pilih-lokasi data-lat="#asl_latitude" data-lng="#asl_longitude">
+                            <i class="bi bi-geo-alt-fill me-1"></i>Pilih di Peta
+                        </button>
                     </div>
                 </div>
 

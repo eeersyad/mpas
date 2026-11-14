@@ -123,6 +123,9 @@ Route::middleware('auth')->group(function () {
         ->name('profil.update');
 
     Route::middleware('peranan:SYSTEM')->group(function () {
+        Route::get('/tetapan', [TetapanController::class, 'index'])
+            ->name('tetapan.index');
+
         Route::get('/tetapan/rujukan', [TetapanController::class, 'rujukan'])
             ->name('tetapan.rujukan');
 
@@ -150,6 +153,9 @@ Route::middleware('auth')->group(function () {
         Route::put('/tetapan/komponen/{komponen}', [TetapanKomponenController::class, 'kemaskini'])
             ->name('tetapan.komponen.kemaskini');
 
+        Route::patch('/tetapan/komponen/{komponen}/status', [TetapanKomponenController::class, 'togolStatus'])
+            ->name('tetapan.komponen.status');
+
         Route::get('/tetapan/penyelenggaraan', [TetapanController::class, 'penyelenggaraan'])
             ->name('tetapan.penyelenggaraan');
 
@@ -164,6 +170,9 @@ Route::middleware('auth')->group(function () {
 
         Route::put('/tetapan/pegawai/{pegawai}', [TetapanPegawaiController::class, 'kemaskini'])
             ->name('tetapan.pegawai.kemaskini');
+
+        Route::patch('/tetapan/pegawai/{pegawai}/status', [TetapanPegawaiController::class, 'togolStatus'])
+            ->name('tetapan.pegawai.status');
     });
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');

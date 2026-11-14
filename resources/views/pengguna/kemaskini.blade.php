@@ -8,7 +8,9 @@
         $aktif = $pengguna->usr_status === 'ACTIVE';
     @endphp
 
-    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+    @include('tetapan._bar-apl', ['tajuk' => 'Kemaskini Pengguna', 'borang' => 'borangPengguna', 'kembali' => route('pengguna.index')])
+
+    <div class="d-none d-md-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
         <div>
             <p class="teks-kecil mb-1">PENGURUSAN SISTEM</p>
             <h1 class="tajuk-halaman mb-2">Kemaskini Pengguna</h1>
@@ -23,7 +25,7 @@
     </div>
 
     <div class="row g-4 align-items-start">
-        <div class="col-12 col-xl-4">
+        <div class="col-12 col-xl-4 d-none d-md-block">
             <aside class="kad-profil-identiti">
                 <div class="hiasan-profil"></div>
 
@@ -81,8 +83,8 @@
         </div>
 
         <div class="col-12 col-xl-8">
-            <section class="kad-profil-borang">
-                <div class="kepala-profil-borang">
+            <section class="kad-profil-borang borang-pengguna-apl">
+                <div class="kepala-profil-borang d-none d-md-flex">
                     <span class="ikon-kepala-profil">
                         <i class="bi bi-person-gear"></i>
                     </span>
@@ -94,11 +96,13 @@
                     </div>
                 </div>
 
-                <form method="POST" action="{{ route('pengguna.update', $pengguna) }}">
+                <form method="POST" action="{{ route('pengguna.update', $pengguna) }}" id="borangPengguna" data-pantau-ubah="telefon" data-borang-apl>
                     @csrf
                     @method('PUT')
 
-                    <div class="seksyen-profil">
+                    @include('pengguna._borang-apl', ['pengguna' => $pengguna])
+
+                    <div class="seksyen-profil d-none d-md-block">
                         <div class="tajuk-seksyen-profil">
                             <i class="bi bi-person-vcard"></i>
                             <span>Maklumat Akaun</span>
@@ -214,7 +218,7 @@
                         </div>
                     </div>
 
-                    <div class="seksyen-profil mb-0">
+                    <div class="seksyen-profil mb-0 d-none d-md-block">
                         <div class="tajuk-seksyen-profil">
                             <i class="bi bi-key"></i>
                             <span>Keselamatan Akaun</span>
@@ -289,7 +293,7 @@
                         </div>
                     </div>
 
-                    <div class="tindakan-profil">
+                    <div class="tindakan-profil d-none d-md-flex">
                         <p>
                             <i class="bi bi-shield-check"></i>
                             Perubahan akan dikemaskini serta-merta.
@@ -310,4 +314,7 @@
             </section>
         </div>
     </div>
+
+    @include('tetapan._lembaran-sunting')
+    @include('pengguna._lembaran-apl', ['wajib' => false])
 @endsection

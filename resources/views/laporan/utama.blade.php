@@ -5,20 +5,39 @@
 @section('kandungan')
     <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
         <div>
-            <p class="teks-kecil mb-1">ANALISIS DAN EKSPORT</p>
+            <p class="teks-kecil mb-1 d-none d-md-block">ANALISIS DAN EKSPORT</p>
             <h1 class="tajuk-halaman mb-2">Laporan Sistem</h1>
-            <p class="teks-penerangan mb-0">
+            <p class="teks-penerangan mb-0 d-none d-md-block">
                 Pilih jenis laporan untuk melihat data, membuat penapisan dan mengeksport rekod.
             </p>
         </div>
 
-        <div class="lencana-laporan-utama">
+        <div class="lencana-laporan-utama d-none d-md-inline-flex">
             <i class="bi bi-file-earmark-bar-graph"></i>
             Laporan MPAS
         </div>
     </div>
 
-    <div class="row g-3 g-md-4">
+    {{-- Telefon: senarai gaya tetapan aplikasi --}}
+    @if (count($laporan))
+        <div class="kad-senarai-apl d-md-none">
+            @foreach ($laporan as $item)
+                <a href="{{ route('laporan.papar', $item['kod']) }}" class="baris-laporan-apl tema-{{ $item['tema'] }}">
+                    <span class="ikon-pilihan-laporan"><i class="bi {{ $item['ikon'] }}"></i></span>
+
+                    <span class="teks-baris-laporan">
+                        <strong>{{ $item['tajuk'] }}</strong>
+                        <small>{{ $item['penerangan'] }}</small>
+                    </span>
+
+                    <span class="bilangan-baris-laporan">{{ number_format($item['jumlah']) }}</span>
+                    <i class="bi bi-chevron-right anak-panah-apl" aria-hidden="true"></i>
+                </a>
+            @endforeach
+        </div>
+    @endif
+
+    <div class="row g-3 g-md-4 {{ count($laporan) ? 'd-none d-md-flex' : '' }}">
         @forelse ($laporan as $item)
             <div class="col-12 col-md-6">
                 <a

@@ -8,8 +8,105 @@
             ['jenis' => $jenis],
             request()->except(['page', 'had'])
         );
+
+        // ---------- Paparan telefon ----------
+        $perananKad = [
+            'bangunan' => 'sembunyi|sub|tajuk|lencana|lencana|info=Penyewa aktif:',
+            'tanah' => 'sembunyi|meta|tajuk=Lot|sub|lencana|lencana|info=Keluasan:',
+            'perjanjian_penyewa' => 'sembunyi|tajuk|meta=No. KP:|sub|info=Mula|info=Tamat|lencana',
+            'aduan' => 'sembunyi|info|tajuk|sub|meta=Pengadu:|lencana',
+            'penyelenggaraan' => 'sembunyi|info|tajuk|sub|meta=Pengadu:|lencana',
+        ][$jenis] ?? '';
+
+        $penapisMobile = match ($jenis) {
+            'bangunan' => [
+                'status_premis' => ['label' => 'Status Premis', 'pilihan' => ['SEWA', 'TIDAK_DISEWA', 'PAJAK', 'TIDAK_DIPAJAK', 'KEGUNAAN_MDM', 'DILUPUS']],
+                'status_penyelenggaraan' => ['label' => 'Penyelenggaraan', 'pilihan' => ['RENDAH', 'SEDERHANA', 'KRITIKAL']],
+            ],
+            'tanah' => [
+                'status_hakmilik' => ['label' => 'Status Hakmilik', 'pilihan' => ['HAKMILIK', 'RIZAB', 'STRATA', 'LAIN_LAIN']],
+                'status_tanah' => ['label' => 'Status Tanah', 'pilihan' => ['SEWA', 'TIDAK_DISEWA', 'PAJAK', 'TIDAK_DIPAJAK']],
+            ],
+            'perjanjian_penyewa' => [
+                'status_tempoh' => ['label' => 'Status Tempoh', 'pilihan' => ['HAMPIR_TAMAT' => 'Hampir Tamat', 'SUDAH_TAMAT' => 'Sudah Tamat']],
+            ],
+            default => [
+                'status' => ['label' => 'Status Aduan', 'pilihan' => ['BARU', 'DITERIMA', 'DALAM_PENYELENGGARAAN', 'SELESAI']],
+                'jenis_pengadu' => ['label' => 'Pengadu', 'pilihan' => ['PENYEWA' => 'Penyewa', 'AWAM' => 'Orang Awam']],
+                'julat_tarikh' => ['jenis' => 'tarikh', 'label' => 'Julat Tarikh', 'medan' => ['tarikh_mula' => 'Dari', 'tarikh_tamat' => 'Hingga']],
+            ],
+        };
+
+        $susunMobile = match ($jenis) {
+            'bangunan' => ['rujukan' => 'No. Rujukan', 'nama' => 'Nama', 'status_premis' => 'Status Premis', 'penyelenggaraan' => 'Penyelenggaraan', 'penyewa' => 'Penyewa'],
+            'tanah' => ['rujukan' => 'No. Rujukan', 'lot' => 'No. Lot', 'lokasi' => 'Lokasi', 'keluasan' => 'Keluasan'],
+            'perjanjian_penyewa' => ['penyewa' => 'Penyewa', 'bangunan' => 'Aset', 'mula' => 'Mula', 'tamat' => 'Tamat'],
+            default => ['tarikh' => 'Tarikh', 'aset' => 'Aset', 'kerosakan' => 'Kerosakan', 'status' => 'Status'],
+        };
+
+        $placeholderMobile = match ($jenis) {
+            'bangunan' => 'Cari rujukan, nama atau bandar...',
+            'tanah' => 'Cari rujukan, lot atau lokasi...',
+            'perjanjian_penyewa' => 'Cari penyewa, no. KP atau aset...',
+            default => 'Cari aset, rujukan atau kerosakan...',
+        };
     @endphp
-    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+
+    {{-- ===================== TELEFON: bar aplikasi ===================== --}}
+    <div class="bar-apl-halaman d-md-none">
+        <a href="{{ route('laporan.index') }}" class="butang-bar-apl" aria-label="Kembali ke menu laporan">
+            <i class="bi bi-arrow-left" aria-hidden="true"></i>
+        </a>
+
+        <span class="tajuk-bar-apl text-truncate">
+            {{ $konfigurasi['tajuk'] }}
+            <span class="lencana-bilangan-tajuk">{{ number_format($rekod->total()) }}</span>
+        </span>
+
+        <button type="button" class="butang-bar-apl" data-bs-toggle="offcanvas" data-bs-target="#eksportMobile" aria-controls="eksportMobile" aria-label="Eksport laporan">
+            <i class="bi bi-download" aria-hidden="true"></i>
+        </button>
+    </div>
+
+    <x-penapis-mobile :placeholder="$placeholderMobile" :penapis="$penapisMobile" :susun="$susunMobile" :url-semula="route('laporan.papar', $jenis)" />
+
+    {{-- Bottom sheet eksport (telefon) --}}
+    <div class="d-md-none">
+        <div class="offcanvas offcanvas-bottom panel-penapis-mobile" tabindex="-1" id="eksportMobile" aria-labelledby="eksportMobileTajuk">
+            <div class="pemegang-panel" aria-hidden="true"></div>
+
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="eksportMobileTajuk">Eksport Laporan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Tutup"></button>
+            </div>
+
+            <div class="offcanvas-body pt-0">
+                <p class="small text-secondary mb-3">Eksport mengikut carian dan penapis semasa ({{ number_format($rekod->total()) }} rekod).</p>
+
+                <div class="kad-senarai-apl">
+                    <a href="{{ route('laporan.pdf', $parameterEksport) }}" class="baris-laporan-apl">
+                        <span class="ikon-eksport-apl pdf"><i class="bi bi-file-earmark-pdf"></i></span>
+                        <span class="teks-baris-laporan">
+                            <strong>PDF</strong>
+                            <small>Sesuai untuk cetak dan kongsi</small>
+                        </span>
+                        <i class="bi bi-chevron-right anak-panah-apl" aria-hidden="true"></i>
+                    </a>
+
+                    <a href="{{ route('laporan.excel', $parameterEksport) }}" class="baris-laporan-apl">
+                        <span class="ikon-eksport-apl excel"><i class="bi bi-file-earmark-excel"></i></span>
+                        <span class="teks-baris-laporan">
+                            <strong>Excel</strong>
+                            <small>Sesuai untuk analisis data</small>
+                        </span>
+                        <i class="bi bi-chevron-right anak-panah-apl" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-none d-md-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
         <div>
             <a href="{{ route('laporan.index') }}" class="btn btn-sm btn-outline-secondary mb-3">
                 <i class="bi bi-arrow-left me-1"></i>Kembali ke Laporan
@@ -48,7 +145,7 @@
 
     <form
         method="GET"
-        class="panel-penapis mb-4 {{ in_array($jenis, ['aduan', 'penyelenggaraan'], true) ? 'penapis-laporan-aduan' : '' }}"
+        class="panel-penapis mb-4 d-none d-md-block {{ in_array($jenis, ['aduan', 'penyelenggaraan'], true) ? 'penapis-laporan-aduan' : '' }}"
         data-penapis-automatik
     >
         <input type="hidden" name="had" value="{{ request('had', 15) }}">
@@ -270,7 +367,7 @@
 
     <div class="kad-data">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 jadual-sistem {{ $jenis === 'perjanjian_penyewa' ? 'jadual-laporan-penyewa' : '' }}">
+            <table class="table table-hover align-middle mb-0 jadual-sistem {{ $jenis === 'perjanjian_penyewa' ? 'jadual-laporan-penyewa' : '' }}" data-kad-apl="{{ $perananKad }}">
                 <thead>
                     @if ($jenis === 'bangunan')
                         <tr>

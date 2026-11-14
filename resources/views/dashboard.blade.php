@@ -21,7 +21,7 @@
             $paparCartaDemo = false;
         @endphp
         @if (in_array($user->usr_level, ['SYSTEM', 'BPH']))
-            <div class="col-12 col-md-6 col-xl-3">
+            <div class="col-6 col-md-6 col-xl-3">
                 <a
                     href="{{ route('bangunan.index') }}"
                     class="kad-ringkasan-pautan"
@@ -43,7 +43,7 @@
         @endif
 
         @if (in_array($user->usr_level, ['SYSTEM', 'BPH', 'BP']))
-            <div class="col-12 col-md-6 col-xl-3">
+            <div class="col-6 col-md-6 col-xl-3">
                 <a
                     href="{{ route('tanah.index') }}"
                     class="kad-ringkasan-pautan"
@@ -65,7 +65,7 @@
         @endif
 
         @if (in_array($user->usr_level, ['SYSTEM', 'BPH', 'KJ']))
-            <div class="col-12 col-md-6 col-xl-3">
+            <div class="col-6 col-md-6 col-xl-3">
                 <a
                     href="{{ route('aduan.index', ['aktif' => 1]) }}"
                     class="kad-ringkasan-pautan"
@@ -87,7 +87,7 @@
         @endif
 
         @if (in_array($user->usr_level, ['SYSTEM', 'BPH']))
-            <div class="col-12 col-md-6 col-xl-3">
+            <div class="col-6 col-md-6 col-xl-3">
                 <a
                     href="{{ route('pengguna.index', ['status' => 'ACTIVE']) }}"
                     class="kad-ringkasan-pautan"
@@ -108,7 +108,7 @@
             </div>
         @endif
         @if ($user->usr_level === 'KJ')
-            <div class="col-12 col-md-6 col-xl-3">
+            <div class="col-6 col-md-6 col-xl-3">
                 <a
                     href="{{ route('aduan.index', ['status' => 'DITERIMA']) }}"
                     class="kad-ringkasan-pautan"
@@ -128,7 +128,7 @@
                 </a>
             </div>
 
-            <div class="col-12 col-md-6 col-xl-3">
+            <div class="col-6 col-md-6 col-xl-3">
                 <a
                     href="{{ route('aduan.index', ['status' => 'DALAM_PENYELENGGARAAN']) }}"
                     class="kad-ringkasan-pautan"
@@ -535,6 +535,8 @@
                 Dilupus: 'DILUPUS',
             };
 
+            const skrinKecil = window.matchMedia('(max-width: 575.98px)').matches;
+
             const binaCartaBar = (id, data, warna, tetapanKlik = null) => {
                 const elemen = document.querySelector(id);
 
@@ -549,7 +551,10 @@
                 new Chart(elemen, {
                     type: 'bar',
                     data: {
-                        labels: data.label,
+                        // Telefon: pecah label kepada beberapa baris supaya tidak bertindih
+                        labels: skrinKecil
+                            ? data.label.map((label) => String(label).split(' '))
+                            : data.label,
                         datasets: [{
                             label: 'Jumlah Aset',
                             data: data.nilai,
@@ -616,8 +621,12 @@
                             },
                             x: {
                                 ticks: {
-                                    maxRotation: 35,
+                                    autoSkip: false,
+                                    maxRotation: skrinKecil ? 0 : 35,
                                     minRotation: 0,
+                                    font: {
+                                        size: skrinKecil ? 10 : 12,
+                                    },
                                 },
                                 grid: {
                                     display: false,
@@ -822,6 +831,14 @@
                     padding: [35, 35],
                     maxZoom: 15,
                 });
+            }
+
+            // Kira semula saiz peta selepas layout siap atau berubah,
+            // supaya tiada jubin kelabu (terutamanya di telefon)
+            setTimeout(() => peta.invalidateSize(), 300);
+
+            if ('ResizeObserver' in window) {
+                new ResizeObserver(() => peta.invalidateSize()).observe(elemenPeta);
             }
         });
     </script>

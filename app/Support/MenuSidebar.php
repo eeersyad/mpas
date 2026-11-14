@@ -63,7 +63,7 @@ final class MenuSidebar
             [
                 'label' => 'Tetapan',
                 'icon' => 'bi-gear-fill',
-                'url' => route('tetapan.rujukan'),
+                'url' => route('tetapan.index'),
                 'roles' => ['SYSTEM'],
                 'active' => request()->routeIs('tetapan.*'),
             ],

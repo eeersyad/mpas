@@ -5,21 +5,21 @@
 @section('kandungan')
     <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
         <div>
-            <p class="teks-kecil mb-1">PENGURUSAN ASET</p>
-            <h1 class="tajuk-halaman mb-2">Aset Bangunan</h1>
-            <p class="teks-penerangan mb-0">
+            <p class="teks-kecil mb-1 d-none d-md-block">PENGURUSAN ASET</p>
+            <h1 class="tajuk-halaman mb-2">Aset Bangunan <span class="lencana-bilangan-tajuk d-md-none">{{ number_format($bangunan->total()) }}</span></h1>
+            <p class="teks-penerangan mb-0 d-none d-md-block">
                 Senarai aset bangunan yang telah didaftarkan.
             </p>
         </div>
 
-        <a href="{{ route('bangunan.create') }}" class="btn btn-primary px-3 py-2">
+        <a href="{{ route('bangunan.create') }}" class="btn btn-primary px-3 py-2 d-none d-md-inline-block">
             <i class="bi bi-plus-circle-fill me-2"></i>Daftar Aset Bangunan
         </a>
     </div>
 
     <form
         method="GET"
-        class="panel-penapis mb-4"
+        class="panel-penapis mb-4 d-none d-md-block"
         data-penapis-automatik
     >
         <input type="hidden" name="had" value="{{ request('had', 15) }}">
@@ -49,7 +49,7 @@
                     name="cari"
                     value="{{ request('cari') }}"
                     class="form-control kawalan-penapis"
-                    placeholder="No. rujukan, nama, bandar atau kategori..."
+                    placeholder="No. rujukan, nama, bandar, kategori atau penyewa..."
                 >
             </div>
 
@@ -108,14 +108,25 @@
         </div>
     </form>
 
-    <div class="petunjuk-perjanjian mb-2">
+    @php
+        // Penapis untuk paparan telefon (bottom sheet)
+        $penapisMobile = [
+            'status_premis' => ['label' => 'Status Premis', 'pilihan' => ['SEWA', 'TIDAK_DISEWA', 'PAJAK', 'TIDAK_DIPAJAK', 'KEGUNAAN_MDM', 'DILUPUS']],
+            'status_penyelenggaraan' => ['label' => 'Status Penyelenggaraan', 'pilihan' => ['RENDAH', 'SEDERHANA', 'KRITIKAL']],
+            'perjanjian' => ['label' => 'Perjanjian Penyewa', 'pilihan' => ['TAMAT' => 'Telah tamat', 'HAMPIR' => 'Tamat dalam 3 bulan']],
+        ];
+    @endphp
+
+    <x-penapis-mobile placeholder="Cari rujukan, nama, bandar atau penyewa..." :penapis="$penapisMobile" :susun="['rujukan' => 'No. Rujukan', 'nama' => 'Nama', 'status_premis' => 'Status Premis', 'penyelenggaraan' => 'Penyelenggaraan', 'penyewa' => 'Penyewa']" :url-semula="route('bangunan.index')" />
+
+    <div class="petunjuk-perjanjian mb-2 d-none d-md-flex">
         <span><i class="titik-petunjuk tamat"></i>Perjanjian penyewa telah tamat</span>
         <span><i class="titik-petunjuk hampir"></i>Perjanjian tamat dalam 3 bulan</span>
     </div>
 
     <div class="kad-data">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 jadual-sistem jadual-bangunan">
+            <table class="table table-hover align-middle mb-0 jadual-sistem jadual-bangunan" data-kad-apl="sembunyi|sub|tajuk|meta=No. fail:|lencana|lencana|info|tindakan">
                 <thead>
                     <tr>
                         <th>Bil.</th>
@@ -146,6 +157,15 @@
 
                             <td>
                                 <div class="fw-semibold">{{ $item->asb_name }}</div>
+
+                                @if ($statusPerjanjian['kelas'])
+                                    <div class="d-md-none">
+                                        <span class="tag-perjanjian {{ $item->perjanjian_tamat_count > 0 ? 'tamat' : 'hampir' }}">
+                                            <i class="bi {{ $item->perjanjian_tamat_count > 0 ? 'bi-exclamation-triangle-fill' : 'bi-hourglass-split' }}" aria-hidden="true"></i>
+                                            {{ $item->perjanjian_tamat_count > 0 ? 'Perjanjian tamat' : 'Tamat dalam 3 bulan' }}
+                                        </span>
+                                    </div>
+                                @endif
                                 <div class="mt-2">
                                     <span class="lencana-jadual kelabu">
                                         {{ \App\Support\Paparan::label($item->asb_category) }}
@@ -153,11 +173,19 @@
                                 </div>
                             </td>
 
-                            <td
-                                class="teks-no-fail"
-                                title="{{ $item->asb_no_file }}"
-                            >
+                            <td class="teks-no-fail" title="{{ $item->asb_no_file }}">
                                 {{ $item->asb_no_file ?: '-' }}
+
+                                {{-- Telefon: nama penyewa aktif di bawah no. fail --}}
+                                @if ($item->penyewaAktif->isNotEmpty())
+                                    <span class="penyewa-kad-apl d-md-none">
+                                        <i class="bi bi-people" aria-hidden="true"></i>
+                                        <span class="nama">{{ $item->penyewaAktif->first()->tnt_name }}</span>
+                                        @if ($item->penyewaAktif->count() > 1)
+                                            <span class="lagi">+{{ $item->penyewaAktif->count() - 1 }}</span>
+                                        @endif
+                                    </span>
+                                @endif
                             </td>
 
                             
@@ -202,10 +230,39 @@
                                     <i class="bi bi-people"></i>
                                     {{ $item->penyewa_aktif_count }} penyewa
                                 </span>
+
+                                @if ($item->penyewaAktif->isNotEmpty())
+                                    @php
+                                        $namaPenyewa = $item->penyewaAktif->pluck('tnt_name');
+                                    @endphp
+
+                                    <div class="nama-penyewa-senarai d-none d-md-block" title="{{ $namaPenyewa->implode(', ') }}">
+                                        @foreach ($namaPenyewa->take(2) as $nama)
+                                            <span class="nama">{{ $nama }}</span>
+                                        @endforeach
+
+                                        @if ($namaPenyewa->count() > 2)
+                                            <span class="lagi">+{{ $namaPenyewa->count() - 2 }} lagi</span>
+                                        @endif
+                                    </div>
+                                @endif
                             </td>
 
                             <td class="text-end">
-                                <div class="d-inline-flex gap-2">
+                                {{-- Menu titik tiga (telefon) --}}
+                                <div class="dropdown d-md-none">
+                                    <button type="button" class="btn butang-menu-kad" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Pilihan tindakan">
+                                        <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
+                                    </button>
+
+                                    <ul class="dropdown-menu dropdown-menu-end menu-kad">
+                                        <li><button type="button" class="dropdown-item" data-buka-butiran-kad><i class="bi bi-eye" aria-hidden="true"></i>Lihat butiran</button></li>
+                                        <li><a class="dropdown-item" href="{{ route('bangunan.pdf', $item) }}"><i class="bi bi-download" aria-hidden="true"></i>Muat turun PDF</a></li>
+                                        <li><a class="dropdown-item" href="{{ route('bangunan.edit', $item) }}"><i class="bi bi-pencil-square" aria-hidden="true"></i>Kemaskini</a></li>
+                                    </ul>
+                                </div>
+
+                                <div class="d-none d-md-inline-flex gap-2">
                                     <a
                                         href="{{ route('bangunan.pdf', $item) }}"
                                         class="btn btn-sm btn-outline-secondary"
@@ -254,4 +311,10 @@
             </div>
         </div>
     </div>
+    {{-- Butang tambah terapung (telefon) --}}
+    <a href="{{ route('bangunan.create') }}" class="fab-tambah d-md-none" aria-label="Daftar Aset Bangunan" title="Daftar Aset Bangunan">
+        <i class="bi bi-plus-lg" aria-hidden="true"></i>
+    </a>
+
+    <div class="ruang-fab d-md-none" aria-hidden="true"></div>
 @endsection

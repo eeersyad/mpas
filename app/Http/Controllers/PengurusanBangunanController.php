@@ -32,6 +32,7 @@ class PengurusanBangunanController extends Controller
         $cari = trim((string) $request->input('cari', ''));
         $statusPremis = $request->input('status_premis');
         $statusPenyelenggaraan = $request->input('status_penyelenggaraan');
+        $perjanjian = $request->input('perjanjian');
 
         [$kolumSusunan, $arahSusunan] = Susunan::dapatkan(
             $request,
@@ -49,6 +50,7 @@ class PengurusanBangunanController extends Controller
         );
 
         $bangunan = Bangunan::query()
+            ->with('penyewaAktif:tnt_id,asb_id,tnt_name')
             ->withCount([
                 'penyewa as penyewa_aktif_count' => fn ($query) => $query
                     ->where('tnt_status', 'AKTIF'),
@@ -71,7 +73,8 @@ class PengurusanBangunanController extends Controller
                         ->orWhere('asb_name', 'like', "%{$cari}%")
                         ->orWhere('asb_no_file', 'like', "%{$cari}%")
                         ->orWhere('asb_city', 'like', "%{$cari}%")
-                        ->orWhere('asb_category', 'like', "%{$cari}%");
+                        ->orWhere('asb_category', 'like', "%{$cari}%")
+                        ->orWhereHas('penyewaAktif', fn ($q) => $q->where('tnt_name', 'like', "%{$cari}%"));
                 });
             })
             ->when(
@@ -82,6 +85,15 @@ class PengurusanBangunanController extends Controller
                 $statusPenyelenggaraan,
                 fn ($query, $status) => $query->where('asb_maintenance_status', $status)
             )
+            // Penapis perjanjian penyewa: TAMAT atau HAMPIR (dalam 3 bulan)
+            ->when($perjanjian === 'TAMAT', fn ($query) => $query->whereHas('penyewa', fn ($q) => $q
+                ->where('tnt_status', 'AKTIF')
+                ->whereNotNull('tnt_tamat_perjanjian')
+                ->whereDate('tnt_tamat_perjanjian', '<', today())))
+            ->when($perjanjian === 'HAMPIR', fn ($query) => $query->whereHas('penyewa', fn ($q) => $q
+                ->where('tnt_status', 'AKTIF')
+                ->whereDate('tnt_tamat_perjanjian', '>=', today())
+                ->whereDate('tnt_tamat_perjanjian', '<=', today()->addMonths(3))))
             ->orderBy($kolumSusunan, $arahSusunan)
             ->paginate($had)
             ->withQueryString();

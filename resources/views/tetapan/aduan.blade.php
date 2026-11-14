@@ -3,22 +3,20 @@
 @section('tajuk', 'Tetapan Aduan Awam')
 
 @section('kandungan')
-    <div class="hero-tetapan mb-4">
+    <div class="hero-tetapan mb-4 d-none d-md-block">
         <p class="teks-kecil mb-1">PENGURUSAN SISTEM</p>
         <h1 class="tajuk-halaman mb-2">Tetapan</h1>
     </div>
 
+    @include('tetapan._bar-apl', ['tajuk' => 'Aduan Awam', 'borang' => 'borangTetapanAduan'])
+
     <div class="row g-4 pusat-tetapan">
-        <div class="col-12 col-lg-3">
+        <div class="col-12 col-lg-3 d-none d-md-block">
             @include('tetapan.menu')
         </div>
 
         <div class="col-12 col-lg-9">
-            <form
-                method="POST"
-                action="{{ route('tetapan.aduan.kemaskini') }}"
-                class="borang-tetapan"
-            >
+            <form method="POST" action="{{ route('tetapan.aduan.kemaskini') }}" id="borangTetapanAduan" class="borang-tetapan" data-pantau-ubah>
                 @csrf
                 @method('PUT')
 
@@ -53,19 +51,7 @@
                                 </label>
 
                                 <div class="input-group">
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        max="365"
-                                        id="adu_tempoh_papar_selesai"
-                                        name="adu_tempoh_papar_selesai"
-                                        value="{{ old(
-                                            'adu_tempoh_papar_selesai',
-                                            $tetapan?->adu_tempoh_papar_selesai ?? 30
-                                        ) }}"
-                                        class="form-control @error('adu_tempoh_papar_selesai') is-invalid @enderror"
-                                        required
-                                    >
+                                    <input type="number" min="1" max="365" id="adu_tempoh_papar_selesai" name="adu_tempoh_papar_selesai" value="{{ old('adu_tempoh_papar_selesai', $tetapan?->adu_tempoh_papar_selesai ?? 30) }}" class="form-control @error('adu_tempoh_papar_selesai') is-invalid @enderror" data-stepper required>
 
                                     <span class="input-group-text">hari</span>
                                 </div>

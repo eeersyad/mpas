@@ -17,7 +17,7 @@
         : ($pegawai?->pgw_status ?? 'ACTIVE') === 'ACTIVE';
 @endphp
 
-<div class="modal fade" id="{{ $idModal }}" tabindex="-1" aria-labelledby="{{ $idModal }}Tajuk" aria-hidden="true">
+<div class="modal fade modal-lembaran-apl" id="{{ $idModal }}" tabindex="-1" aria-labelledby="{{ $idModal }}Tajuk" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <form method="POST" action="{{ $action }}" class="modal-content modal-komponen">
             @csrf
@@ -66,7 +66,7 @@
                     <label for="{{ $idModal }}Peranan" class="form-label fw-semibold small">
                         Peranan <span class="text-danger">*</span>
                     </label>
-                    <select id="{{ $idModal }}Peranan" name="pgw_peranan" class="form-select" required>
+                    <select id="{{ $idModal }}Peranan" name="pgw_peranan" class="form-select" data-segmen required>
                         <option value="">-- Pilih Peranan --</option>
 
                         @foreach (\App\Models\PegawaiAset::SENARAI_PERANAN as $peranan)

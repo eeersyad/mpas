@@ -223,16 +223,20 @@
                         @error('asb_gmaps_location') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
-                    <div class="col-12 col-md-6">
-                        <label class="form-label fw-semibold">Latitud</label>
-                        <input type="number" step="0.0000001" name="asb_latitude" class="form-control"
-                            value="{{ old('asb_latitude', $bangunan?->asb_latitude) }}">
+                    <div class="col-12 col-md-5">
+                        <label for="asb_latitude" class="form-label fw-semibold">Latitud</label>
+                        <input type="number" step="0.0000001" min="-90" max="90" id="asb_latitude" name="asb_latitude" class="form-control" value="{{ old('asb_latitude', $bangunan?->asb_latitude) }}" placeholder="Contoh: 5.206625">
                     </div>
 
-                    <div class="col-12 col-md-6">
-                        <label class="form-label fw-semibold">Longitud</label>
-                        <input type="number" step="0.0000001" name="asb_longitude" class="form-control"
-                            value="{{ old('asb_longitude', $bangunan?->asb_longitude) }}">
+                    <div class="col-12 col-md-5">
+                        <label for="asb_longitude" class="form-label fw-semibold">Longitud</label>
+                        <input type="number" step="0.0000001" min="-180" max="180" id="asb_longitude" name="asb_longitude" class="form-control" value="{{ old('asb_longitude', $bangunan?->asb_longitude) }}" placeholder="Contoh: 103.142013">
+                    </div>
+
+                    <div class="col-12 col-md-2 d-flex align-items-end">
+                        <button type="button" class="btn btn-outline-primary w-100 butang-pilih-lokasi" data-pilih-lokasi data-lat="#asb_latitude" data-lng="#asb_longitude">
+                            <i class="bi bi-geo-alt-fill me-1"></i>Pilih di Peta
+                        </button>
                     </div>
 
                     <div class="col-12 col-md-6">

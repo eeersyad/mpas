@@ -33,7 +33,135 @@
             && $aduan->cmp_accepted_by === null;
     @endphp
 
-    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+    @php
+        // Paparan telefon: pautan navigasi & keadaan penunjuk kemajuan
+        $bangunanAduan = $aduan->bangunan;
+        $pautanNavigasi = ($bangunanAduan?->asb_latitude && $bangunanAduan?->asb_longitude)
+            ? 'https://www.google.com/maps/dir/?api=1&destination=' . $bangunanAduan->asb_latitude . ',' . $bangunanAduan->asb_longitude
+            : ($bangunanAduan?->asb_gmaps_location ?: null);
+
+        $namaPengadu = $aduan->penyewa?->tnt_name ?? $aduan->cmp_reporter_name ?? 'Orang Awam';
+        $telefonPengadu = ! $aduan->tnt_id ? $aduan->cmp_reporter_phone : null;
+
+        $langkahMini = [
+            ['label' => 'Diterima', 'keadaan' => 'selesai'],
+            [
+                'label' => $ditolak ? 'Ditolak' : 'Semakan',
+                'keadaan' => $ditolak ? 'ditolak' : ($aduan->cmp_accepted_at ? 'selesai' : 'aktif'),
+            ],
+        ];
+
+        if (! $ditolak) {
+            $langkahMini[] = [
+                'label' => 'Senggara',
+                'keadaan' => $aduan->cmp_maintenance_date || $aduan->cmp_status === 'SELESAI'
+                    ? 'selesai'
+                    : (in_array($aduan->cmp_status, ['DITERIMA', 'DALAM_PENYELENGGARAAN'], true) ? 'aktif' : ''),
+            ];
+        }
+
+        $langkahMini[] = ['label' => 'Selesai', 'keadaan' => $aduan->cmp_status === 'SELESAI' ? 'selesai' : ''];
+    @endphp
+
+    {{-- ===================== TELEFON: bar aplikasi ===================== --}}
+    <div class="bar-apl-halaman d-md-none">
+        <a href="{{ route('aduan.index') }}" class="butang-bar-apl" aria-label="Kembali ke senarai aduan">
+            <i class="bi bi-arrow-left" aria-hidden="true"></i>
+        </a>
+
+        <span class="tajuk-bar-apl">Aduan</span>
+
+        <div class="dropdown">
+            <button type="button" class="butang-bar-apl" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Pilihan lain">
+                <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-end menu-kad">
+                @if ($aduan->cmp_ref_no)
+                    <li><button type="button" class="dropdown-item" data-salin-teks="{{ $aduan->cmp_ref_no }}"><i class="bi bi-copy" aria-hidden="true"></i>Salin no. rujukan</button></li>
+                @endif
+
+                @if ($pautanNavigasi)
+                    <li><a class="dropdown-item" href="{{ $pautanNavigasi }}" target="_blank" rel="noopener"><i class="bi bi-compass" aria-hidden="true"></i>Navigasi ke lokasi</a></li>
+                @endif
+            </ul>
+        </div>
+    </div>
+
+    {{-- ===================== TELEFON: ringkasan ===================== --}}
+    <div class="hero-aduan-apl d-md-none">
+        <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+            <span class="lencana-status-aduan {{ $statusKelas }}">
+                <i class="bi {{ $statusIkon }}"></i>
+                {{ $ditolak ? 'Ditolak' : \App\Support\Paparan::label($aduan->cmp_status) }}
+            </span>
+
+            @if ($aduan->cmp_ref_no)
+                <span class="rujukan-aduan-apl">{{ $aduan->cmp_ref_no }}</span>
+            @endif
+        </div>
+
+        <h2>{{ \App\Support\Paparan::label($aduan->cmp_damage_type) }}</h2>
+        <p class="mb-1">{{ $bangunanAduan?->asb_name ?? 'Aset Bangunan' }}</p>
+        <p class="teks-masa-apl mb-0">
+            <i class="bi bi-clock me-1"></i>{{ $aduan->cmp_received_date?->format('d/m/Y, h:i A') ?? '-' }}
+        </p>
+
+        <ol class="penunjuk-mini-aduan" aria-label="Kemajuan aduan">
+            @foreach ($langkahMini as $item)
+                <li class="{{ $item['keadaan'] }}">
+                    <span class="titik-mini" aria-hidden="true"></span>
+                    <small>{{ $item['label'] }}</small>
+                </li>
+            @endforeach
+        </ol>
+    </div>
+
+    {{-- ===================== TELEFON: pengadu & butiran ===================== --}}
+    <div class="d-md-none mb-3">
+        <p class="label-kumpulan-apl">Pengadu</p>
+        <div class="kad-senarai-apl mb-3">
+            <div class="baris-senarai-apl">
+                <span>Nama</span>
+                <strong>{{ $namaPengadu }}</strong>
+            </div>
+
+            <div class="baris-senarai-apl">
+                <span>Jenis</span>
+                <strong>{{ $aduan->tnt_id ? 'Penyewa' : 'Orang Awam' }}</strong>
+            </div>
+
+            @if ($telefonPengadu)
+                <div class="baris-senarai-apl">
+                    <span>Telefon</span>
+                    <a href="tel:{{ preg_replace('/[^0-9+]/', '', $telefonPengadu) }}" class="butang-hubungi-apl">
+                        <i class="bi bi-telephone-fill me-1"></i>{{ $telefonPengadu }}
+                    </a>
+                </div>
+            @endif
+
+            @if ($aduan->cmp_reporter_email)
+                <div class="baris-senarai-apl">
+                    <span>Emel</span>
+                    <a href="mailto:{{ $aduan->cmp_reporter_email }}" class="text-break">{{ $aduan->cmp_reporter_email }}</a>
+                </div>
+            @endif
+        </div>
+
+        <p class="label-kumpulan-apl">Keterangan</p>
+        <div class="kad-senarai-apl mb-3">
+            <p class="catatan-apl mb-0">{{ $aduan->cmp_note ?: 'Tiada keterangan tambahan diberikan.' }}</p>
+        </div>
+
+        @if ($pautanNavigasi)
+            <a href="{{ $pautanNavigasi }}" target="_blank" rel="noopener" class="btn btn-outline-secondary w-100 butang-navigasi-apl">
+                <i class="bi bi-compass me-1"></i>Navigasi ke lokasi bangunan
+            </a>
+        @endif
+    </div>
+
+
+    <div class="d-none d-md-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
         <div>
             <a href="{{ route('aduan.index') }}" class="btn btn-sm btn-outline-secondary mb-3">
                 <i class="bi bi-arrow-left me-1"></i>Kembali ke Senarai
@@ -52,7 +180,7 @@
         </span>
     </div>
 
-    <div class="hero-aduan mb-4">
+    <div class="hero-aduan mb-4 d-none d-md-flex">
         <div class="hero-aduan-ikon {{ $statusKelas }}">
             <i class="bi bi-buildings-fill"></i>
         </div>
@@ -89,7 +217,7 @@
 
     <div class="row g-4">
         <div class="col-12 col-lg-7">
-            <div class="kad-butiran-aduan mb-4">
+            <div class="kad-butiran-aduan mb-4 d-none d-md-block">
                 <div class="d-flex align-items-center gap-2 mb-4">
                     <div class="ikon-seksyen-aduan">
                         <i class="bi bi-clipboard2-data"></i>
@@ -311,7 +439,12 @@
                 </div>
 
                 @if ($bolehProses)
-                    <div class="panel-tindakan-bph">
+                    <div class="panel-tindakan-bph lembaran-tindakan-apl" id="lembaranTindakanAduan">
+                        <div class="kepala-lembaran-apl d-md-none">
+                            <span class="pemegang-panel" aria-hidden="true"></span>
+                            <button type="button" class="btn-close" data-tutup-lembaran aria-label="Tutup"></button>
+                        </div>
+
                         <h3 class="h6 fw-bold mb-1">Keputusan BPH</h3>
                         <p class="text-secondary small mb-3">
                             Terima aduan untuk dihantar kepada KJ atau tolak jika berpunca daripada pihak pengadu.
@@ -363,7 +496,12 @@
                         </form>
                     </div>
                 @elseif ($bolehSenggara)
-                    <div class="panel-tindakan-kj">
+                    <div class="panel-tindakan-kj lembaran-tindakan-apl" id="lembaranTindakanAduan">
+                        <div class="kepala-lembaran-apl d-md-none">
+                            <span class="pemegang-panel" aria-hidden="true"></span>
+                            <button type="button" class="btn-close" data-tutup-lembaran aria-label="Tutup"></button>
+                        </div>
+
                         <h3 class="h6 fw-bold mb-1">Kemaskini Penyelenggaraan</h3>
                         <p class="text-secondary small mb-3">
                             Rekodkan tindakan KJ selepas kerja penyelenggaraan dijalankan.
@@ -537,6 +675,29 @@
             </div>
         </div>
     </div>
+    {{-- ===================== TELEFON: bar tindakan melekat ===================== --}}
+    @if ($bolehProses)
+        <div class="bar-tindakan-apl d-md-none">
+            <button type="button" class="btn btn-outline-danger" data-buka-lembaran data-fokus="#cmp_completion_note">
+                <i class="bi bi-x-circle me-1"></i>Tolak
+            </button>
+
+            <button type="button" class="btn btn-primary" data-terima-cepat>
+                <i class="bi bi-check-circle me-1"></i>Terima aduan
+            </button>
+        </div>
+
+        <div class="ruang-fab d-md-none" aria-hidden="true"></div>
+    @elseif ($bolehSenggara)
+        <div class="bar-tindakan-apl d-md-none">
+            <button type="button" class="btn btn-primary" data-buka-lembaran>
+                <i class="bi bi-tools me-1"></i>Kemaskini penyelenggaraan
+            </button>
+        </div>
+
+        <div class="ruang-fab d-md-none" aria-hidden="true"></div>
+    @endif
+
     @if ($aduan->gambar->isNotEmpty() || $aduan->gambarSiap->isNotEmpty())
         <div
             class="modal fade modal-lightbox-aduan"
