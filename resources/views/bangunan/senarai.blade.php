@@ -108,6 +108,11 @@
         </div>
     </form>
 
+    <div class="petunjuk-perjanjian mb-2">
+        <span><i class="titik-petunjuk tamat"></i>Perjanjian penyewa telah tamat</span>
+        <span><i class="titik-petunjuk hampir"></i>Perjanjian tamat dalam 3 bulan</span>
+    </div>
+
     <div class="kad-data">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0 jadual-sistem jadual-bangunan">
@@ -126,14 +131,15 @@
 
                 <tbody>
                     @forelse ($bangunan as $item)
-                        <tr
-                            class="baris-boleh-klik"
-                            data-baris-butiran
-                            data-url="{{ route('bangunan.butiran', $item) }}"
-                            tabindex="0"
-                            role="button"
-                            aria-label="Lihat butiran {{ $item->asb_name }}"
-                        >
+                        @php
+                            $statusPerjanjian = match (true) {
+                                $item->perjanjian_tamat_count > 0 => ['kelas' => 'baris-perjanjian-tamat', 'tajuk' => 'Terdapat perjanjian penyewa yang telah tamat'],
+                                $item->perjanjian_hampir_tamat_count > 0 => ['kelas' => 'baris-perjanjian-hampir', 'tajuk' => 'Terdapat perjanjian penyewa yang akan tamat dalam 3 bulan'],
+                                default => ['kelas' => '', 'tajuk' => ''],
+                            };
+                        @endphp
+
+                        <tr class="baris-boleh-klik {{ $statusPerjanjian['kelas'] }}" data-baris-butiran data-url="{{ route('bangunan.butiran', $item) }}" tabindex="0" role="button" aria-label="Lihat butiran {{ $item->asb_name }}" @if ($statusPerjanjian['tajuk']) title="{{ $statusPerjanjian['tajuk'] }}" @endif>
                             <td>{{ $bangunan->firstItem() + $loop->index }}</td>
 
                             <td class="fw-semibold">{{ $item->asb_ref_no }}</td>

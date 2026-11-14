@@ -6,6 +6,7 @@ use App\Http\Requests\SimpanBangunanRequest;
 use App\Models\Aset;
 use App\Models\Bangunan;
 use App\Models\DokumenBangunan;
+use App\Models\PegawaiAset;
 use App\Models\TetapanPenyelenggaraan;
 use App\Services\Rujukan;
 use App\Services\KodQr;
@@ -51,6 +52,18 @@ class PengurusanBangunanController extends Controller
             ->withCount([
                 'penyewa as penyewa_aktif_count' => fn ($query) => $query
                     ->where('tnt_status', 'AKTIF'),
+
+                // Penyewa aktif yang perjanjiannya sudah tamat
+                'penyewa as perjanjian_tamat_count' => fn ($query) => $query
+                    ->where('tnt_status', 'AKTIF')
+                    ->whereNotNull('tnt_tamat_perjanjian')
+                    ->whereDate('tnt_tamat_perjanjian', '<', today()),
+
+                // Penyewa aktif yang perjanjiannya tamat dalam 3 bulan
+                'penyewa as perjanjian_hampir_tamat_count' => fn ($query) => $query
+                    ->where('tnt_status', 'AKTIF')
+                    ->whereDate('tnt_tamat_perjanjian', '>=', today())
+                    ->whereDate('tnt_tamat_perjanjian', '<=', today()->addMonths(3)),
             ])
             ->when($cari !== '', function ($query) use ($cari): void {
                 $query->where(function ($query) use ($cari): void {
@@ -76,9 +89,9 @@ class PengurusanBangunanController extends Controller
         return view('bangunan.senarai', compact('bangunan'));
     }
 
-    public function create(): View
+    public function create(Pemeriksaan $pemeriksaan): View
     {
-        return view('bangunan.daftar');
+        return view('bangunan.daftar', $this->dataBorang($pemeriksaan));
     }
 
     public function store(
@@ -170,7 +183,14 @@ class PengurusanBangunanController extends Controller
             ]);
         }
 
-        return view('bangunan.butiran', compact('bangunan', 'bolehLihatPemeriksaan'));
+        $senaraiPemeriksaan = $bolehLihatPemeriksaan ? $bangunan->penyelenggaraan : collect();
+
+        return view('bangunan.butiran', [
+            'bangunan' => $bangunan,
+            'bolehLihatPemeriksaan' => $bolehLihatPemeriksaan,
+            'pemeriksaanTerkini' => $senaraiPemeriksaan->first(),
+            'sejarahPemeriksaan' => $senaraiPemeriksaan->slice(1)->values(),
+        ]);
     }
 
     public function muatTurunPdf(Bangunan $bangunan)
@@ -219,11 +239,11 @@ class PengurusanBangunanController extends Controller
         );
 
         return $pdf->download(
-            "Aset-Bangunan-{$bangunan->asb_ref_no}.pdf"
+            'Aset-Bangunan-' . $this->namaFailSelamat($bangunan->asb_ref_no) . '.pdf'
         );
     }
 
-    public function edit(Bangunan $bangunan): View
+    public function edit(Bangunan $bangunan, Pemeriksaan $pemeriksaan): View
     {
         $bangunan->load([
             'penyewa',
@@ -231,7 +251,44 @@ class PengurusanBangunanController extends Controller
             'penyelenggaraanTerkini.pemeriksa',
         ]);
 
-        return view('bangunan.kemaskini', compact('bangunan'));
+        return view('bangunan.kemaskini', [
+            'bangunan' => $bangunan,
+            ...$this->dataBorang($pemeriksaan, $bangunan),
+        ]);
+    }
+
+    /**
+     * Data yang diperlukan oleh borang daftar dan kemaskini bangunan.
+     */
+    private function dataBorang(Pemeriksaan $pemeriksaan, ?Bangunan $bangunan = null): array
+    {
+        $komponenPemeriksaan = $pemeriksaan->komponenAktif();
+        $pegawai = PegawaiAset::query()->orderBy('pgw_nama')->get();
+
+        $idPengumpul = old('asb_collector_id', $bangunan?->asb_collector_id);
+        $idPengesah = old('asb_verifier_id', $bangunan?->asb_verifier_id);
+
+        // Pegawai aktif, ditambah pegawai yang sudah dipilih (walaupun kini tidak aktif)
+        $pilihanPegawai = fn (array $peranan, $idDipilih) => $pegawai
+            ->filter(fn ($p) => in_array($p->pgw_peranan, $peranan, true)
+                && ($p->aktif() || (string) $p->pgw_id === (string) $idDipilih))
+            ->values();
+
+        return [
+            'penyewaAktif' => $bangunan?->penyewa->where('tnt_status', 'AKTIF')->values() ?? collect(),
+
+            'komponenPemeriksaan' => $komponenPemeriksaan,
+            'jumlahItemPemeriksaan' => $komponenPemeriksaan->sum(fn ($komponen) => count($komponen->itemAktif())),
+            'bolehIsiPemeriksaan' => TetapanPenyelenggaraan::bolehIsi(auth()->user()),
+            'pemeriksaanTerkini' => $bangunan?->penyelenggaraanTerkini,
+
+            'idPengumpul' => $idPengumpul,
+            'idPengesah' => $idPengesah,
+            'senaraiPengumpul' => $pilihanPegawai(['PENGUMPUL', 'KEDUA_DUA'], $idPengumpul),
+            'senaraiPengesah' => $pilihanPegawai(['PENGESAH', 'KEDUA_DUA'], $idPengesah),
+            'jawatanPengumpul' => $pegawai->firstWhere('pgw_id', (int) $idPengumpul)?->pgw_jawatan ?? '',
+            'jawatanPengesah' => $pegawai->firstWhere('pgw_id', (int) $idPengesah)?->pgw_jawatan ?? '',
+        ];
     }
 
     public function update(
@@ -277,6 +334,17 @@ class PengurusanBangunanController extends Controller
             ->with('berjaya', 'Maklumat aset bangunan berjaya dikemaskini.');
     }
 
+    /**
+     * Tukar aksara yang tidak dibenarkan dalam nama fail (/ \ : * ? " < > | dan ruang) kepada "-".
+     * Contoh: "MDM/PATA/BPH 11/2025(0048)" → "MDM-PATA-BPH-11-2025(0048)"
+     */
+    private function namaFailSelamat(?string $teks): string
+    {
+        $bersih = preg_replace('/[\\\\\/:*?"<>|\s]+/', '-', (string) $teks);
+
+        return trim($bersih, '-') ?: 'tanpa-rujukan';
+    }
+
     private function asingkanMaklumat(array $data): array
     {
         $senaraiPenyewa = $data['penyewa'] ?? [];
@@ -285,6 +353,17 @@ class PengurusanBangunanController extends Controller
 
         unset($data['penyewa'], $data['dokumen'], $data['pemeriksaan']);
         
+        // Salin nama dan jawatan semasa pegawai ke rekod bangunan
+        foreach (['collector', 'verifier'] as $jenis) {
+            $pegawai = filled($data["asb_{$jenis}_id"] ?? null)
+                ? PegawaiAset::find($data["asb_{$jenis}_id"])
+                : null;
+
+            $data["asb_{$jenis}_id"] = $pegawai?->pgw_id;
+            $data["asb_{$jenis}_name"] = $pegawai?->pgw_nama;
+            $data["asb_{$jenis}_position"] = $pegawai?->pgw_jawatan;
+        }
+
         $data['asb_distinct'] = 'Marang';
         $data['asb_state'] = 'Terengganu';
 

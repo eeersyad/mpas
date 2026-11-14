@@ -1680,7 +1680,7 @@ body {
     padding: 1rem;
     border-color: #e5edec;
     color: #304542;
-    font-size: 0.86rem;
+    font-size: 0.82rem;
     vertical-align: middle;
     transition: background-color 180ms ease;
 }
@@ -6210,12 +6210,12 @@ html.sidebar-memuat .butang-toggle i {
 
     .jadual-sistem tbody td {
         padding: 0.7rem 0.6rem;
-        font-size: 0.8rem;
+        font-size: 0.76rem;
     }
 
     .jadual-sistem tbody td small,
     .jadual-sistem tbody td .small {
-        font-size: 0.72rem;
+        font-size: 0.68rem;
     }
 
     /* Pecah baris di antara perkataan sahaja, bukan di tengah perkataan */
@@ -6251,5 +6251,87 @@ html.sidebar-memuat .butang-toggle i {
     .jadual-tanah th:last-child,
     .jadual-tanah td:last-child {
         padding-right: 0.9rem !important;
+    }
+}
+
+/* =========================================================
+   Senarai bangunan: penanda tempoh perjanjian penyewa
+   ========================================================= */
+.jadual-sistem tbody tr.baris-perjanjian-tamat td {
+    background: #fdeeee;
+}
+
+.jadual-sistem tbody tr.baris-perjanjian-tamat:hover td {
+    background: #fbe1e1;
+}
+
+.jadual-sistem tbody tr.baris-perjanjian-tamat:hover {
+    box-shadow: inset 3px 0 0 #d92d20;
+}
+
+.jadual-sistem tbody tr.baris-perjanjian-hampir td {
+    background: #fff8e6;
+}
+
+.jadual-sistem tbody tr.baris-perjanjian-hampir:hover td {
+    background: #fff1cc;
+}
+
+.jadual-sistem tbody tr.baris-perjanjian-hampir:hover {
+    box-shadow: inset 3px 0 0 #f0a500;
+}
+
+.petunjuk-perjanjian {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.4rem 1.25rem;
+    color: #526563;
+    font-size: 0.76rem;
+    font-weight: 600;
+}
+
+.petunjuk-perjanjian span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.titik-petunjuk {
+    display: inline-block;
+    width: 0.8rem;
+    height: 0.8rem;
+    border-radius: 0.2rem;
+}
+
+.titik-petunjuk.tamat {
+    background: #fdeeee;
+    border: 1px solid #f4b4b0;
+}
+
+.titik-petunjuk.hampir {
+    background: #fff8e6;
+    border: 1px solid #f5d27a;
+}
+
+/* =========================================================
+   Kolum Bil.: nombor tidak dipecah, lebar tetap
+   ========================================================= */
+.jadual-sistem th:first-child,
+.jadual-sistem td:first-child {
+    white-space: nowrap;
+    overflow-wrap: normal;
+}
+
+@media (min-width: 992px) {
+    .jadual-bangunan th:first-child,
+    .jadual-bangunan td:first-child,
+    .jadual-tanah th:first-child,
+    .jadual-tanah td:first-child,
+    .jadual-laporan-penyewa th:first-child,
+    .jadual-laporan-penyewa td:first-child {
+        width: 3.5rem;
+        padding-left: 0.75rem;
+        padding-right: 0.5rem;
     }
 }

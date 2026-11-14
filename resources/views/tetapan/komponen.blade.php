@@ -3,13 +3,6 @@
 @section('tajuk', 'Tetapan Komponen Penyelenggaraan')
 
 @section('kandungan')
-    @php
-        $jumlahKomponenAktif = $komponen->where('amc_status', 'ACTIVE')->count();
-        $jumlahItem = $komponen->sum(fn ($item) => count($item->amc_items ?? []));
-        $jumlahItemAktif = $komponen->sum(fn ($item) => count($item->itemAktif()));
-        $turutanSeterusnya = ($komponen->max('amc_order') ?? 0) + 1;
-    @endphp
-
     <div class="hero-tetapan mb-4">
         <p class="teks-kecil mb-1">PENGURUSAN SISTEM</p>
         <h1 class="tajuk-halaman mb-2">Tetapan</h1>
@@ -90,7 +83,7 @@
                         <span class="ikon jingga"><i class="bi bi-slash-circle"></i></span>
                         <div>
                             <p>Item Tidak Aktif</p>
-                            <strong>{{ $jumlahItem - $jumlahItemAktif }}</strong>
+                            <strong>{{ $jumlahItemTidakAktif }}</strong>
                         </div>
                     </div>
                 </div>

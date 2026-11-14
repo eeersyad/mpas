@@ -208,13 +208,7 @@ class TetapanController extends Controller
         $tetapan = TetapanPenyelenggaraan::semasa();
         $peranan = TetapanPenyelenggaraan::PERANAN;
 
-        $namaPeranan = [
-            'BPH' => 'Bahagian Pengurusan Harta',
-            'BP' => 'Bahagian Perancang',
-            'KJ' => 'Jabatan Kejuruteraan',
-        ];
-
-        return view('tetapan.penyelenggaraan', compact('tetapan', 'peranan', 'namaPeranan'));
+        return view('tetapan.penyelenggaraan', compact('tetapan', 'peranan'));
     }
 
     public function kemaskiniPenyelenggaraan(Request $request): RedirectResponse

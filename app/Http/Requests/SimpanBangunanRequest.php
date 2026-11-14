@@ -22,10 +22,6 @@ class SimpanBangunanRequest extends FormRequest
             'asb_add1',
             'asb_add2',
             'asb_city',
-            'asb_collector_name',
-            'asb_collector_position',
-            'asb_verifier_name',
-            'asb_verifier_position',
         ];
 
         $maklumatTajuk = [];
@@ -108,11 +104,9 @@ class SimpanBangunanRequest extends FormRequest
                 'required',
                 'in:SEWA,TIDAK_DISEWA,PAJAK,TIDAK_DIPAJAK,KEGUNAAN_MDM,DILUPUS',
             ],
-            'asb_collector_name' => ['nullable', 'string', 'max:255'],
-            'asb_collector_position' => ['nullable', 'string', 'max:255'],
+            'asb_collector_id' => ['nullable', 'integer', $this->rulePegawai('collector', ['PENGUMPUL', 'KEDUA_DUA'])],
             'asb_collected_at' => ['nullable', 'date'],
-            'asb_verifier_name' => ['nullable', 'string', 'max:255'],
-            'asb_verifier_position' => ['nullable', 'string', 'max:255'],
+            'asb_verifier_id' => ['nullable', 'integer', $this->rulePegawai('verifier', ['PENGESAH', 'KEDUA_DUA'])],
             'asb_verified_at' => ['nullable', 'date'],
 
             'penyewa' => ['nullable', 'array'],
@@ -159,6 +153,25 @@ class SimpanBangunanRequest extends FormRequest
         ];
 
         return array_merge($rules, $this->rulesPemeriksaan());
+    }
+
+    /**
+     * Pegawai mesti wujud, mempunyai peranan yang betul, dan aktif.
+     * Pengecualian: pegawai yang sudah dipilih untuk bangunan ini dibenarkan
+     * walaupun kini tidak aktif, supaya kemaskini lain tidak tersekat.
+     */
+    private function rulePegawai(string $jenis, array $peranan): \Illuminate\Validation\Rules\Exists
+    {
+        $semasa = $this->route('bangunan')?->{"asb_{$jenis}_id"};
+
+        return Rule::exists('tetapan_pegawai', 'pgw_id')
+            ->whereIn('pgw_peranan', $peranan)
+            ->where(function ($query) use ($semasa) {
+                $query->where(function ($q) use ($semasa) {
+                    $q->where('pgw_status', 'ACTIVE')
+                        ->orWhere('pgw_id', $semasa ?? 0);
+                });
+            });
     }
 
     private function rulesPemeriksaan(): array
@@ -211,6 +224,8 @@ class SimpanBangunanRequest extends FormRequest
     {
         return [
             'pemeriksaan.mod.in' => 'Pilihan rekod pemeriksaan tidak sah.',
+            'asb_collector_id.exists' => 'Pegawai pengumpul yang dipilih tidak sah atau tidak aktif.',
+            'asb_verifier_id.exists' => 'Pegawai pengesah yang dipilih tidak sah atau tidak aktif.',
             'pemeriksaan.asm_inspection_date.required' => 'Sila masukkan tarikh pemeriksaan.',
             'pemeriksaan.asm_inspection_date.date' => 'Tarikh pemeriksaan tidak sah.',
             'pemeriksaan.asm_inspection_date.before_or_equal' => 'Tarikh pemeriksaan tidak boleh melebihi hari ini.',

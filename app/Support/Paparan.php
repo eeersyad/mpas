@@ -45,6 +45,10 @@ final class Paparan
             'TELAH_DIBAYAR' => 'Telah dibayar',
             'BELUM_DIBAYAR' => 'Belum dibayar',
 
+            'PENGUMPUL' => 'Pengumpul',
+            'PENGESAH' => 'Pengesah',
+            'KEDUA_DUA' => 'Pengumpul & pengesah',
+
             default => Str::of($nilai)
                 ->replace('_', ' ')
                 ->lower()

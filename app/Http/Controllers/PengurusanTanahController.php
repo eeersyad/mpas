@@ -175,7 +175,7 @@ class PengurusanTanahController extends Controller
         );
 
         return $pdf->download(
-            "Aset-Tanah-{$tanah->asl_ref_no}.pdf"
+            'Aset-Tanah-' . $this->namaFailSelamat($tanah->asl_ref_no) . '.pdf'
         );
     }
 
@@ -250,6 +250,17 @@ class PengurusanTanahController extends Controller
             'berjaya',
             'Dokumen aset tanah berjaya dipadam.'
         );
+    }
+
+    /**
+     * Tukar aksara yang tidak dibenarkan dalam nama fail (/ \ : * ? " < > | dan ruang) kepada "-".
+     * Contoh: "MDM/PATA/BPH 11/2025(0048)" → "MDM-PATA-BPH-11-2025(0048)"
+     */
+    private function namaFailSelamat(?string $teks): string
+    {
+        $bersih = preg_replace('/[\\\\\/:*?"<>|\s]+/', '-', (string) $teks);
+
+        return trim($bersih, '-') ?: 'tanpa-rujukan';
     }
 
     private function asingkanMaklumat(array $data): array

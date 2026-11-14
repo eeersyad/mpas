@@ -71,6 +71,15 @@
             </span>
         </a>
 
+        <a href="{{ route('tetapan.pegawai') }}" class="tetapan-pautan {{ request()->routeIs('tetapan.pegawai*') ? 'aktif' : '' }}">
+            <i class="bi bi-person-badge"></i>
+
+            <span>
+                <strong>Pegawai Aset</strong>
+                <small>Pegawai pengumpul dan pengesah</small>
+            </span>
+        </a>
+
         <div class="pemisah-menu-tetapan"></div>
 
         <span class="tetapan-pautan tidak-aktif">

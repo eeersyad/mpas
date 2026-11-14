@@ -6,6 +6,7 @@ use App\Http\Controllers\PengurusanPenggunaController;
 use App\Http\Controllers\ProfilController;
 use App\Http\Controllers\TetapanController;
 use App\Http\Controllers\TetapanKomponenController;
+use App\Http\Controllers\TetapanPegawaiController;
 use App\Http\Controllers\PengurusanTanahController;
 use App\Http\Controllers\PengurusanBangunanController;
 use App\Http\Controllers\PengurusanAduanController;
@@ -154,6 +155,15 @@ Route::middleware('auth')->group(function () {
 
         Route::put('/tetapan/penyelenggaraan', [TetapanController::class, 'kemaskiniPenyelenggaraan'])
             ->name('tetapan.penyelenggaraan.kemaskini');
+
+        Route::get('/tetapan/pegawai', [TetapanPegawaiController::class, 'index'])
+            ->name('tetapan.pegawai');
+
+        Route::post('/tetapan/pegawai', [TetapanPegawaiController::class, 'simpan'])
+            ->name('tetapan.pegawai.simpan');
+
+        Route::put('/tetapan/pegawai/{pegawai}', [TetapanPegawaiController::class, 'kemaskini'])
+            ->name('tetapan.pegawai.kemaskini');
     });
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');

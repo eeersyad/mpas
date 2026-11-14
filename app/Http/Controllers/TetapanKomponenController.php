@@ -18,7 +18,16 @@ class TetapanKomponenController extends Controller
             ->orderBy('amc_id')
             ->get();
 
-        return view('tetapan.komponen', compact('komponen'));
+        $jumlahItem = $komponen->sum(fn ($item) => count($item->amc_items ?? []));
+        $jumlahItemAktif = $komponen->sum(fn ($item) => count($item->itemAktif()));
+
+        return view('tetapan.komponen', [
+            'komponen' => $komponen,
+            'jumlahKomponenAktif' => $komponen->where('amc_status', 'ACTIVE')->count(),
+            'jumlahItemAktif' => $jumlahItemAktif,
+            'jumlahItemTidakAktif' => $jumlahItem - $jumlahItemAktif,
+            'turutanSeterusnya' => ($komponen->max('amc_order') ?? 0) + 1,
+        ]);
     }
 
     public function simpan(Request $request): RedirectResponse

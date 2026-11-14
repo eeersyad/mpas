@@ -331,12 +331,6 @@
 
             {{-- REKOD PEMERIKSAAN PENYELENGGARAAN --}}
             @if ($bolehLihatPemeriksaan ?? false)
-                @php
-                    $senaraiPemeriksaan = $bangunan->penyelenggaraan;
-                    $pemeriksaanTerkini = $senaraiPemeriksaan->first();
-                    $sejarahPemeriksaan = $senaraiPemeriksaan->slice(1);
-                @endphp
-
                 <div class="col-12">
                     <h6 class="fw-bold mt-2 mb-0">
                         Pemeriksaan Penyelenggaraan Terkini

@@ -1,10 +1,5 @@
 @php
     $bangunan = $bangunan ?? null;
-    $penyewaAktif = $bangunan?->penyewa?->where('tnt_status', 'AKTIF')->values() ?? collect();
-
-    $komponenPemeriksaan = app(\App\Services\Pemeriksaan::class)->komponenAktif();
-    $bolehIsiPemeriksaan = \App\Models\TetapanPenyelenggaraan::bolehIsi(auth()->user());
-    $pemeriksaanTerkini = $bangunan?->penyelenggaraanTerkini;
     $modPemeriksaan = old('pemeriksaan.mod', $bangunan ? 'TIADA' : 'BARU');
 @endphp
 
@@ -513,10 +508,6 @@
                                     'ROSAK' => ['kelas' => 'rosak', 'ikon' => 'bi-exclamation-triangle'],
                                     'TIDAK_BERKAITAN' => ['kelas' => 'tb', 'ikon' => 'bi-dash-circle'],
                                 ];
-
-                                $jumlahItemPemeriksaan = $komponenPemeriksaan->sum(
-                                    fn ($komponen) => count($komponen->itemAktif())
-                                );
                             @endphp
 
                             <div
@@ -768,37 +759,34 @@
                     </div>
 
                     <div class="col-12 col-md-5">
-                        <label for="asb_collector_name" class="form-label">
+                        <label for="asb_collector_id" class="form-label">
                             Nama Pegawai Pengumpul
                         </label>
-                        <input
-                            type="text"
-                            id="asb_collector_name"
-                            name="asb_collector_name"
-                            value="{{ old('asb_collector_name', $bangunan?->asb_collector_name) }}"
-                            class="form-control @error('asb_collector_name') is-invalid @enderror"
-                        >
 
-                        @error('asb_collector_name')
+                        <select id="asb_collector_id" name="asb_collector_id" class="form-select @error('asb_collector_id') is-invalid @enderror" data-pilih-pegawai="#asb_collector_position">
+                            <option value="" data-jawatan="">-- Pilih Pegawai Pengumpul --</option>
+
+                            @foreach ($senaraiPengumpul as $p)
+                                <option value="{{ $p->pgw_id }}" data-jawatan="{{ $p->pgw_jawatan }}" @selected((string) $idPengumpul === (string) $p->pgw_id)>
+                                    {{ $p->pgw_nama }}{{ $p->aktif() ? '' : ' (tidak aktif)' }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        @error('asb_collector_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
+
+                        @if ($senaraiPengumpul->isEmpty())
+                            <div class="form-text text-warning">Tiada pegawai pengumpul. Tambah di Tetapan → Pegawai Aset.</div>
+                        @endif
                     </div>
 
                     <div class="col-12 col-md-4">
                         <label for="asb_collector_position" class="form-label">
                             Jawatan Pegawai Pengumpul
                         </label>
-                        <input
-                            type="text"
-                            id="asb_collector_position"
-                            name="asb_collector_position"
-                            value="{{ old('asb_collector_position', $bangunan?->asb_collector_position) }}"
-                            class="form-control @error('asb_collector_position') is-invalid @enderror"
-                        >
-
-                        @error('asb_collector_position')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <input type="text" id="asb_collector_position" value="{{ $jawatanPengumpul }}" class="form-control bg-light" placeholder="Dipaparkan selepas pegawai dipilih" readonly tabindex="-1">
                     </div>
 
                     <div class="col-12 col-md-3">
@@ -823,37 +811,34 @@
                     </div>
 
                     <div class="col-12 col-md-5">
-                        <label for="asb_verifier_name" class="form-label">
+                        <label for="asb_verifier_id" class="form-label">
                             Nama Pegawai Pengesah
                         </label>
-                        <input
-                            type="text"
-                            id="asb_verifier_name"
-                            name="asb_verifier_name"
-                            value="{{ old('asb_verifier_name', $bangunan?->asb_verifier_name) }}"
-                            class="form-control @error('asb_verifier_name') is-invalid @enderror"
-                        >
 
-                        @error('asb_verifier_name')
+                        <select id="asb_verifier_id" name="asb_verifier_id" class="form-select @error('asb_verifier_id') is-invalid @enderror" data-pilih-pegawai="#asb_verifier_position">
+                            <option value="" data-jawatan="">-- Pilih Pegawai Pengesah --</option>
+
+                            @foreach ($senaraiPengesah as $p)
+                                <option value="{{ $p->pgw_id }}" data-jawatan="{{ $p->pgw_jawatan }}" @selected((string) $idPengesah === (string) $p->pgw_id)>
+                                    {{ $p->pgw_nama }}{{ $p->aktif() ? '' : ' (tidak aktif)' }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        @error('asb_verifier_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
+
+                        @if ($senaraiPengesah->isEmpty())
+                            <div class="form-text text-warning">Tiada pegawai pengesah. Tambah di Tetapan → Pegawai Aset.</div>
+                        @endif
                     </div>
 
                     <div class="col-12 col-md-4">
                         <label for="asb_verifier_position" class="form-label">
                             Jawatan Pegawai Pengesah
                         </label>
-                        <input
-                            type="text"
-                            id="asb_verifier_position"
-                            name="asb_verifier_position"
-                            value="{{ old('asb_verifier_position', $bangunan?->asb_verifier_position) }}"
-                            class="form-control @error('asb_verifier_position') is-invalid @enderror"
-                        >
-
-                        @error('asb_verifier_position')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <input type="text" id="asb_verifier_position" value="{{ $jawatanPengesah }}" class="form-control bg-light" placeholder="Dipaparkan selepas pegawai dipilih" readonly tabindex="-1">
                     </div>
 
                     <div class="col-12 col-md-3">
@@ -884,6 +869,18 @@
                     </button>
                 </div>
             </section>
+
+            @push('skrip')
+                <script>
+                    document.querySelectorAll('[data-pilih-pegawai]').forEach((pilihan) => {
+                        const medanJawatan = document.querySelector(pilihan.dataset.pilihPegawai);
+
+                        pilihan.addEventListener('change', () => {
+                            medanJawatan.value = pilihan.selectedOptions[0]?.dataset.jawatan ?? '';
+                        });
+                    });
+                </script>
+            @endpush
 
             {{-- Langkah 7: Maklumat penyewa --}}
             <section class="langkah-borang" data-langkah="7">

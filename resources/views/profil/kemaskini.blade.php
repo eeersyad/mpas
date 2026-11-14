@@ -4,13 +4,6 @@
 
 @section('kandungan')
     @php
-        $namaPeranan = [
-            'SYSTEM' => 'Super Admin',
-            'BPH' => 'Bahagian Pengurusan Harta',
-            'BP' => 'Bahagian Perancang',
-            'KJ' => 'Jabatan Kejuruteraan',
-        ];
-
         $inisial = strtoupper(substr($pengguna->usr_name, 0, 1));
     @endphp
 

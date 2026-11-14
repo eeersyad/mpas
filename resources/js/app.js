@@ -881,9 +881,33 @@ document.addEventListener('DOMContentLoaded', () => {
     */
     const butangSalinPautan = document.querySelector('[data-salin-pautan]');
 
+    // Salin teks: guna Clipboard API jika ada (HTTPS / localhost),
+    // jika tidak guna cara lama (sesuai untuk http:// dengan alamat IP)
+    const salinTeks = async (teks) => {
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(teks);
+            return;
+        }
+
+        const medan = document.createElement('textarea');
+        medan.value = teks;
+        medan.setAttribute('readonly', '');
+        medan.style.position = 'fixed';
+        medan.style.top = '-9999px';
+        document.body.appendChild(medan);
+        medan.select();
+
+        const berjaya = document.execCommand('copy');
+        medan.remove();
+
+        if (! berjaya) {
+            throw new Error('Salin gagal');
+        }
+    };
+
     butangSalinPautan?.addEventListener('click', async () => {
         try {
-            await navigator.clipboard.writeText(butangSalinPautan.dataset.pautan);
+            await salinTeks(butangSalinPautan.dataset.pautan);
 
             Swal.fire({
                 icon: 'success',
