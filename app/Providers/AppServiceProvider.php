@@ -6,6 +6,7 @@ use App\Support\MenuSidebar;
 use App\Support\Peranan;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Carbon\Carbon;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Schema;
 
@@ -27,6 +28,9 @@ class AppServiceProvider extends ServiceProvider
         Schema::defaultStringLength(191);
 
         Paginator::useBootstrapFive();
+
+        // Masa relatif dalam Bahasa Melayu, contoh "16 jam yang lalu"
+        Carbon::setLocale('ms');
 
         // Nama peranan tersedia dalam semua view sebagai $namaPeranan
         View::share('namaPeranan', Peranan::NAMA);
