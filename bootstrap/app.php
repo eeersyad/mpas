@@ -19,8 +19,14 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(\App\Http\Middleware\HeaderKeselamatan::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        // Gantikan halaman "419 Page Expired" dengan mesej yang mesra pengguna
-        $exceptions->render(function (\Illuminate\Session\TokenMismatchException $e, \Illuminate\Http\Request $request) {
+        // Gantikan halaman "419 Page Expired" dengan mesej yang mesra pengguna.
+        // Nota: Laravel menukar TokenMismatchException kepada HttpException (419)
+        // SEBELUM callback render dipanggil, jadi tangkap HttpException berstatus 419.
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\HttpException $e, \Illuminate\Http\Request $request) {
+            if ($e->getStatusCode() !== 419) {
+                return null;
+            }
+
             if ($request->expectsJson()) {
                 return response()->json([
                     'mesej' => 'Sesi anda telah tamat. Sila log masuk semula.',

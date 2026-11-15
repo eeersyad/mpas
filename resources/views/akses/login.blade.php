@@ -23,7 +23,7 @@
                         </div>
                     </div>
 
-                    <form method="POST" action="{{ route('authenticate') }}">
+                    <form method="POST" action="{{ route('authenticate') }}" data-borang-log-masuk>
                         @csrf
 
                         <div class="mb-3">
@@ -101,4 +101,61 @@
             </div>
         </div>
     </main>
+
+    <script>
+        // Elak "419 Page Expired": ambil token CSRF terkini sebelum log masuk.
+        // (Token lama boleh tamat jika halaman dibiarkan lama, atau sesi ditukar oleh tab lain.)
+        (() => {
+            const borang = document.querySelector('[data-borang-log-masuk]');
+
+            if (! borang) {
+                return;
+            }
+
+            // Halaman dipulihkan daripada cache pelayar (butang Back): muat semula
+            window.addEventListener('pageshow', (event) => {
+                if (event.persisted) {
+                    window.location.reload();
+                }
+            });
+
+            let sedia = false;
+
+            borang.addEventListener('submit', async (event) => {
+                if (sedia) {
+                    return;
+                }
+
+                event.preventDefault();
+
+                try {
+                    const respons = await fetch(@json(route('login')), {
+                        credentials: 'same-origin',
+                        headers: { Accept: 'text/html' },
+                        cache: 'no-store',
+                    });
+
+                    // Sudah log masuk (contoh: di tab lain) → terus ke halaman dituju
+                    if (respons.redirected && ! respons.url.includes('/login')) {
+                        window.location.href = respons.url;
+                        return;
+                    }
+
+                    const html = await respons.text();
+                    const token = new DOMParser()
+                        .parseFromString(html, 'text/html')
+                        .querySelector('input[name="_token"]')?.value;
+
+                    if (token) {
+                        borang.querySelector('input[name="_token"]').value = token;
+                    }
+                } catch (ralat) {
+                    // Tiada sambungan: hantar dengan token sedia ada
+                }
+
+                sedia = true;
+                borang.requestSubmit ? borang.requestSubmit() : borang.submit();
+            });
+        })();
+    </script>
 @endsection

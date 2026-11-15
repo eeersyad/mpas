@@ -426,7 +426,11 @@
             // Selaraskan dengan tab lain
             window.addEventListener('storage', (event) => {
                 if (event.key === KUNCI_KELUAR) {
-                    window.location.href = URL_LOGIN;
+                    // Beri masa tab yang log keluar selesai dahulu, supaya halaman
+                    // log masuk di tab ini menerima token sesi yang baharu
+                    setTimeout(() => {
+                        window.location.href = URL_LOGIN;
+                    }, 2500);
                 }
 
                 if (event.key === KUNCI_SERVER && amaranDibuka) {
