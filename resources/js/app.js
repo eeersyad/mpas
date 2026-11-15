@@ -434,6 +434,17 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
+        // Buka terus langkah tertentu, contoh: /aset-tanah/5/edit?langkah=5
+        const langkahUrlTanah = Number(new URLSearchParams(window.location.search).get('langkah'));
+
+        if (langkahUrlTanah > 1 && langkahUrlTanah <= panel.length) {
+            window.setTimeout(() => tukarLangkah(langkahUrlTanah - 1, 'seterusnya'), 50);
+            // Buang ?langkah= daripada URL supaya refresh bermula seperti biasa
+            const urlBersih = new URL(window.location.href);
+            urlBersih.searchParams.delete('langkah');
+            window.history.replaceState(window.history.state, '', urlBersih);
+        }
+
         /*
         |--------------------------------------------------------------------------
         | Dokumen tanah dinamik
@@ -1724,6 +1735,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 240);
         }, 240);
     };
+
+    // Buka terus langkah tertentu, contoh: /aset-bangunan/5/edit?langkah=8
+    const langkahUrlBangunan = Number(new URLSearchParams(window.location.search).get('langkah'));
+
+    if (langkahUrlBangunan > 1 && langkahUrlBangunan <= panelBangunan.length) {
+        window.setTimeout(() => paparkanLangkahBangunan(langkahUrlBangunan, 'kanan'), 50);
+        // Buang ?langkah= daripada URL supaya refresh bermula seperti biasa
+        const urlBersih = new URL(window.location.href);
+        urlBersih.searchParams.delete('langkah');
+        window.history.replaceState(window.history.state, '', urlBersih);
+    }
 
     const sahkanLangkahBangunan = () => {
         const langkahAktif = borangBangunan.querySelector(

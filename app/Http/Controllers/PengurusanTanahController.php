@@ -223,10 +223,10 @@ class PengurusanTanahController extends Controller
 
         $dokumen->delete();
 
-        return back()->with(
-            'berjaya',
-            'Dokumen aset tanah berjaya dipadam.'
-        );
+        // Kembali terus ke langkah Dokumen (langkah 5) dalam borang kemaskini
+        return redirect()
+            ->to(route('tanah.edit', $tanah) . '?langkah=5')
+            ->with('berjaya', 'Dokumen aset tanah berjaya dipadam.');
     }
 
     /**

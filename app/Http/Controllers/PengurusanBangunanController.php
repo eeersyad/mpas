@@ -482,9 +482,9 @@ class PengurusanBangunanController extends Controller
 
         $dokumen->delete();
 
-        return back()->with(
-            'berjaya',
-            'Dokumen aset bangunan berjaya dipadam.'
-        );
+        // Kembali terus ke langkah Dokumen (langkah 8) dalam borang kemaskini
+        return redirect()
+            ->to(route('bangunan.edit', $bangunan) . '?langkah=8')
+            ->with('berjaya', 'Dokumen aset bangunan berjaya dipadam.');
     }
 }
