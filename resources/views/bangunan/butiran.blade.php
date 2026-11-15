@@ -641,10 +641,6 @@
 </div>
 
 <div class="modal-footer">
-    <button type="button" class="btn btn-light d-none d-md-inline-block" data-bs-dismiss="modal">
-        Tutup
-    </button>
-
     {{-- Telefon: bottom sheet --}}
     <button type="button" class="btn btn-outline-secondary butang-pdf-apl d-md-none" data-lembaran-muat-turun data-pdf="{{ route('bangunan.pdf', $bangunan) }}" data-zip="{{ route('bangunan.zip', $bangunan) }}">
         <i class="bi bi-download me-1"></i>Muat Turun
