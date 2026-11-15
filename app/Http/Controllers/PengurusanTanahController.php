@@ -6,6 +6,7 @@ use App\Http\Requests\SimpanTanahRequest;
 use App\Models\Aset;
 use App\Models\DokumenTanah;
 use App\Models\Tanah;
+use App\Services\PdfAset;
 use App\Services\Rujukan;
 use App\Support\Jadual;
 use App\Support\Susunan;
@@ -131,54 +132,30 @@ class PengurusanTanahController extends Controller
         return view('tanah.butiran', compact('tanah'));
     }
 
-    public function muatTurunPdf(Tanah $tanah)
+    public function muatTurunPdf(Tanah $tanah, PdfAset $pdfAset)
     {
-        $pdf = Pdf::loadView('pdf.aset-butiran', [
-            'jenis' => 'tanah',
-            'aset' => $tanah,
-            'tarikh' => now(),
-            'logoMdm' => base64_encode(
-                file_get_contents(public_path('images/logo-mdm.png'))
-            ),
-            'logoMpas' => base64_encode(
-                file_get_contents(public_path('images/logo-mpas-2.png'))
-            ),
-        ])
-            ->setPaper('a4', 'landscape');
-
-        $pdf->render();
-
-        $dompdf = $pdf->getDomPDF();
-        $kanvas = $dompdf->getCanvas();
-
-        $font = $dompdf->getFontMetrics()->getFont(
-            'DejaVu Sans',
-            'normal'
-        );
-
-        $kanvas->page_text(
-            24,
-            570,
-            'Dokumen ini dijana oleh MPAS untuk kegunaan rasmi Majlis Daerah Marang.',
-            $font,
-            7,
-            [0.33, 0.33, 0.33]
-        );
-
-        $kanvas->page_text(
-            742,
-            570,
-            'Halaman {PAGE_NUM} / {PAGE_COUNT}',
-            $font,
-            7,
-            [0.33, 0.33, 0.33]
-        );
-
-        return $pdf->download(
-            'Aset-Tanah-' . $this->namaFailSelamat($tanah->asl_ref_no) . '.pdf'
-        );
+        return response($pdfAset->janaMaklumat('tanah', $tanah), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="Aset-Tanah-' . $this->namaFailSelamat($tanah->asl_ref_no) . '.pdf"',
+        ]);
     }
 
+
+    /**
+     * ZIP: maklumat aset (PDF) + semua dokumen asal.
+     */
+    public function muatTurunZip(Tanah $tanah, PdfAset $pdfAset)
+    {
+        try {
+            $laluan = $pdfAset->janaZip('tanah', $tanah);
+        } catch (RuntimeException $ralat) {
+            return back()->with('ralat', $ralat->getMessage());
+        }
+
+        return response()
+            ->download($laluan, 'Aset-Tanah-' . $this->namaFailSelamat($tanah->asl_ref_no) . '.zip', ['Content-Type' => 'application/zip'])
+            ->deleteFileAfterSend();
+    }
     public function edit(Tanah $tanah): View
     {
         $tanah->load('dokumen.dimuatNaikOleh');

@@ -2101,20 +2101,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, true);
 
-    // Kunci butang bila borang benar-benar dihantar
-    document.addEventListener('formdata', (event) => {
+    // Kunci butang bila borang benar-benar dihantar.
+    // Nota: JANGAN guna event 'formdata' — ia juga berlaku setiap kali skrip membaca
+    // borang dengan new FormData() (contoh: simpan draf automatik), lalu butang terkunci.
+    document.addEventListener('submit', (event) => {
         const borang = event.target;
 
         if (! borangPerluDikunci(borang)) {
             return;
         }
 
-        borang.dataset.sedangHantar = '1';
-
         const butangUtama = borang.butangDiklik ?? borang.querySelector(pemilihButangHantar);
 
-        // Tunggu senarai data borang siap dibina, kemudian kunci
+        // Tunggu semua pendengar submit lain selesai; jika ada yang membatalkan
+        // (pengesahan / dialog), jangan kunci butang.
         setTimeout(() => {
+            if (event.defaultPrevented) {
+                return;
+            }
+
+            borang.dataset.sedangHantar = '1';
+
             borang.querySelectorAll(pemilihButangHantar).forEach((butang) => {
                 butang.disabled = true;
             });
@@ -4105,6 +4112,92 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         modalBs.hide();
+    });
+});
+
+/* Muat turun (PDF / ZIP): beri maklum balas kerana fail mengambil masa untuk dijana */
+document.addEventListener('click', (event) => {
+    const pautan = event.target.closest('a[data-muat-turun-berat]');
+
+    if (! pautan) {
+        return;
+    }
+
+    window.Swal?.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'info',
+        title: 'Menyediakan fail…',
+        text: 'Muat turun akan bermula secara automatik.',
+        showConfirmButton: false,
+        timer: 4000,
+        timerProgressBar: true,
+    });
+});
+
+/* Bottom sheet muat turun (telefon): [data-lembaran-muat-turun data-pdf data-zip] */
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof bootstrap === 'undefined') {
+        return;
+    }
+
+    const lembaran = document.createElement('div');
+    lembaran.className = 'offcanvas offcanvas-bottom panel-penapis-mobile lembaran-muat-turun';
+    lembaran.id = 'lembaranMuatTurun';
+    lembaran.tabIndex = -1;
+    lembaran.setAttribute('aria-labelledby', 'lembaranMuatTurunTajuk');
+    lembaran.innerHTML = `
+        <div class="pemegang-panel" aria-hidden="true"></div>
+
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="lembaranMuatTurunTajuk">Muat Turun</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Tutup"></button>
+        </div>
+
+        <div class="offcanvas-body pt-0">
+            <div class="kad-senarai-apl">
+                <a href="#" class="baris-laporan-apl" data-pautan-pdf data-muat-turun-berat>
+                    <span class="ikon-eksport-apl pdf"><i class="bi bi-file-earmark-pdf"></i></span>
+                    <span class="teks-baris-laporan">
+                        <strong>Maklumat aset (PDF)</strong>
+                        <small>Maklumat aset beserta gambar aset</small>
+                    </span>
+                    <i class="bi bi-chevron-right anak-panah-apl" aria-hidden="true"></i>
+                </a>
+
+                <a href="#" class="baris-laporan-apl" data-pautan-zip data-muat-turun-berat>
+                    <span class="ikon-eksport-apl zip"><i class="bi bi-file-earmark-zip"></i></span>
+                    <span class="teks-baris-laporan">
+                        <strong>Maklumat + dokumen asal (ZIP)</strong>
+                        <small>PDF maklumat dan semua dokumen yang dimuat naik</small>
+                    </span>
+                    <i class="bi bi-chevron-right anak-panah-apl" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>`;
+
+    document.body.appendChild(lembaran);
+
+    const offcanvas = bootstrap.Offcanvas.getOrCreateInstance(lembaran);
+    const pautanPdf = lembaran.querySelector('[data-pautan-pdf]');
+    const pautanZip = lembaran.querySelector('[data-pautan-zip]');
+
+    // Delegasi: butang mungkin berada dalam kandungan modal yang dimuat kemudian
+    document.addEventListener('click', (event) => {
+        const butang = event.target.closest('[data-lembaran-muat-turun]');
+
+        if (! butang) {
+            return;
+        }
+
+        event.preventDefault();
+        pautanPdf.href = butang.dataset.pdf;
+        pautanZip.href = butang.dataset.zip;
+        offcanvas.show();
+    });
+
+    [pautanPdf, pautanZip].forEach((pautan) => {
+        pautan.addEventListener('click', () => window.setTimeout(() => offcanvas.hide(), 150));
     });
 });
 

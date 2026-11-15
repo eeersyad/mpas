@@ -9484,7 +9484,8 @@ button.baris-tetapan-medan:active,
 }
 
 /* Warna tema sistem (hijau MPAS) */
-.butang-pilih-lokasi.btn-outline-primary {
+.butang-pilih-lokasi.btn-outline-primary,
+.butang-lihat-dokumen.btn-outline-primary {
     --bs-btn-color: #168a7e;
     --bs-btn-border-color: #168a7e;
     --bs-btn-hover-color: #ffffff;
@@ -9498,7 +9499,9 @@ button.baris-tetapan-medan:active,
 }
 
 .butang-pilih-lokasi.btn-outline-primary:hover,
-.butang-pilih-lokasi.btn-outline-primary:active {
+.butang-pilih-lokasi.btn-outline-primary:active,
+.butang-lihat-dokumen.btn-outline-primary:hover,
+.butang-lihat-dokumen.btn-outline-primary:active {
     background: var(--bs-btn-hover-bg);
 }
 
@@ -9908,3 +9911,19 @@ button.baris-tetapan-medan:active,
         font-size: 14.5px;
     }
 }
+
+/* Bottom sheet muat turun: mesti di atas modal butiran aset */
+.lembaran-muat-turun {
+    z-index: 1075;
+}
+
+body:has(.lembaran-muat-turun.show) .offcanvas-backdrop,
+body:has(.lembaran-muat-turun.showing) .offcanvas-backdrop {
+    z-index: 1070;
+}
+
+.ikon-eksport-apl.zip {
+    background: #fef3c7;
+    color: #b45309;
+}
+

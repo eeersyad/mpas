@@ -82,6 +82,22 @@
             margin-top: 14px;
             page-break-inside: avoid;
         }
+        .halaman-gambar {
+            page-break-before: always;
+        }
+        .kotak-gambar {
+            margin-top: 8px;
+            text-align: center;
+        }
+        .kotak-gambar img {
+            border: 1px solid #c9c9c9;
+        }
+        .kapsyen-gambar {
+            color: #555555;
+            font-size: 8px;
+            margin-top: 5px;
+            text-align: center;
+        }
 
         .tajuk-seksyen {
             background: #eeeeee;
@@ -466,5 +482,20 @@
             </table>
         </div>
     @endif
+
+    {{-- Dokumen berformat gambar (Gambar aset dahulu, kemudian Pelan, Geran, ...): satu setiap halaman --}}
+    @foreach ($gambarAset ?? [] as $gambar)
+        <div class="halaman-gambar">
+            <div class="tajuk-seksyen">{{ $gambar['tajuk'] }}</div>
+
+            <div class="kotak-gambar">
+                <img src="data:image/jpeg;base64,{{ $gambar['data'] }}" width="{{ $gambar['lebar'] }}" height="{{ $gambar['tinggi'] }}" alt="{{ $gambar['tajuk'] }}">
+            </div>
+
+            <div class="kapsyen-gambar">
+                {{ $gambar['nama'] }}{{ $gambar['tarikh'] ? ' · Dimuat naik ' . $gambar['tarikh']->format('d/m/Y') : '' }}
+            </div>
+        </div>
+    @endforeach
 </body>
 </html>

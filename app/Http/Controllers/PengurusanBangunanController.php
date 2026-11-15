@@ -8,6 +8,7 @@ use App\Models\Bangunan;
 use App\Models\DokumenBangunan;
 use App\Models\PegawaiAset;
 use App\Models\TetapanPenyelenggaraan;
+use App\Services\PdfAset;
 use App\Services\Rujukan;
 use App\Services\KodQr;
 use App\Services\Pemeriksaan;
@@ -205,56 +206,30 @@ class PengurusanBangunanController extends Controller
         ]);
     }
 
-    public function muatTurunPdf(Bangunan $bangunan)
+    public function muatTurunPdf(Bangunan $bangunan, PdfAset $pdfAset)
     {
-        $bangunan->load('penyewa');
-
-        $pdf = Pdf::loadView('pdf.aset-butiran', [
-            'jenis' => 'bangunan',
-            'aset' => $bangunan,
-            'tarikh' => now(),
-            'logoMdm' => base64_encode(
-                file_get_contents(public_path('images/logo-mdm.png'))
-            ),
-            'logoMpas' => base64_encode(
-                file_get_contents(public_path('images/logo-mpas-2.png'))
-            ),
-        ])
-            ->setPaper('a4', 'landscape');
-
-        $pdf->render();
-
-        $dompdf = $pdf->getDomPDF();
-        $kanvas = $dompdf->getCanvas();
-
-        $font = $dompdf->getFontMetrics()->getFont(
-            'DejaVu Sans',
-            'normal'
-        );
-
-        $kanvas->page_text(
-            24,
-            570,
-            'Dokumen ini dijana oleh MPAS untuk kegunaan rasmi Majlis Daerah Marang.',
-            $font,
-            7,
-            [0.33, 0.33, 0.33]
-        );
-
-        $kanvas->page_text(
-            742,
-            570,
-            'Halaman {PAGE_NUM} / {PAGE_COUNT}',
-            $font,
-            7,
-            [0.33, 0.33, 0.33]
-        );
-
-        return $pdf->download(
-            'Aset-Bangunan-' . $this->namaFailSelamat($bangunan->asb_ref_no) . '.pdf'
-        );
+        return response($pdfAset->janaMaklumat('bangunan', $bangunan), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="Aset-Bangunan-' . $this->namaFailSelamat($bangunan->asb_ref_no) . '.pdf"',
+        ]);
     }
 
+
+    /**
+     * ZIP: maklumat aset (PDF) + semua dokumen asal.
+     */
+    public function muatTurunZip(Bangunan $bangunan, PdfAset $pdfAset)
+    {
+        try {
+            $laluan = $pdfAset->janaZip('bangunan', $bangunan);
+        } catch (RuntimeException $ralat) {
+            return back()->with('ralat', $ralat->getMessage());
+        }
+
+        return response()
+            ->download($laluan, 'Aset-Bangunan-' . $this->namaFailSelamat($bangunan->asb_ref_no) . '.zip', ['Content-Type' => 'application/zip'])
+            ->deleteFileAfterSend();
+    }
     public function edit(Bangunan $bangunan, Pemeriksaan $pemeriksaan): View
     {
         $bangunan->load([

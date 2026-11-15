@@ -13,7 +13,7 @@
             </button>
 
             <ul class="dropdown-menu dropdown-menu-end menu-kad">
-                <li><a class="dropdown-item" href="{{ route('tanah.pdf', $tanah) }}"><i class="bi bi-download" aria-hidden="true"></i>Muat turun PDF</a></li>
+                @include('pdf._item-muat-turun-apl', ['jenis' => 'tanah', 'aset' => $tanah])
                 <li><a class="dropdown-item" href="{{ route('tanah.edit', $tanah) }}"><i class="bi bi-pencil-square" aria-hidden="true"></i>Kemaskini</a></li>
             </ul>
         </div>
@@ -304,12 +304,7 @@
                     </div>
 
                     <div class="d-flex gap-2">
-                        <a
-                            href="{{ route('tanah.dokumen.lihat', [$tanah, $dokumen]) }}"
-                            target="_blank"
-                            rel="noopener"
-                            class="btn btn-sm btn-outline-primary"
-                        >
+                        <a href="{{ route('tanah.dokumen.lihat', [$tanah, $dokumen]) }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary butang-lihat-dokumen">
                             <i class="bi bi-eye me-1"></i>Lihat
                         </a>
 
@@ -338,9 +333,21 @@
         Tutup
     </button>
 
-    <a href="{{ route('tanah.pdf', $tanah) }}" class="btn btn-outline-secondary butang-pdf-apl d-md-none">
-        <i class="bi bi-download me-1"></i>PDF
-    </a>
+    {{-- Telefon: bottom sheet --}}
+    <button type="button" class="btn btn-outline-secondary butang-pdf-apl d-md-none" data-lembaran-muat-turun data-pdf="{{ route('tanah.pdf', $tanah) }}" data-zip="{{ route('tanah.zip', $tanah) }}">
+        <i class="bi bi-download me-1"></i>Muat Turun
+    </button>
+
+    {{-- Desktop: menu --}}
+    <div class="dropup d-none d-md-block">
+        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-download me-1"></i>Muat Turun
+        </button>
+
+        <ul class="dropdown-menu dropdown-menu-end menu-kad">
+            @include('pdf._pilihan-muat-turun', ['jenis' => 'tanah', 'aset' => $tanah])
+        </ul>
+    </div>
 
     <a href="{{ route('tanah.edit', $tanah) }}" class="btn btn-primary butang-kemaskini-apl">
         <i class="bi bi-pencil-square me-1"></i>Kemaskini

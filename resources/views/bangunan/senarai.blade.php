@@ -257,20 +257,21 @@
 
                                     <ul class="dropdown-menu dropdown-menu-end menu-kad">
                                         <li><button type="button" class="dropdown-item" data-buka-butiran-kad><i class="bi bi-eye" aria-hidden="true"></i>Lihat butiran</button></li>
-                                        <li><a class="dropdown-item" href="{{ route('bangunan.pdf', $item) }}"><i class="bi bi-download" aria-hidden="true"></i>Muat turun PDF</a></li>
+                                        @include('pdf._item-muat-turun-apl', ['jenis' => 'bangunan', 'aset' => $item])
                                         <li><a class="dropdown-item" href="{{ route('bangunan.edit', $item) }}"><i class="bi bi-pencil-square" aria-hidden="true"></i>Kemaskini</a></li>
                                     </ul>
                                 </div>
 
                                 <div class="d-none d-md-inline-flex gap-2">
-                                    <a
-                                        href="{{ route('bangunan.pdf', $item) }}"
-                                        class="btn btn-sm btn-outline-secondary"
-                                        title="Muat turun maklumat aset bangunan dalam PDF"
-                                        aria-label="Muat turun PDF aset bangunan"
-                                    >
-                                        <i class="bi bi-download"></i>
-                                    </a>
+                                    <div class="dropdown">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown" data-bs-popper-config='{"strategy":"fixed"}' aria-expanded="false" title="Muat turun" aria-label="Pilihan muat turun aset bangunan">
+                                            <i class="bi bi-download"></i>
+                                        </button>
+
+                                        <ul class="dropdown-menu dropdown-menu-end menu-kad">
+                                            @include('pdf._pilihan-muat-turun', ['jenis' => 'bangunan', 'aset' => $item])
+                                        </ul>
+                                    </div>
                                     <a
                                         href="{{ route('bangunan.edit', $item) }}"
                                         class="btn btn-sm btn-outline-primary"

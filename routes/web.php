@@ -186,6 +186,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/aset-tanah/{tanah}/pdf', [PengurusanTanahController::class, 'muatTurunPdf'])
             ->name('tanah.pdf');
 
+        Route::get('/aset-tanah/{tanah}/zip', [PengurusanTanahController::class, 'muatTurunZip'])
+            ->name('tanah.zip');
+
         Route::get('/aset-tanah/daftar', [PengurusanTanahController::class, 'create'])
             ->name('tanah.create');
 
@@ -214,6 +217,9 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/aset-bangunan/{bangunan}/pdf', [PengurusanBangunanController::class, 'muatTurunPdf'])
             ->name('bangunan.pdf');
+
+        Route::get('/aset-bangunan/{bangunan}/zip', [PengurusanBangunanController::class, 'muatTurunZip'])
+            ->name('bangunan.zip');
 
         Route::get('/aset-bangunan/daftar', [PengurusanBangunanController::class, 'create'])
             ->name('bangunan.create');

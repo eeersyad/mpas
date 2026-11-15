@@ -13,7 +13,7 @@
             </button>
 
             <ul class="dropdown-menu dropdown-menu-end menu-kad">
-                <li><a class="dropdown-item" href="{{ route('bangunan.pdf', $bangunan) }}"><i class="bi bi-download" aria-hidden="true"></i>Muat turun PDF</a></li>
+                @include('pdf._item-muat-turun-apl', ['jenis' => 'bangunan', 'aset' => $bangunan])
                 <li><a class="dropdown-item" href="{{ route('bangunan.edit', $bangunan) }}"><i class="bi bi-pencil-square" aria-hidden="true"></i>Kemaskini</a></li>
             </ul>
         </div>
@@ -553,32 +553,47 @@
     <section class="panel-butiran" data-tab-butiran-panel="8" role="tabpanel" hidden>
         <div class="butiran-seksyen">
             <h6>Dokumen Aset Bangunan</h6>
-            <p>Dokumen sokongan dan Kod QR aduan bagi aset ini.</p>
+            <p>{{ $bangunan->dokumen->count() }} dokumen direkodkan. Dokumen sokongan dan Kod QR aduan bagi aset ini.</p>
         </div>
 
         @forelse ($bangunan->dokumen as $dokumen)
-            <a
-                href="{{ route('bangunan.dokumen.lihat', [$bangunan, $dokumen]) }}"
-                target="_blank"
-                rel="noopener"
-                class="d-flex align-items-center gap-3 border rounded-3 p-3 mb-2 text-decoration-none"
-            >
-                <div class="ikon-dokumen">
-                    <i class="bi bi-file-earmark-text"></i>
-                </div>
+            <div class="butiran-medan mb-3">
+                <div class="d-flex flex-column flex-sm-row align-items-sm-center gap-3">
+                    <div class="ikon-dokumen">
+                        <i class="bi bi-file-earmark-text"></i>
+                    </div>
 
-                <div class="min-w-0">
-                    <strong class="d-block text-dark text-truncate">{{ $dokumen->asbdoc_name }}</strong>
-                    <small class="text-secondary">
-                        {{ \App\Support\Paparan::label($dokumen->asbdoc_type) }}
-                        · {{ $dokumen->uploaded_at?->format('d/m/Y') ?? '-' }}
-                    </small>
-                </div>
+                    <div class="flex-grow-1 min-w-0">
+                        <span class="lencana-dokumen">
+                            {{ \App\Support\Paparan::label($dokumen->asbdoc_type) }}
+                        </span>
 
-                <i class="bi bi-box-arrow-up-right ms-auto text-primary"></i>
-            </a>
+                        <strong class="d-block text-truncate mt-2">
+                            {{ $dokumen->asbdoc_name }}
+                        </strong>
+
+                        <small class="text-secondary">
+                            Dimuat naik:
+                            {{ $dokumen->uploaded_at?->format('d/m/Y, h:i A') ?? '-' }}
+                        </small>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('bangunan.dokumen.lihat', [$bangunan, $dokumen]) }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary butang-lihat-dokumen">
+                            <i class="bi bi-eye me-1"></i>Lihat
+                        </a>
+
+                        <a href="{{ route('bangunan.dokumen.lihat', [$bangunan, $dokumen]) }}" download="{{ $dokumen->asbdoc_name }}" class="btn btn-sm btn-outline-secondary" title="Muat turun dokumen">
+                            <i class="bi bi-download"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
         @empty
-            <p class="text-secondary">Tiada dokumen direkodkan.</p>
+            <div class="text-center py-4 text-secondary">
+                <i class="bi bi-folder2-open fs-3 d-block mb-2"></i>
+                Tiada dokumen direkodkan untuk aset bangunan ini.
+            </div>
         @endforelse
 
         <hr class="my-4">
@@ -630,9 +645,21 @@
         Tutup
     </button>
 
-    <a href="{{ route('bangunan.pdf', $bangunan) }}" class="btn btn-outline-secondary butang-pdf-apl d-md-none">
-        <i class="bi bi-download me-1"></i>PDF
-    </a>
+    {{-- Telefon: bottom sheet --}}
+    <button type="button" class="btn btn-outline-secondary butang-pdf-apl d-md-none" data-lembaran-muat-turun data-pdf="{{ route('bangunan.pdf', $bangunan) }}" data-zip="{{ route('bangunan.zip', $bangunan) }}">
+        <i class="bi bi-download me-1"></i>Muat Turun
+    </button>
+
+    {{-- Desktop: menu --}}
+    <div class="dropup d-none d-md-block">
+        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-download me-1"></i>Muat Turun
+        </button>
+
+        <ul class="dropdown-menu dropdown-menu-end menu-kad">
+            @include('pdf._pilihan-muat-turun', ['jenis' => 'bangunan', 'aset' => $bangunan])
+        </ul>
+    </div>
 
     <a href="{{ route('bangunan.edit', $bangunan) }}" class="btn btn-primary butang-kemaskini-apl">
         <i class="bi bi-pencil-square me-1"></i>Kemaskini
