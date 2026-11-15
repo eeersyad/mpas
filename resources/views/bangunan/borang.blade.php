@@ -234,7 +234,7 @@
                     </div>
 
                     <div class="col-12 col-md-2 d-flex align-items-end">
-                        <button type="button" class="btn btn-outline-primary w-100 butang-pilih-lokasi" data-pilih-lokasi data-lat="#asb_latitude" data-lng="#asb_longitude">
+                        <button type="button" class="btn btn-outline-primary w-100 butang-pilih-lokasi" data-pilih-lokasi data-lat="#asb_latitude" data-lng="#asb_longitude" data-gmaps="[name=&quot;asb_gmaps_location&quot;]">
                             <i class="bi bi-geo-alt-fill me-1"></i>Pilih di Peta
                         </button>
                     </div>

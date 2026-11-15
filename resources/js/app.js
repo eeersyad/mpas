@@ -3859,6 +3859,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let bulatan = null;
     let medanLat = null;
     let medanLng = null;
+    let medanGmaps = null;
     let titik = null;
 
     const ikonPin = L.divIcon({
@@ -3982,6 +3983,7 @@ document.addEventListener('DOMContentLoaded', () => {
         butang.addEventListener('click', () => {
             medanLat = document.querySelector(butang.dataset.lat);
             medanLng = document.querySelector(butang.dataset.lng);
+            medanGmaps = butang.dataset.gmaps ? document.querySelector(butang.dataset.gmaps) : null;
             modalBs.show();
         });
     });
@@ -4053,16 +4055,50 @@ document.addEventListener('DOMContentLoaded', () => {
         );
     });
 
-    /* Guna lokasi → isi medan */
-    butangGuna.addEventListener('click', () => {
+    /* Pautan Google Maps yang dijana sistem (boleh ditimpa tanpa bertanya) */
+    const pautanDijanaSistem = (url) => /^https:\/\/www\.google\.com\/maps\?q=-?[\d.]+,-?[\d.]+$/.test(url.trim());
+
+    /* Guna lokasi → isi medan latitud, longitud dan pautan Google Maps */
+    butangGuna.addEventListener('click', async () => {
         if (! titik || ! medanLat || ! medanLng) {
             return;
         }
 
-        medanLat.value = titik.lat.toFixed(6);
-        medanLng.value = titik.lng.toFixed(6);
+        const lat = titik.lat.toFixed(6);
+        const lng = titik.lng.toFixed(6);
+        const medanDiisi = [medanLat, medanLng];
 
-        [medanLat, medanLng].forEach((medan) => {
+        medanLat.value = lat;
+        medanLng.value = lng;
+
+        if (medanGmaps) {
+            const pautanBaru = `https://www.google.com/maps?q=${lat},${lng}`;
+            const sedia = medanGmaps.value.trim();
+            let tulis = sedia === '' || pautanDijanaSistem(sedia);
+
+            if (! tulis && sedia !== pautanBaru) {
+                modalBs.hide();
+
+                const jawapan = await window.Swal?.fire({
+                    icon: 'question',
+                    title: 'Gantikan pautan Google Maps?',
+                    text: 'Medan pautan Google Maps sudah ada nilai. Gantikan dengan pautan berdasarkan pin yang dipilih?',
+                    showCancelButton: true,
+                    confirmButtonText: 'Gantikan',
+                    cancelButtonText: 'Kekalkan',
+                    reverseButtons: true,
+                });
+
+                tulis = Boolean(jawapan?.isConfirmed);
+            }
+
+            if (tulis) {
+                medanGmaps.value = pautanBaru;
+                medanDiisi.push(medanGmaps);
+            }
+        }
+
+        medanDiisi.forEach((medan) => {
             medan.classList.remove('is-invalid');
             medan.dispatchEvent(new Event('input', { bubbles: true }));
             medan.dispatchEvent(new Event('change', { bubbles: true }));

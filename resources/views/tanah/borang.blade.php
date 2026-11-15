@@ -312,7 +312,7 @@
                         @enderror
                     </div>
                     <div class="col-12 col-md-2 d-flex align-items-end">
-                        <button type="button" class="btn btn-outline-primary w-100 butang-pilih-lokasi" data-pilih-lokasi data-lat="#asl_latitude" data-lng="#asl_longitude">
+                        <button type="button" class="btn btn-outline-primary w-100 butang-pilih-lokasi" data-pilih-lokasi data-lat="#asl_latitude" data-lng="#asl_longitude" data-gmaps="#asl_gmaps_location">
                             <i class="bi bi-geo-alt-fill me-1"></i>Pilih di Peta
                         </button>
                     </div>
