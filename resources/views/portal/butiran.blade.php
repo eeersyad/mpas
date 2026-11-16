@@ -1,58 +1,94 @@
 @extends('layouts.awam')
 
 @section('tajuk', $aset['tajuk'])
-@section('kelas_body', 'halaman-portal')
+@section('kelas_body', 'halaman-portal portal-mod-butiran')
 
 @push('kepala')
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    @include('portal._pwa')
+    <meta property="og:title" content="{{ $aset['tajuk'] }}">
+    <meta property="og:description" content="{{ $aset['jenis_label'] }} tersedia untuk disewa{{ $aset['alamat'] ? ' · ' . $aset['alamat'] : '' }}">
+    @if (count($aset['gambar_besar']))
+        <meta property="og:image" content="{{ $aset['gambar_besar'][0] }}">
+    @endif
 @endpush
 
+@php
+    $sebelum = url()->previous();
+    $kembali = $sebelum !== url()->current() && str_contains($sebelum, '/awam') && ! str_contains($sebelum, '/awam/bangunan') && ! str_contains($sebelum, '/awam/tanah') ? $sebelum : route('portal.sewa');
+@endphp
+
 @section('kandungan')
-    @include('portal._kepala')
+    @include('portal._kepala', ['butangKembali' => $kembali, 'butangKongsi' => true, 'tajukBar' => $aset['jenis_label']])
 
-    <a href="{{ url()->previous() !== url()->current() && str_contains(url()->previous(), '/awam/sewa') ? url()->previous() : route('portal.sewa') }}" class="portal-kembali"><i class="bi bi-arrow-left"></i> Kembali ke senarai</a>
+    <a href="{{ $kembali }}" class="portal-kembali d-none d-md-inline-flex"><i class="bi bi-arrow-left"></i> Kembali ke senarai</a>
 
-    <div class="portal-galeri mb-3">
-        @if (count($aset['gambar_besar']))
-            <div class="portal-galeri-jalur" data-galeri>
-                @foreach ($aset['gambar_besar'] as $i => $url)
-                    <button type="button" class="portal-galeri-item" data-lightbox="{{ $i }}"><img src="{{ $url }}" alt="Gambar {{ $i + 1 }}" loading="{{ $i ? 'lazy' : 'eager' }}"></button>
-                @endforeach
-            </div>
-            @if (count($aset['gambar_besar']) > 1)
-                <span class="portal-bil-gambar"><i class="bi bi-images"></i> {{ count($aset['gambar_besar']) }} gambar &middot; leret</span>
+    <div class="portal-butiran">
+        <div class="portal-hero">
+            @if (count($aset['gambar_besar']))
+                <div class="portal-hero-jalur" data-galeri>
+                    @foreach ($aset['gambar_besar'] as $i => $url)
+                        <button type="button" class="portal-hero-item" data-lightbox="{{ $i }}"><img src="{{ $url }}" alt="Gambar {{ $i + 1 }}" loading="{{ $i ? 'lazy' : 'eager' }}"></button>
+                    @endforeach
+                </div>
+                @if (count($aset['gambar_besar']) > 1)
+                    <div class="portal-hero-titik" data-titik>
+                        @foreach ($aset['gambar_besar'] as $i => $url)
+                            <span class="{{ $i === 0 ? 'aktif' : '' }}"></span>
+                        @endforeach
+                    </div>
+                    <span class="portal-hero-bil" data-bil>1 / {{ count($aset['gambar_besar']) }}</span>
+                @endif
+            @else
+                <div class="portal-tiada-gambar besar"><img src="{{ asset('images/logo-mpas-2.png') }}" alt="MPAS"></div>
             @endif
-        @else
-            <div class="portal-tiada-gambar besar"><i class="bi {{ $aset['jenis'] === 'tanah' ? 'bi-geo-alt' : 'bi-building' }}"></i><small>Tiada gambar</small></div>
-        @endif
+        </div>
+
+        <div class="portal-butiran-isi">
+            <section class="kad-awam portal-kad-utama">
+                <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+                    <span class="portal-lencana statik">{{ $aset['jenis_label'] }}</span>
+                    <button type="button" class="btn btn-sm btn-light d-none d-md-inline-flex align-items-center gap-1" data-kongsi><i class="bi bi-share"></i> Kongsi</button>
+                </div>
+                <h1 class="portal-butiran-tajuk">{{ $aset['tajuk'] }}</h1>
+                @if ($aset['subtajuk'])<p class="portal-kad-sub mb-2">{{ $aset['subtajuk'] }}</p>@endif
+                <span class="badge-tersedia"><i class="bi bi-check-circle-fill"></i> Tersedia untuk disewa</span>
+
+                <div class="portal-maklumat">
+                    @if ($aset['alamat'])
+                        <div class="portal-maklumat-baris"><span class="portal-baris-ikon"><i class="bi bi-geo-alt"></i></span><div><small>Lokasi</small><strong>{{ $aset['alamat'] }}</strong></div></div>
+                    @endif
+                    @if ($aset['mukim'])
+                        <div class="portal-maklumat-baris"><span class="portal-baris-ikon"><i class="bi bi-pin-map"></i></span><div><small>Mukim</small><strong>{{ $aset['mukim'] }}</strong></div></div>
+                    @endif
+                    @if ($aset['keluasan_teks'])
+                        <div class="portal-maklumat-baris"><span class="portal-baris-ikon"><i class="bi bi-arrows-angle-expand"></i></span><div><small>Keluasan</small><strong>{{ $aset['keluasan_teks'] }}</strong></div></div>
+                    @endif
+                </div>
+            </section>
+
+            @if ($aset['lat'])
+                <section class="kad-awam">
+                    <h2 class="portal-seksyen-tajuk"><i class="bi bi-map"></i> Lokasi</h2>
+                    <div class="portal-peta-mini-wrap">
+                        <div id="petaButiran" class="portal-peta kecil" data-lat="{{ $aset['lat'] }}" data-lng="{{ $aset['lng'] }}"></div>
+                        <a href="{{ $aset['google_maps'] }}" target="_blank" rel="noopener" class="portal-peta-mini-pautan"><i class="bi bi-box-arrow-up-right"></i> Buka di Google Maps</a>
+                    </div>
+                    <a href="{{ $aset['google_maps'] }}" target="_blank" rel="noopener" class="btn btn-tema w-100 mt-3 d-none d-md-block"><i class="bi bi-sign-turn-right me-1"></i> Navigasi dengan Google Maps</a>
+                </section>
+            @endif
+
+            @include('portal._hubungi')
+        </div>
     </div>
 
-    <section class="kad-awam mb-3">
-        <span class="portal-lencana statik">{{ $aset['jenis_label'] }}</span>
-        <h1 class="portal-butiran-tajuk">{{ $aset['tajuk'] }}</h1>
-        @if ($aset['subtajuk'])<p class="portal-kad-sub mb-2">{{ $aset['subtajuk'] }}</p>@endif
-        <span class="badge-tersedia"><i class="bi bi-check-circle"></i> Tersedia untuk disewa</span>
-
-        <dl class="portal-maklumat mt-3 mb-0">
-            @if ($aset['alamat'])<div><dt><i class="bi bi-geo-alt"></i> Lokasi</dt><dd>{{ $aset['alamat'] }}</dd></div>@endif
-            @if ($aset['mukim'])<div><dt><i class="bi bi-pin-map"></i> Mukim</dt><dd>{{ $aset['mukim'] }}</dd></div>@endif
-            @if ($aset['keluasan_teks'])<div><dt><i class="bi bi-arrows-angle-expand"></i> Keluasan</dt><dd>{{ $aset['keluasan_teks'] }}</dd></div>@endif
-        </dl>
-    </section>
-
-    @if ($aset['lat'])
-        <section class="kad-awam mb-3">
-            <h2 class="h6 fw-bold mb-3"><i class="bi bi-map text-tema me-1"></i> Lokasi &amp; Navigasi</h2>
-            <div id="petaButiran" class="portal-peta kecil mb-3" data-lat="{{ $aset['lat'] }}" data-lng="{{ $aset['lng'] }}"></div>
-            <div class="row g-2">
-                <div class="col-6"><a href="{{ $aset['google_maps'] }}" target="_blank" rel="noopener" class="btn btn-tema w-100"><i class="bi bi-google me-1"></i> Google Maps</a></div>
-                <div class="col-6"><a href="{{ $aset['waze'] }}" target="_blank" rel="noopener" class="btn btn-outline-tema w-100"><i class="bi bi-sign-turn-right me-1"></i> Waze</a></div>
-                <div class="col-12"><button type="button" class="btn btn-light w-100" data-salin="{{ $aset['lat'] }}, {{ $aset['lng'] }}"><i class="bi bi-copy me-1"></i> Salin koordinat ({{ number_format($aset['lat'], 5) }}, {{ number_format($aset['lng'], 5) }})</button></div>
-            </div>
-        </section>
-    @endif
-
-    @include('portal._hubungi')
+    <div class="portal-bar-tindakan">
+        <button type="button" class="btn btn-outline-tema" data-bs-toggle="offcanvas" data-bs-target="#lembaranHubungi"><i class="bi bi-telephone-fill"></i> Hubungi</button>
+        @if ($aset['google_maps'])
+            <a href="{{ $aset['google_maps'] }}" target="_blank" rel="noopener" class="btn btn-tema"><i class="bi bi-sign-turn-right-fill"></i> Navigasi</a>
+        @else
+            <button type="button" class="btn btn-tema" disabled><i class="bi bi-sign-turn-right-fill"></i> Tiada lokasi</button>
+        @endif
+    </div>
 
     @if (count($aset['gambar_besar']))
         <div class="portal-lightbox" data-lightbox-panel hidden>
@@ -67,7 +103,7 @@
 @endsection
 
 @push('skrip')
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    @include('portal._skrip-asas')
     <script>
         (() => {
             const el = document.getElementById('petaButiran');
@@ -77,15 +113,19 @@
                 const satelit = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: 'Esri' });
                 const peta = L.map(el, { layers: [jalan], scrollWheelZoom: false }).setView([lat, lng], 16);
                 L.control.layers({ 'Jalan': jalan, 'Satelit': satelit }).addTo(peta);
-                L.marker([lat, lng]).addTo(peta);
+                L.marker([lat, lng], { icon: L.divIcon({ className: 'portal-penanda', html: '<svg viewBox="0 0 32 42" width="32" height="42"><path d="M16 1C7.7 1 1 7.6 1 15.8 1 27 16 41 16 41s15-14 15-25.2C31 7.6 24.3 1 16 1z" fill="{{ $aset['jenis'] === 'tanah' ? '#c77d16' : '#168a7e' }}" stroke="#fff" stroke-width="2"/><circle cx="16" cy="15.5" r="5.5" fill="#fff"/></svg>', iconSize: [32, 42], iconAnchor: [16, 41] }) }).addTo(peta);
             }
 
-            document.querySelectorAll('[data-salin]').forEach((b) => b.addEventListener('click', async () => {
-                try { await navigator.clipboard.writeText(b.dataset.salin); } catch (e) { return; }
-                const asal = b.innerHTML;
-                b.innerHTML = '<i class="bi bi-check2 me-1"></i> Disalin';
-                setTimeout(() => (b.innerHTML = asal), 1800);
-            }));
+            const galeri = document.querySelector('[data-galeri]');
+            const titik = document.querySelectorAll('[data-titik] span');
+            const bil = document.querySelector('[data-bil]');
+            if (galeri && titik.length) {
+                galeri.addEventListener('scroll', () => {
+                    const i = Math.round(galeri.scrollLeft / galeri.clientWidth);
+                    titik.forEach((t, n) => t.classList.toggle('aktif', n === i));
+                    if (bil) bil.textContent = (i + 1) + ' / ' + titik.length;
+                }, { passive: true });
+            }
 
             const panel = document.querySelector('[data-lightbox-panel]');
             if (!panel) return;

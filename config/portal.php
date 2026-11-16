@@ -11,7 +11,7 @@ return [
 
     // Maklumat hubungan yang dipaparkan kepada orang awam
     'hubungan' => [
-        'nama' => env('PORTAL_NAMA', 'Majlis Daerah Marang'),
+        'nama' => env('PORTAL_NAMA', 'Bahagian Pengurusan Harta, Majlis Daerah Marang'),
         'telefon' => env('PORTAL_TELEFON', '09-618 2366'),
         'emel' => env('PORTAL_EMEL', 'mdmarang@terengganu.gov.my'),
         'alamat' => env('PORTAL_ALAMAT', 'Majlis Daerah Marang, 21600 Marang, Terengganu'),

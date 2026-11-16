@@ -42,17 +42,6 @@
     $penapisAktif = [];
 
     foreach ($penapis as $nama => $kumpulan) {
-        // Kumpulan julat tarikh: ['jenis' => 'tarikh', 'medan' => ['tarikh_mula' => 'Dari', ...]]
-        if (($kumpulan['jenis'] ?? null) === 'tarikh') {
-            foreach ($kumpulan['medan'] ?? [] as $namaMedan => $labelMedan) {
-                if (filled(request($namaMedan))) {
-                    $penapisAktif[$namaMedan] = $labelMedan . ' ' . \Illuminate\Support\Carbon::parse(request($namaMedan))->format('d/m/Y');
-                }
-            }
-
-            continue;
-        }
-
         $nilai = request($nama);
 
         if (filled($nilai) && isset($kumpulan['pilihan'][$nilai])) {
@@ -115,11 +104,8 @@
             <a href="{{ $urlSemula }}" class="cip-kosongkan">Kosongkan</a>
         </div>
     @endif
-</div>
 
-{{-- 3. Bottom sheet: diletakkan DI LUAR bar melekat. Bar menggunakan backdrop-filter,
-       yang menyebabkan elemen position:fixed di dalamnya terperangkap dalam bar. --}}
-<div class="d-md-none">
+    {{-- 3. Bottom sheet --}}
     <div class="offcanvas offcanvas-bottom panel-penapis-mobile" tabindex="-1" id="penapisMobile" aria-labelledby="penapisMobileTajuk">
         <div class="pemegang-panel" aria-hidden="true"></div>
 
@@ -154,23 +140,6 @@
                 @endif
 
                 @foreach ($penapis as $nama => $kumpulan)
-                    @if (($kumpulan['jenis'] ?? null) === 'tarikh')
-                        <fieldset class="kumpulan-pill">
-                            <legend>{{ $kumpulan['label'] }}</legend>
-
-                            <div class="row g-2">
-                                @foreach ($kumpulan['medan'] ?? [] as $namaMedan => $labelMedan)
-                                    <div class="col-6">
-                                        <label for="pm-{{ $namaMedan }}" class="label-tarikh-pill">{{ $labelMedan }}</label>
-                                        <input type="date" id="pm-{{ $namaMedan }}" name="{{ $namaMedan }}" value="{{ request($namaMedan) }}" class="form-control medan-tarikh-pill">
-                                    </div>
-                                @endforeach
-                            </div>
-                        </fieldset>
-
-                        @continue
-                    @endif
-
                     <fieldset class="kumpulan-pill">
                         <legend>{{ $kumpulan['label'] }}</legend>
 

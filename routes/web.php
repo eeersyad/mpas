@@ -42,10 +42,12 @@ Route::post('/laporan/{kod}', [AduanAwamController::class, 'store'])
 
 // Portal Awam: aset untuk disewa, peta & navigasi (tanpa log masuk)
 Route::middleware('throttle:60,1')->prefix('awam')->name('portal.')->group(function () {
-    Route::get('/', [PortalAwamController::class, 'index'])->name('index');
-    Route::get('/sewa', [PortalAwamController::class, 'sewa'])->name('sewa');
-    Route::get('/sewa/bangunan/{bangunan}', [PortalAwamController::class, 'bangunan'])->name('sewa.bangunan');
-    Route::get('/sewa/tanah/{tanah}', [PortalAwamController::class, 'tanah'])->name('sewa.tanah');
+    Route::get('/', [PortalAwamController::class, 'sewa'])->name('sewa');
+    Route::redirect('/sewa', '/awam')->name('index');
+    Route::get('/bangunan/{bangunan}', [PortalAwamController::class, 'bangunan'])->name('sewa.bangunan');
+    Route::get('/tanah/{tanah}', [PortalAwamController::class, 'tanah'])->name('sewa.tanah');
+    Route::get('/manifest.webmanifest', [PortalAwamController::class, 'manifest'])->name('manifest');
+    Route::get('/sw.js', [PortalAwamController::class, 'serviceWorker'])->name('sw');
     Route::get('/gambar/{jenis}/{dokumen}/{saiz?}', [PortalAwamController::class, 'gambar'])
         ->whereIn('jenis', ['bangunan', 'tanah'])
         ->whereNumber('dokumen')

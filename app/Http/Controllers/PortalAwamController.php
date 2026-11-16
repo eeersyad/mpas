@@ -34,7 +34,7 @@ class PortalAwamController extends Controller
     {
         $jenis = in_array($request->query('jenis'), ['bangunan', 'tanah'], true) ? $request->query('jenis') : null;
         $cari = trim((string) $request->query('cari'));
-        $mukim = trim((string) $request->query('mukim'));
+        $mukim = mb_strtoupper(trim((string) $request->query('mukim')));
 
         $bangunan = $jenis === 'tanah' ? collect() : $this->queryBangunan()
             ->when($cari !== '', fn (Builder $q) => $q->where(fn (Builder $q) => $q
@@ -43,7 +43,7 @@ class PortalAwamController extends Controller
                 ->orWhere('asb_add2', 'like', "%{$cari}%")
                 ->orWhere('asb_city', 'like', "%{$cari}%")
                 ->orWhere('asb_category', 'like', "%{$cari}%")))
-            ->when($mukim !== '', fn (Builder $q) => $q->where('asb_mukim', $mukim))
+            ->when($mukim !== '', fn (Builder $q) => $q->whereRaw('UPPER(TRIM(asb_mukim)) = ?', [$mukim]))
             ->with(['dokumen' => fn ($q) => $q->where('asbdoc_type', 'GAMBAR')->orderBy('asbdoc_id')])
             ->orderBy('asb_name')
             ->get()
@@ -53,7 +53,7 @@ class PortalAwamController extends Controller
             ->when($cari !== '', fn (Builder $q) => $q->where(fn (Builder $q) => $q
                 ->where('asl_lot_no', 'like', "%{$cari}%")
                 ->orWhere('asl_location', 'like', "%{$cari}%")))
-            ->when($mukim !== '', fn (Builder $q) => $q->where('asl_mukim', $mukim))
+            ->when($mukim !== '', fn (Builder $q) => $q->whereRaw('UPPER(TRIM(asl_mukim)) = ?', [$mukim]))
             ->with(['dokumen' => fn ($q) => $q->where('asldoc_type', 'GAMBAR')->orderBy('asldoc_id')])
             ->orderBy('asl_location')
             ->get()
@@ -93,6 +93,62 @@ class PortalAwamController extends Controller
         return view('portal.butiran', [
             'aset' => $this->dataTanah($tanah),
             'hubungan' => config('portal.hubungan'),
+        ]);
+    }
+
+    /**
+     * Manifest PWA portal awam (boleh "Tambah ke Skrin Utama").
+     */
+    public function manifest(): Response
+    {
+        $data = [
+            'name' => 'MPAS Portal Aset Awam',
+            'short_name' => 'Aset MDM',
+            'description' => 'Aset bangunan dan tanah Majlis Daerah Marang yang tersedia untuk disewa',
+            'lang' => 'ms',
+            'start_url' => '/awam',
+            'scope' => '/awam',
+            'display' => 'standalone',
+            'background_color' => '#f4f8f7',
+            'theme_color' => '#168a7e',
+            'icons' => [
+                ['src' => asset('images/pwa-192.png'), 'sizes' => '192x192', 'type' => 'image/png', 'purpose' => 'any maskable'],
+                ['src' => asset('images/pwa-512.png'), 'sizes' => '512x512', 'type' => 'image/png', 'purpose' => 'any maskable'],
+            ],
+        ];
+
+        return response(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), 200, [
+            'Content-Type' => 'application/manifest+json',
+        ]);
+    }
+
+    /**
+     * Service worker ringkas: rangkaian dahulu, cache sebagai sandaran bila offline.
+     */
+    public function serviceWorker(): Response
+    {
+        $js = <<<'JS'
+const CACHE = 'mpas-awam-v1';
+self.addEventListener('install', (e) => self.skipWaiting());
+self.addEventListener('activate', (e) => e.waitUntil(
+    caches.keys().then((k) => Promise.all(k.filter((n) => n !== CACHE).map((n) => caches.delete(n)))).then(() => self.clients.claim())
+));
+self.addEventListener('fetch', (e) => {
+    const req = e.request;
+    if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
+    e.respondWith(
+        fetch(req).then((res) => {
+            if (res.ok) { const salin = res.clone(); caches.open(CACHE).then((c) => c.put(req, salin)); }
+            return res;
+        }).catch(() => caches.match(req))
+    );
+});
+JS;
+
+        return response($js, 200, [
+            'Content-Type' => 'application/javascript',
+            'Service-Worker-Allowed' => '/awam',
+            'Cache-Control' => 'no-cache',
         ]);
     }
 
@@ -224,6 +280,7 @@ class PortalAwamController extends Controller
     {
         return $this->queryBangunan()->whereNotNull('asb_mukim')->distinct()->pluck('asb_mukim')
             ->concat($this->queryTanah()->whereNotNull('asl_mukim')->distinct()->pluck('asl_mukim'))
+            ->map(fn ($m) => mb_strtoupper(trim((string) $m)))
             ->filter()
             ->unique()
             ->sort()
