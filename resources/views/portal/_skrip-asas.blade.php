@@ -5,6 +5,30 @@
         window.addEventListener('load', () => navigator.serviceWorker.register(@json(route('portal.sw', [], false)), { scope: '/awam' }).catch(() => {}));
     }
 
+    // Laci menu: tutup dahulu, baru pergi ke halaman lain. Bila kembali (Back), pastikan laci tertutup.
+    (() => {
+        const laci = document.getElementById('laciPortal');
+        if (!laci) return;
+
+        const tetapSemula = () => {
+            laci.classList.remove('show', 'showing', 'hiding');
+            laci.removeAttribute('aria-modal');
+            laci.removeAttribute('role');
+            document.querySelectorAll('.offcanvas-backdrop').forEach((b) => b.remove());
+            document.body.style.removeProperty('overflow');
+            document.body.style.removeProperty('padding-right');
+        };
+
+        laci.querySelectorAll('a[href]').forEach((pautan) => pautan.addEventListener('click', (e) => {
+            if (pautan.getAttribute('href').startsWith('tel:') || pautan.getAttribute('href').startsWith('mailto:')) return;
+            e.preventDefault();
+            tetapSemula();
+            location.href = pautan.href;
+        }));
+
+        window.addEventListener('pageshow', tetapSemula);
+    })();
+
     document.querySelectorAll('[data-kongsi]').forEach((b) => b.addEventListener('click', async () => {
         const data = { title: document.title, url: location.href };
         if (navigator.share) {

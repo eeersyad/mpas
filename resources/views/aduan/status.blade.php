@@ -1,6 +1,7 @@
 @extends('layouts.awam')
 
 @section('tajuk', 'Status Aduan ' . $aduan->cmp_ref_no)
+@section('kelas_body', 'halaman-aduan-apl')
 
 @section('kandungan')
     @php
@@ -23,6 +24,13 @@
         $kedudukanSemasa = array_search($aduan->cmp_status, array_keys($langkah), true);
         $kedudukanSemasa = $kedudukanSemasa === false ? 0 : $kedudukanSemasa;
     @endphp
+
+    <div class="bar-aduan-apl d-md-none">
+        <a href="{{ route('aduan.status') }}" class="butang-kembali-apl" data-kembali aria-label="Kembali"><i class="bi bi-arrow-left"></i></a>
+        <a href="{{ route('aduan.status') }}" class="butang-kembali-bar" aria-label="Kembali"><i class="bi bi-arrow-left"></i></a>
+        <img src="{{ asset('images/logo-mpas-2.png') }}" alt="MPAS">
+        <a href="{{ route('aduan.status') }}" aria-label="Semak aduan lain"><i class="bi bi-search"></i></a>
+    </div>
 
     <div class="row justify-content-center">
         <div class="col-12 col-md-9 col-lg-7 col-xl-6">
@@ -142,7 +150,7 @@
                 @endif
             </section>
 
-            <div class="d-flex flex-column flex-sm-row gap-2">
+            <div class="d-flex flex-column flex-sm-row gap-2 bar-tindakan-status">
                 <a href="{{ route('aduan.status') }}" class="btn btn-light flex-fill butang-sekunder-awam">
                     <i class="bi bi-search me-2"></i>Semak aduan lain
                 </a>

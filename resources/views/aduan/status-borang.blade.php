@@ -1,8 +1,14 @@
 @extends('layouts.awam')
 
 @section('tajuk', 'Semak Status Aduan')
+@section('kelas_body', 'halaman-aduan-apl')
 
 @section('kandungan')
+    <div class="bar-aduan-apl d-md-none">
+        <a href="{{ route('portal.sewa') }}" class="butang-kembali-apl" data-kembali aria-label="Kembali"><i class="bi bi-arrow-left"></i></a>
+        <button type="button" class="butang-kembali-bar" onclick="history.back()" aria-label="Kembali"><i class="bi bi-arrow-left"></i></button>
+        <img src="{{ asset('images/logo-mpas-2.png') }}" alt="MPAS">
+    </div>
 
     <div class="row justify-content-center">
         <div class="col-12 col-md-9 col-lg-7 col-xl-6">
@@ -32,13 +38,6 @@
                         <p class="text-secondary small mb-0">Masukkan no. rujukan dan alamat emel yang digunakan semasa membuat aduan.</p>
                     </div>
                 </div>
-
-                @if ($errors->has('rujukan') && old('rujukan'))
-                    <div class="alert alert-danger d-flex align-items-start gap-2 small mb-4" role="alert">
-                        <i class="bi bi-exclamation-circle-fill mt-1"></i>
-                        <span>{{ $errors->first('rujukan') }}</span>
-                    </div>
-                @endif
 
                 <form method="POST" action="{{ route('aduan.status.cari') }}" novalidate>
                     @csrf
@@ -71,9 +70,11 @@
                         @enderror
                     </div>
 
-                    <button type="submit" class="btn btn-utama w-100 butang-hantar-awam">
-                        <i class="bi bi-search me-2"></i>Semak Status
-                    </button>
+                    <div class="bar-hantar-aduan">
+                        <button type="submit" class="btn btn-utama w-100 butang-hantar-awam butang-hantar-aduan">
+                            <i class="bi bi-search me-2"></i>Semak Status
+                        </button>
+                    </div>
                 </form>
             </section>
 
@@ -86,4 +87,87 @@
             </section>
         </div>
     </div>
+    @if ($errors->has('rujukan') && old('rujukan'))
+        <script>
+            // Aduan tidak dijumpai: popup kecil gaya aplikasi
+            window.addEventListener('load', () => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Aduan tidak dijumpai',
+                    text: @json($errors->first('rujukan')),
+                    width: 320,
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#168A7E',
+                    customClass: { popup: 'popup-kecil-apl' },
+                });
+            });
+        </script>
+    @endif
+
+    <script>
+        // Butang kembali: ingat halaman asal (cth. pautan aduan atau /awam) semasa mula masuk ke semakan status.
+        // Percubaan semakan yang gagal tidak menukar halaman asal.
+        (() => {
+            const kunci = 'mpasAsalSemakStatus';
+            const rujuk = document.referrer;
+
+            try {
+                if (rujuk && new URL(rujuk).origin === location.origin && !new URL(rujuk).pathname.startsWith('/status-aduan')) {
+                    sessionStorage.setItem(kunci, rujuk);
+                }
+            } catch (e) {}
+
+            // Hantar semakan tanpa muat semula halaman: semakan gagal tidak menambah sejarah browser
+            const borang = document.querySelector('form[action="{{ route('aduan.status.cari') }}"]');
+            borang?.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const butang = borang.querySelector('[type="submit"]');
+                const asalButang = butang.innerHTML;
+                butang.disabled = true;
+                butang.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyemak...';
+
+                try {
+                    const jawapan = await fetch(borang.action, { method: 'POST', body: new FormData(borang), headers: { 'Accept': 'text/html' }, credentials: 'same-origin' });
+                    const destinasi = new URL(jawapan.url);
+
+                    if (destinasi.pathname.startsWith('/status-aduan/')) {
+                        location.href = jawapan.url;
+                        return;
+                    }
+
+                    const html = new DOMParser().parseFromString(await jawapan.text(), 'text/html');
+                    const ralatRujukan = html.querySelector('#rujukan.is-invalid') ? (html.querySelector('#rujukan')?.closest('.mb-3')?.querySelector('.invalid-feedback')?.textContent.trim()) : null;
+                    const ralatEmel = html.querySelector('#emel')?.closest('.mb-4')?.querySelector('.invalid-feedback')?.textContent.trim();
+                    const tokenBaru = html.querySelector('input[name="_token"]')?.value;
+                    if (tokenBaru) borang.querySelector('input[name="_token"]').value = tokenBaru;
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: (ralatEmel || ralatRujukan) ? 'Maklumat tidak lengkap' : 'Aduan tidak dijumpai',
+                        text: ralatEmel || ralatRujukan || 'Sila semak no. rujukan dan alamat emel.',
+                        width: 320,
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#168A7E',
+                        customClass: { popup: 'popup-kecil-apl' },
+                    });
+                } catch (e) {
+                    borang.submit();
+                    return;
+                } finally {
+                    butang.disabled = false;
+                    butang.innerHTML = asalButang;
+                }
+            });
+
+            document.querySelector('[data-kembali]')?.addEventListener('click', (event) => {
+                let asal = null;
+                try { asal = sessionStorage.getItem(kunci); } catch (e) {}
+
+                if (asal) {
+                    event.preventDefault();
+                    location.href = asal;
+                }
+            });
+        })();
+    </script>
 @endsection

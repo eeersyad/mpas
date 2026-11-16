@@ -10340,3 +10340,161 @@ body:has(.lembaran-muat-turun.showing) .offcanvas-backdrop {
     @keyframes login-naik { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
     @keyframes login-timbul { from { transform: scale(.9); opacity: 0; } to { transform: none; opacity: 1; } }
 }
+
+/* ===================== Aduan awam: rasa aplikasi, padat (mobile) ===================== */
+.bar-aduan-apl { display: none; }
+@media (max-width: 767.98px) {
+    .halaman-aduan-apl main.container { max-width: none; padding: 0 0 calc(6rem + env(safe-area-inset-bottom)) !important; animation: portal-masuk .25s ease both; }
+    .halaman-aduan-apl main.container > *:not(.bar-aduan-apl) { margin-left: .8rem; margin-right: .8rem; }
+
+    /* Bar atas */
+    .bar-aduan-apl { position: sticky; top: 0; z-index: 1030; display: flex; align-items: center; gap: .7rem; margin-bottom: .7rem; padding: calc(.5rem + env(safe-area-inset-top)) .9rem .5rem; background: rgba(255,255,255,.92); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(22,138,126,.1); }
+    .bar-aduan-apl img { height: 26px; width: auto; }
+    .bar-aduan-apl span { flex: 1; color: #173532; font-size: .95rem; font-weight: 800; }
+    .bar-aduan-apl a { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: #f1f6f5; color: #173532; font-size: 1rem; text-decoration: none; }
+    .halaman-aduan-apl .awam-logo { display: none !important; }
+
+    /* Kad aset: padat */
+    .halaman-aduan-apl .awam-hero { padding: 0 !important; margin-bottom: .7rem !important; text-align: left; }
+    .halaman-aduan-apl .maklumat-aset-awam { position: relative; overflow: hidden; padding: .8rem .95rem; border: 0; border-radius: 18px; background: linear-gradient(135deg, #1aa192, #0d625a); box-shadow: 0 10px 22px rgba(13,98,90,.22); }
+    .halaman-aduan-apl .maklumat-aset-awam::after { content: ''; position: absolute; width: 130px; height: 130px; top: -55px; right: -40px; border-radius: 50%; background: rgba(255,255,255,.1); }
+    .halaman-aduan-apl .maklumat-aset-awam h1 { color: #fff; font-size: .98rem; text-align: left; }
+    .halaman-aduan-apl .jumlah-penyewa-awam { margin-top: .4rem; padding: .25rem .6rem; border: 0; background: #fff; color: #0d625a; font-size: .66rem; box-shadow: 0 2px 6px rgba(0,0,0,.12); }
+    .halaman-aduan-apl .jumlah-penyewa-awam i { color: #168a7e; }
+    .halaman-aduan-apl .alamat-aset-awam { justify-content: flex-start; margin: .35rem 0 0; color: rgba(255,255,255,.88); font-size: .72rem; text-align: left; }
+    .halaman-aduan-apl .alamat-aset-awam i { color: #fff; }
+
+    /* Rekod aduan: jalur kad kecil boleh dileret */
+    .halaman-aduan-apl .rekod-aduan-awam { margin-bottom: .7rem !important; padding: .75rem 0 .75rem .9rem; border-radius: 18px; }
+    .halaman-aduan-apl .rekod-aduan-awam > .d-flex { padding-right: .9rem; margin-bottom: .5rem !important; align-items: center !important; }
+    .halaman-aduan-apl .rekod-aduan-awam .teks-kecil, .halaman-aduan-apl .penerangan-rekod-aduan { display: none; }
+    .halaman-aduan-apl .rekod-aduan-awam h2 { font-size: .85rem !important; margin: 0 !important; }
+    .halaman-aduan-apl .dek-aduan { position: static !important; display: flex !important; gap: .55rem; height: auto !important; min-height: 0 !important; touch-action: auto !important; overflow-x: auto; scroll-snap-type: x mandatory; padding: 0 .9rem .2rem 0; scrollbar-width: none; }
+    .halaman-aduan-apl .dek-aduan::-webkit-scrollbar { display: none; }
+    .halaman-aduan-apl .kad-susun-aduan { position: static !important; flex: 0 0 72%; inset: auto !important; padding: .7rem !important; opacity: 1 !important; visibility: visible !important; transform: none !important; filter: none !important; pointer-events: auto !important; scroll-snap-align: start; margin: 0 !important; box-shadow: none !important; }
+    .halaman-aduan-apl .kad-susun-aduan .kad-aduan-ikon { width: 30px; height: 30px; font-size: .85rem; }
+    .halaman-aduan-apl .kad-susun-aduan .mt-3 { margin-top: .5rem !important; }
+    .halaman-aduan-apl .kad-susun-aduan .nota-kad-aduan { display: none; }
+    .halaman-aduan-apl .kad-susun-aduan p { margin-bottom: .4rem !important; font-size: .7rem; }
+    .halaman-aduan-apl .kawalan-gelongsar-aduan { display: none !important; }
+
+    /* Borang padat */
+    .halaman-aduan-apl .borang-awam { padding: .9rem .9rem 1rem; border-radius: 18px; }
+    .halaman-aduan-apl .borang-awam:has(#borangAduanAwam) .kepala-borang-awam { display: none !important; }
+    .halaman-aduan-apl .borang-awam .mb-3, .halaman-aduan-apl .borang-awam .mb-4 { margin-bottom: .75rem !important; }
+    .halaman-aduan-apl .borang-awam .form-label { margin-bottom: .3rem; font-size: .74rem; }
+    .halaman-aduan-apl .borang-awam .form-control, .halaman-aduan-apl .borang-awam .form-select { min-height: 46px; border-radius: 13px; background: #f4f8f7; font-size: 1rem; }
+    .halaman-aduan-apl .borang-awam .form-control:focus, .halaman-aduan-apl .borang-awam .form-select:focus { background: #fff; border-color: #168a7e; box-shadow: 0 0 0 3px rgba(22,138,126,.12); }
+    .halaman-aduan-apl .borang-awam textarea.form-control { min-height: 84px; }
+    .halaman-aduan-apl .borang-awam .form-text { margin-top: .25rem; font-size: .68rem; line-height: 1.35; }
+    .halaman-aduan-apl #ruangOrangAwam .mt-3 { margin-top: .75rem !important; }
+    .select-asal-aduan { position: absolute !important; width: 1px !important; height: 1px !important; min-height: 0 !important; padding: 0 !important; opacity: 0; pointer-events: none; }
+    .pilihan-kad-aduan { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+    .grid-kerosakan-aduan { display: grid; grid-template-columns: repeat(4, 1fr); gap: .4rem; }
+    .kad-pilihan-aduan { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .25rem; min-height: 62px; padding: .45rem .2rem; border: 1.5px solid #dce9e7; border-radius: 14px; background: #fff; color: #39736b; font-size: .66rem; font-weight: 700; line-height: 1.15; text-align: center; transition: transform .12s, border-color .18s, background-color .18s; }
+    .kad-pilihan-aduan i { font-size: 1.15rem; color: #168a7e; }
+    .pilihan-kad-aduan .kad-pilihan-aduan { min-height: 46px; flex-direction: row; gap: .45rem; font-size: .84rem; }
+    .kad-pilihan-aduan:active { transform: scale(.96); }
+    .kad-pilihan-aduan.aktif { border-color: #168a7e; background: #e3f5f2; color: #0d625a; box-shadow: 0 0 0 3px rgba(22,138,126,.12); }
+    .ralat .kad-pilihan-aduan { border-color: #e0533d; }
+    .halaman-aduan-apl .pilihan-gambar-awam { gap: .5rem; }
+    .halaman-aduan-apl .butang-pilih-gambar { min-height: 0 !important; padding: .6rem .7rem !important; border-radius: 13px; }
+    .halaman-aduan-apl .butang-pilih-gambar small { display: none; }
+    .halaman-aduan-apl .preview-gambar-awam { display: grid; grid-template-columns: repeat(4, 1fr); gap: .4rem; }
+    .halaman-aduan-apl .item-preview-gambar { width: auto !important; aspect-ratio: 1; }
+    .halaman-aduan-apl .borang-awam form > p { margin-top: .6rem !important; font-size: .78rem; }
+
+    /* Butang hantar melekat */
+    .bar-hantar-aduan { position: fixed; left: 0; right: 0; bottom: 0; z-index: 1030; padding: .6rem .9rem calc(.8rem + env(safe-area-inset-bottom)); background: rgba(255,255,255,.95); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border-top: 1px solid rgba(22,138,126,.12); box-shadow: 0 -8px 24px rgba(0,0,0,.06); }
+    .bar-hantar-aduan .butang-hantar-aduan { min-height: 50px; padding: 0 !important; border-radius: 15px; }
+    .halaman-aduan-apl .footer-awam { margin-top: .9rem !important; font-size: .7rem; }
+}
+
+/* Aduan awam: dropdown → bottom sheet (mobile) */
+.pemicu-lembaran-aduan, .latar-lembaran-aduan, .lembaran-aduan { display: none; }
+@media (max-width: 767.98px) {
+    .pemicu-lembaran-aduan { display: flex; align-items: center; justify-content: space-between; gap: .5rem; width: 100%; min-height: 46px; padding: 0 .9rem; border: 1px solid #dee2e6; border-radius: 13px; background: #f4f8f7; color: #173532; font-size: 1rem; text-align: left; }
+    .pemicu-lembaran-aduan span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .pemicu-lembaran-aduan.kosong { color: #8a9a97; }
+    .pemicu-lembaran-aduan i { color: #168a7e; }
+    .pemicu-lembaran-aduan.ralat { border-color: #e0533d; }
+    .latar-lembaran-aduan { display: block; position: fixed; inset: 0; z-index: 1060; background: rgba(0,0,0,.4); opacity: 0; pointer-events: none; transition: opacity .25s; }
+    .latar-lembaran-aduan.buka { opacity: 1; pointer-events: auto; }
+    .lembaran-aduan { display: flex; flex-direction: column; position: fixed; left: 0; right: 0; bottom: 0; z-index: 1061; max-height: 75dvh; border-radius: 22px 22px 0 0; background: #fff; box-shadow: 0 -10px 30px rgba(0,0,0,.15); transform: translateY(100%); transition: transform .28s cubic-bezier(.2,.8,.2,1); }
+    .lembaran-aduan.buka { transform: none; }
+    .pemegang-lembaran-aduan { width: 42px; height: 5px; margin: .6rem auto 0; border-radius: 999px; background: #d5e2e0; }
+    .kepala-lembaran-aduan { display: flex; align-items: center; justify-content: space-between; padding: .7rem 1.1rem .5rem; }
+    .kepala-lembaran-aduan strong { color: #173b36; font-size: 1.02rem; font-weight: 800; }
+    .kepala-lembaran-aduan button { width: 34px; height: 34px; border: 0; border-radius: 50%; background: #f1f6f5; color: #39736b; }
+    .isi-lembaran-aduan { overflow-y: auto; padding: .2rem .8rem calc(1rem + env(safe-area-inset-bottom)); }
+    .item-lembaran-aduan { display: flex; align-items: center; justify-content: space-between; gap: .6rem; width: 100%; padding: .85rem .5rem; border: 0; border-bottom: 1px solid #edf3f2; background: none; color: #173532; font-size: .95rem; font-weight: 600; text-align: left; }
+    .item-lembaran-aduan i { color: #168a7e; visibility: hidden; }
+    .item-lembaran-aduan.aktif { color: #0d625a; }
+    .item-lembaran-aduan.aktif i { visibility: visible; }
+}
+
+/* Status aduan: rasa aplikasi (mobile) */
+@media (max-width: 767.98px) {
+    .halaman-aduan-apl .row.justify-content-center { margin: 0 !important; }
+    .halaman-aduan-apl .row.justify-content-center > [class*="col-"] { padding: 0 .8rem; }
+    .halaman-aduan-apl main.container > .row { margin-left: 0 !important; margin-right: 0 !important; }
+    .halaman-aduan-apl .awam-hero .maklumat-aset-awam:not(:has(.jumlah-penyewa-awam)) h1 { font-size: 1.05rem; }
+    .halaman-aduan-apl .kad-awam { border-radius: 18px; }
+    .halaman-aduan-apl .kad-awam.mb-4, .halaman-aduan-apl .nota-status-awam { margin-bottom: .7rem !important; margin-top: .7rem !important; }
+    .halaman-aduan-apl .kepala-borang-awam { padding-bottom: .7rem; margin-bottom: .9rem !important; }
+    .halaman-aduan-apl .medan-ikon-awam .form-control { min-height: 46px; border-radius: 13px; background: #f4f8f7; font-size: 1rem; }
+    .halaman-aduan-apl .bar-tindakan-status { position: fixed; left: 0; right: 0; bottom: 0; z-index: 1030; flex-direction: row !important; padding: .6rem .9rem calc(.8rem + env(safe-area-inset-bottom)); background: rgba(255,255,255,.95); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border-top: 1px solid rgba(22,138,126,.12); box-shadow: 0 -8px 24px rgba(0,0,0,.06); }
+    .halaman-aduan-apl .bar-tindakan-status .btn { min-height: 48px; border-radius: 14px; font-size: .82rem; display: inline-flex; align-items: center; justify-content: center; }
+}
+
+/* Bar atas aduan/status: logo MPAS di tengah */
+@media (max-width: 767.98px) {
+    .bar-aduan-apl { justify-content: center; min-height: calc(52px + env(safe-area-inset-top)); }
+    .bar-aduan-apl img { height: 30px; }
+    .bar-aduan-apl a { position: absolute; right: .9rem; bottom: .45rem; }
+}
+
+@media (max-width: 767.98px) {
+    .bar-aduan-apl .butang-kembali-bar { position: absolute; left: .9rem; right: auto; bottom: .45rem; display: grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 50%; background: #f1f6f5; color: #173532; font-size: 1.05rem; text-decoration: none; }
+}
+@media (max-width: 767.98px) {
+    .bar-aduan-apl .butang-kembali-apl { right: auto; left: .9rem; }
+}
+
+/* Popup kecil gaya aplikasi (SweetAlert) */
+.popup-kecil-apl { padding: 1.2rem 1rem 1rem !important; border-radius: 22px !important; }
+.popup-kecil-apl .swal2-icon { margin: .4rem auto .6rem !important; font-size: .7rem; }
+.popup-kecil-apl .swal2-title { padding: 0 .5rem !important; font-size: 1.1rem !important; }
+.popup-kecil-apl .swal2-html-container { margin: .4rem .6rem 0 !important; font-size: .86rem !important; }
+.popup-kecil-apl .swal2-actions { width: 100%; margin-top: 1rem !important; }
+.popup-kecil-apl .swal2-confirm { width: calc(100% - 1rem); min-height: 44px; border-radius: 14px !important; }
+
+/* Portal awam: laci navigasi sisi (mobile) */
+@media (max-width: 767.98px) {
+    .portal-bar-menu { font-size: 1.35rem !important; }
+    .laci-portal { width: min(82vw, 320px) !important; border: 0 !important; border-radius: 0 24px 24px 0; padding: calc(1rem + env(safe-area-inset-top)) .9rem calc(1rem + env(safe-area-inset-bottom)); box-shadow: 8px 0 30px rgba(0,0,0,.18); overflow-y: auto; }
+    .laci-kepala { display: flex; align-items: center; justify-content: space-between; padding: 0 .3rem; }
+    .laci-kepala img { height: 34px; width: auto; }
+    .laci-tutup { display: grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 50%; background: #f1f6f5; color: #39736b; }
+    .laci-sub { margin: .6rem .3rem 1.1rem; color: #7b8c89; font-size: .74rem; font-weight: 600; }
+    .laci-menu { display: flex; flex-direction: column; gap: .2rem; }
+    .laci-menu a { display: flex; align-items: center; gap: .75rem; padding: .65rem .55rem; border-radius: 14px; color: #173532; font-size: .92rem; font-weight: 600; text-decoration: none; transition: background-color .15s; }
+    .laci-menu a > span:nth-child(2) { flex: 1; min-width: 0; }
+    .laci-menu a > .bi-chevron-right { color: #b5c4c1; font-size: .8rem; }
+    .laci-menu a:active { background: #eef5f4; }
+    .laci-menu a.aktif { background: #e3f5f2; color: #0d625a; }
+    .laci-ikon { display: grid; place-items: center; flex: 0 0 auto; width: 36px; height: 36px; border-radius: 12px; background: #f1f6f5; color: #168a7e; font-size: 1rem; }
+    .laci-menu a.aktif .laci-ikon { background: #168a7e; color: #fff; }
+    .laci-bahagian { margin: 1.2rem .55rem .4rem; color: #93a3a0; font-size: .68rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+    .laci-kaki { margin: 1.4rem .55rem 0; color: #a3b1ae; font-size: .7rem; }
+}
+
+/* Portal awam: logo MPAS di tengah bar atas (mobile) */
+@media (max-width: 767.98px) {
+    .portal-bar { position: sticky; justify-content: center; min-height: calc(56px + env(safe-area-inset-top)); }
+    .portal-bar .portal-bar-tajuk { display: none; }
+    .portal-bar .portal-bar-kembali { position: absolute; left: .9rem; bottom: .55rem; }
+    .portal-bar .portal-bar-ikon { position: absolute; right: .9rem; bottom: .55rem; }
+    .portal-bar .portal-jenama, .portal-mod-butiran .portal-bar .portal-jenama { display: block !important; }
+    .portal-bar .portal-jenama img { height: 30px; }
+}

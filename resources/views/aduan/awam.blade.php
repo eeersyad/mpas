@@ -1,6 +1,7 @@
 @extends('layouts.awam')
 
 @section('tajuk', 'Aduan Aset Bangunan')
+@section('kelas_body', 'halaman-aduan-apl')
 
 @section('kandungan')
     @php
@@ -14,6 +15,11 @@
             'SELESAI' => ['label' => 'Selesai', 'peratus' => 100, 'warna' => 'success'],
         ];
     @endphp
+
+    <div class="bar-aduan-apl d-md-none">
+        <img src="{{ asset('images/logo-mpas-2.png') }}" alt="MPAS">
+        <a href="{{ route('aduan.status') }}" aria-label="Semak status aduan"><i class="bi bi-search"></i></a>
+    </div>
 
     <header class="awam-hero mb-4">
         <div class="awam-logo mb-3">
@@ -192,12 +198,12 @@
                     Kategori Pengadu <span class="text-danger">*</span>
                 </label>
 
-                <select
-                    id="jenis_pengadu"
-                    name="jenis_pengadu"
-                    class="form-select @error('jenis_pengadu') is-invalid @enderror"
-                    required
-                >
+                <div class="pilihan-kad-aduan d-md-none" data-pilih-untuk="#jenis_pengadu">
+                    <button type="button" class="kad-pilihan-aduan" data-nilai="PENYEWA"><i class="bi bi-person-badge"></i><span>Penyewa</span></button>
+                    <button type="button" class="kad-pilihan-aduan" data-nilai="ORANG_AWAM"><i class="bi bi-people"></i><span>Orang Awam</span></button>
+                </div>
+
+                <select id="jenis_pengadu" name="jenis_pengadu" class="form-select select-asal-aduan @error('jenis_pengadu') is-invalid @enderror" required>
                     <option value="">-- Pilih Kategori --</option>
                     <option value="PENYEWA" @selected(old('jenis_pengadu') === 'PENYEWA')>
                         Penyewa
@@ -217,11 +223,7 @@
                     Nama Penyewa <span class="text-danger">*</span>
                 </label>
 
-                <select
-                    id="tnt_id"
-                    name="tnt_id"
-                    class="form-select @error('tnt_id') is-invalid @enderror"
-                >
+                <select id="tnt_id" name="tnt_id" class="form-select select-asal-aduan @error('tnt_id') is-invalid @enderror" data-lembaran-pilihan="Pilih Nama Penyewa">
                     <option value="">-- Pilih Nama Penyewa --</option>
 
                     @foreach ($bangunan->penyewa as $penyewa)
@@ -301,12 +303,13 @@
                     Jenis Kerosakan <span class="text-danger">*</span>
                 </label>
 
-                <select
-                    id="cmp_damage_type"
-                    name="cmp_damage_type"
-                    class="form-select @error('cmp_damage_type') is-invalid @enderror"
-                    required
-                >
+                <div class="grid-kerosakan-aduan d-md-none" data-pilih-untuk="#cmp_damage_type">
+                    @foreach (['STRUKTUR BANGUNAN' => ['bi-bricks', 'Struktur'], 'ELEKTRIK' => ['bi-lightning-charge', 'Elektrik'], 'PAIP DAN SANITARI' => ['bi-droplet', 'Paip & Sanitari'], 'BUMBUNG' => ['bi-house', 'Bumbung'], 'PINTU ATAU TINGKAP' => ['bi-door-open', 'Pintu / Tingkap'], 'KEBERSIHAN' => ['bi-stars', 'Kebersihan'], 'LAIN-LAIN' => ['bi-three-dots', 'Lain-lain']] as $nilaiKerosakan => [$ikonKerosakan, $labelKerosakan])
+                        <button type="button" class="kad-pilihan-aduan" data-nilai="{{ $nilaiKerosakan }}"><i class="bi {{ $ikonKerosakan }}"></i><span>{{ $labelKerosakan }}</span></button>
+                    @endforeach
+                </div>
+
+                <select id="cmp_damage_type" name="cmp_damage_type" class="form-select select-asal-aduan @error('cmp_damage_type') is-invalid @enderror" required>
                     <option value="">-- Pilih Jenis Kerosakan --</option>
 
                     @foreach ([
@@ -340,7 +343,7 @@
                 <textarea
                     id="cmp_note"
                     name="cmp_note"
-                    rows="5"
+                    rows="3"
                     class="form-control @error('cmp_note') is-invalid @enderror"
                     placeholder="Terangkan kerosakan yang berlaku dan lokasi kerosakan."
                     required
@@ -415,10 +418,12 @@
                 @enderror
             </div>
 
+            <div class="bar-hantar-aduan">
             <button type="submit" class="btn btn-utama butang-hantar-aduan w-100 py-3">
                 <i class="bi bi-send-fill me-2"></i>
                 Hantar Aduan
             </button>
+            </div>
 
             <p class="text-center small text-secondary mt-3 mb-0">
                 Sudah membuat aduan? <a href="{{ route('aduan.status') }}">Semak status aduan</a>
@@ -462,6 +467,88 @@
 
         kategoriPengadu.addEventListener('change', kemaskiniPengadu);
         kemaskiniPengadu();
+
+        // Dropdown → bottom sheet (mobile)
+        (() => {
+            const pilihanLembaran = document.querySelectorAll('select[data-lembaran-pilihan]');
+            if (!pilihanLembaran.length) return;
+
+            const latar = document.createElement('div');
+            latar.className = 'latar-lembaran-aduan';
+            const lembaran = document.createElement('div');
+            lembaran.className = 'lembaran-aduan';
+            lembaran.setAttribute('role', 'dialog');
+            lembaran.innerHTML = '<div class="pemegang-lembaran-aduan"></div><div class="kepala-lembaran-aduan"><strong></strong><button type="button" aria-label="Tutup"><i class="bi bi-x-lg"></i></button></div><div class="isi-lembaran-aduan"></div>';
+            document.body.append(latar, lembaran);
+
+            const tutup = () => { latar.classList.remove('buka'); lembaran.classList.remove('buka'); document.body.style.overflow = ''; };
+            latar.addEventListener('click', tutup);
+            lembaran.querySelector('.kepala-lembaran-aduan button').addEventListener('click', tutup);
+
+            pilihanLembaran.forEach((pilihan) => {
+                const pemicu = document.createElement('button');
+                pemicu.type = 'button';
+                pemicu.className = 'pemicu-lembaran-aduan d-md-none';
+                pilihan.after(pemicu);
+
+                const segerak = () => {
+                    const dipilih = pilihan.selectedOptions[0];
+                    pemicu.innerHTML = '<span>' + (pilihan.value ? dipilih.textContent.trim() : (pilihan.options[0]?.textContent.trim() || 'Pilih')) + '</span><i class="bi bi-chevron-down"></i>';
+                    pemicu.classList.toggle('kosong', !pilihan.value);
+                };
+
+                pemicu.addEventListener('click', () => {
+                    lembaran.querySelector('.kepala-lembaran-aduan strong').textContent = pilihan.dataset.lembaranPilihan;
+                    const isi = lembaran.querySelector('.isi-lembaran-aduan');
+                    isi.replaceChildren();
+
+                    [...pilihan.options].filter((o) => o.value !== '').forEach((o) => {
+                        const item = document.createElement('button');
+                        item.type = 'button';
+                        item.className = 'item-lembaran-aduan' + (o.value === pilihan.value ? ' aktif' : '');
+                        item.innerHTML = '<span></span><i class="bi bi-check-lg"></i>';
+                        item.querySelector('span').textContent = o.textContent.trim();
+                        item.addEventListener('click', () => {
+                            pilihan.value = o.value;
+                            pilihan.dispatchEvent(new Event('change', { bubbles: true }));
+                            tutup();
+                        });
+                        isi.appendChild(item);
+                    });
+
+                    if (!isi.children.length) {
+                        isi.innerHTML = '<p class="text-secondary small text-center my-3">Tiada pilihan.</p>';
+                    }
+
+                    latar.classList.add('buka');
+                    lembaran.classList.add('buka');
+                    document.body.style.overflow = 'hidden';
+                });
+
+                pilihan.addEventListener('change', segerak);
+                pilihan.addEventListener('invalid', () => pemicu.classList.add('ralat'));
+                pilihan.addEventListener('change', () => pemicu.classList.remove('ralat'));
+                segerak();
+            });
+        })();
+
+        // Kad pilihan gaya aplikasi (mobile) menggantikan dropdown
+        document.querySelectorAll('[data-pilih-untuk]').forEach((kumpulan) => {
+            const pilihan = document.querySelector(kumpulan.dataset.pilihUntuk);
+            const butang = [...kumpulan.querySelectorAll('[data-nilai]')];
+            const segerak = () => butang.forEach((b) => b.classList.toggle('aktif', b.dataset.nilai === pilihan.value));
+
+            butang.forEach((b) => b.addEventListener('click', () => {
+                pilihan.value = b.dataset.nilai;
+                pilihan.dispatchEvent(new Event('change', { bubbles: true }));
+                kumpulan.classList.remove('ralat');
+                segerak();
+            }));
+
+            pilihan.addEventListener('change', segerak);
+            pilihan.addEventListener('invalid', () => kumpulan.classList.add('ralat'));
+            segerak();
+        });
 
         const panelGambarAduan = document.querySelector('[data-pilihan-gambar-aduan]');
 
@@ -632,6 +719,16 @@
             }
 
             event.preventDefault();
+
+            // Dropdown disembunyikan di mobile: semak sendiri supaya tidak gagal senyap
+            const belumDipilih = [...document.querySelectorAll('[data-pilih-untuk]')]
+                .filter((kumpulan) => !document.querySelector(kumpulan.dataset.pilihUntuk).value);
+
+            if (belumDipilih.length && window.matchMedia('(max-width: 767.98px)').matches) {
+                belumDipilih.forEach((kumpulan) => kumpulan.classList.add('ralat'));
+                belumDipilih[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
 
             Swal.fire({
                 icon: 'question',

@@ -10,13 +10,10 @@
 @php
     $pautan = fn (array $ubah) => route('portal.sewa', array_filter(array_merge(['cari' => $cari, 'jenis' => $jenis, 'mukim' => $mukim, 'paparan' => $paparan === 'peta' ? 'peta' : null], $ubah), fn ($v) => $v !== null && $v !== ''));
     $asetPeta = $aset->whereNotNull('lat')->values();
-    $butangPeta = $paparan === 'peta'
-        ? ['url' => $pautan(['paparan' => null]), 'ikon' => 'bi-list-ul', 'label' => 'Paparan senarai']
-        : ['url' => $pautan(['paparan' => 'peta']), 'ikon' => 'bi-map', 'label' => 'Paparan peta'];
 @endphp
 
 @section('kandungan')
-    @include('portal._kepala', ['butangPeta' => $butangPeta, 'tajukBar' => ''])
+    @include('portal._kepala', ['tajukBar' => ''])
 
     <div class="portal-carian-baris" data-portal-melekat>
         <form method="GET" action="{{ route('portal.sewa') }}" class="portal-carian" role="search">
