@@ -10079,3 +10079,140 @@ body:has(.lembaran-muat-turun.showing) .offcanvas-backdrop {
     }
 }
 
+
+/* =========================================================
+   Senarai aset: warna lembut baris perjanjian, ditingkatkan
+   sedikit supaya lebih jelas (masih lembut, bukan warna penuh)
+   ========================================================= */
+.jadual-sistem tbody tr.baris-perjanjian-tamat td {
+    background: #f9cfcf;
+}
+
+.jadual-sistem tbody tr.baris-perjanjian-tamat:hover td {
+    background: #f6bcbc;
+}
+
+.jadual-sistem tbody tr.baris-perjanjian-hampir td {
+    background: #ffeaa8;
+}
+
+.jadual-sistem tbody tr.baris-perjanjian-hampir:hover td {
+    background: #ffe08a;
+}
+
+.titik-petunjuk.tamat {
+    background: #f9cfcf;
+    border-color: #ec8a83;
+}
+
+.titik-petunjuk.hampir {
+    background: #ffeaa8;
+    border-color: #ebb92e;
+}
+
+/* Bootstrap .table-hover melukis warna hover (--bs-table-hover-bg) di ATAS latar
+   sel menggunakan box-shadow, jadi warna baris perjanjian ditutup bila hover.
+   Tetapkan warna hover Bootstrap mengikut warna baris itu sendiri. */
+@media (min-width: 768px) {
+    .jadual-sistem tbody tr.baris-perjanjian-tamat {
+        --bs-table-hover-bg: #f6bcbc;
+        --bs-table-bg: #f9cfcf;
+    }
+
+    .jadual-sistem tbody tr.baris-perjanjian-hampir {
+        --bs-table-hover-bg: #ffe08a;
+        --bs-table-bg: #ffeaa8;
+    }
+}
+
+/* ===================== Portal Awam (one stop centre) ===================== */
+.halaman-portal main.container { max-width: 1080px; }
+.btn-tema { background: #168a7e; border-color: #168a7e; color: #fff; font-weight: 600; }
+.btn-tema:hover, .btn-tema:focus { background: #117066; border-color: #117066; color: #fff; }
+.btn-outline-tema { border-color: #168a7e; color: #168a7e; font-weight: 600; background: #fff; }
+.btn-outline-tema:hover { background: #168a7e; color: #fff; }
+.text-tema { color: #168a7e; }
+.portal-tajuk { text-align: center; color: #173532; font-size: clamp(1.25rem, 4vw, 1.6rem); font-weight: 800; margin: 0 0 .25rem; }
+.portal-subtajuk { text-align: center; color: #63807b; font-size: .85rem; font-weight: 600; }
+.portal-bar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; padding: .6rem .9rem; border-radius: 18px; background: rgba(255,255,255,.85); border: 1px solid rgba(22,138,126,.12); box-shadow: 0 8px 22px rgba(22,138,126,.06); }
+.portal-jenama img { height: 34px; width: auto; }
+.portal-nav { display: flex; gap: .25rem; }
+.portal-nav a { display: inline-flex; align-items: center; gap: .35rem; padding: .45rem .7rem; border-radius: 12px; color: #39736b; font-size: .82rem; font-weight: 700; text-decoration: none; }
+.portal-nav a:hover, .portal-nav a.aktif { background: #e0f5f1; color: #117066; }
+.portal-jubin-grid { display: grid; gap: .75rem; max-width: 640px; margin: 0 auto; }
+.portal-jubin { display: flex; align-items: center; gap: .9rem; padding: 1rem 1.1rem; border-radius: 18px; background: #fff; border: 1px solid rgba(22,138,126,.12); box-shadow: 0 10px 26px rgba(22,138,126,.07); color: #173532; text-decoration: none; transition: transform .18s ease, box-shadow .18s ease; }
+.portal-jubin:hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(22,138,126,.13); color: #173532; }
+.portal-jubin.utama { background: linear-gradient(135deg, #168a7e, #0f6b61); color: #fff; }
+.portal-jubin.utama small, .portal-jubin.utama .bi-chevron-right { color: rgba(255,255,255,.85); }
+.portal-jubin.utama .portal-jubin-ikon { background: rgba(255,255,255,.18); color: #fff; }
+.portal-jubin.pasif { box-shadow: none; background: rgba(255,255,255,.6); border-style: dashed; }
+.portal-jubin.pasif:hover { transform: none; }
+.portal-jubin-ikon { display: grid; place-items: center; flex: 0 0 auto; width: 46px; height: 46px; border-radius: 14px; background: linear-gradient(135deg, #e0f5f1, #ccefe9); color: #168a7e; font-size: 1.25rem; }
+.portal-jubin-teks { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.portal-jubin-teks strong { font-size: .95rem; }
+.portal-jubin-teks small { color: #63807b; font-size: .76rem; }
+.portal-jubin .bi-chevron-right { color: #9bb5b0; }
+.portal-hubungi { max-width: 640px; margin: 0 auto 1rem; }
+.halaman-portal .portal-hubungi { max-width: none; }
+.portal-penapis { padding: .9rem; }
+.portal-penapis .form-control, .portal-penapis .form-select, .portal-penapis .input-group-text { border-color: #d7e5e2; min-height: 42px; }
+.portal-penapis .input-group-text { background: #fbfefd; color: #168a7e; }
+.portal-togol { display: inline-flex; padding: .25rem; border-radius: 14px; background: #e3eeec; }
+.portal-togol a { padding: .4rem .9rem; border-radius: 11px; color: #39736b; font-size: .82rem; font-weight: 700; text-decoration: none; }
+.portal-togol a.aktif { background: #fff; color: #117066; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.portal-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
+.portal-kad { display: flex; flex-direction: column; overflow: hidden; border-radius: 18px; background: #fff; border: 1px solid rgba(22,138,126,.12); box-shadow: 0 10px 26px rgba(22,138,126,.07); color: #173532; text-decoration: none; transition: transform .18s ease, box-shadow .18s ease; }
+.portal-kad:hover { transform: translateY(-3px); box-shadow: 0 16px 34px rgba(22,138,126,.14); color: #173532; }
+.portal-kad-gambar { position: relative; aspect-ratio: 16 / 10; background: #e8f2f0; }
+.portal-kad-gambar img { width: 100%; height: 100%; object-fit: cover; }
+.portal-tiada-gambar { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; color: #9bc4bd; font-size: 2.4rem; }
+.portal-tiada-gambar.besar { aspect-ratio: 16 / 9; border-radius: 18px; background: #e8f2f0; }
+.portal-tiada-gambar small { font-size: .8rem; }
+.portal-lencana { position: absolute; top: .6rem; left: .6rem; padding: .2rem .55rem; border-radius: 999px; background: rgba(23,53,50,.78); color: #fff; font-size: .68rem; font-weight: 700; }
+.portal-lencana.statik { position: static; display: inline-block; margin-bottom: .5rem; background: #e0f5f1; color: #117066; }
+.portal-bil-gambar { position: absolute; right: .6rem; bottom: .6rem; padding: .2rem .5rem; border-radius: 999px; background: rgba(0,0,0,.55); color: #fff; font-size: .68rem; font-weight: 600; }
+.portal-kad-badan { display: flex; flex-direction: column; flex: 1; padding: .85rem 1rem 1rem; }
+.portal-kad-badan h2 { margin: 0 0 .2rem; font-size: .95rem; font-weight: 800; line-height: 1.35; }
+.portal-kad-sub { margin: 0 0 .35rem; color: #63807b; font-size: .74rem; font-weight: 600; }
+.portal-kad-alamat { margin: 0 0 .6rem; color: #5a6f6b; font-size: .76rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.portal-kad-alamat i { color: #168a7e; }
+.portal-kad-kaki { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
+.portal-kad-kaki small { color: #63807b; font-weight: 600; font-size: .74rem; }
+.badge-tersedia { display: inline-flex; align-items: center; gap: .3rem; padding: .22rem .55rem; border-radius: 999px; background: #e3f6ea; color: #1f7a45; font-size: .7rem; font-weight: 700; }
+.portal-peta { height: 65vh; min-height: 380px; border-radius: 18px; overflow: hidden; border: 1px solid rgba(22,138,126,.15); z-index: 0; }
+.portal-peta.kecil { height: 240px; min-height: 0; }
+.portal-pin { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background: #168a7e; border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,.25); }
+.portal-pin i { transform: rotate(45deg); color: #fff; font-size: .95rem; }
+.portal-pin.tanah { background: #c77d16; }
+.portal-popup-gambar { display: block; width: 100%; height: 110px; object-fit: cover; border-radius: 10px; margin-bottom: .5rem; }
+.portal-popup strong { display: block; margin: .15rem 0 .5rem; font-size: .85rem; line-height: 1.3; }
+.portal-popup-jenis { color: #168a7e; font-size: .68rem; font-weight: 700; text-transform: uppercase; }
+.portal-popup-butang { display: flex; gap: .3rem; }
+.portal-popup-butang .btn-tema { flex: 1; color: #fff; }
+.portal-kembali { display: inline-flex; gap: .35rem; margin-bottom: .75rem; color: #39736b; font-size: .82rem; font-weight: 700; text-decoration: none; }
+.portal-galeri { position: relative; max-width: 760px; margin: 0 auto; }
+.portal-galeri-jalur { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; border-radius: 18px; scrollbar-width: none; }
+.portal-galeri-jalur::-webkit-scrollbar { display: none; }
+.portal-galeri-item { flex: 0 0 100%; padding: 0; border: 0; scroll-snap-align: start; aspect-ratio: 16 / 10; background: #e8f2f0; cursor: zoom-in; }
+.portal-galeri-item img { width: 100%; height: 100%; object-fit: cover; }
+.halaman-portal section.kad-awam, .halaman-portal .portal-kembali { max-width: 760px; }
+.halaman-portal main > section.kad-awam { margin-left: auto; margin-right: auto; }
+.portal-butiran-tajuk { margin: 0 0 .25rem; color: #173532; font-size: 1.2rem; font-weight: 800; }
+.portal-maklumat > div { display: flex; gap: .75rem; padding: .55rem 0; border-top: 1px solid #edf3f2; font-size: .84rem; }
+.portal-maklumat dt { flex: 0 0 110px; color: #63807b; font-weight: 600; }
+.portal-maklumat dt i { color: #168a7e; }
+.portal-maklumat dd { margin: 0; color: #173532; font-weight: 600; }
+.portal-lightbox { position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,.92); }
+.portal-lightbox-jalur { display: flex; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; }
+.portal-lightbox-item { display: grid; place-items: center; flex: 0 0 100%; scroll-snap-align: start; padding: 1rem; }
+.portal-lightbox-item img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.portal-lightbox-tutup { position: absolute; top: 1rem; right: 1rem; z-index: 1; width: 42px; height: 42px; border: 0; border-radius: 50%; background: rgba(255,255,255,.15); color: #fff; font-size: 1.1rem; }
+
+@media (max-width: 575.98px) {
+    .portal-nav a span { display: none; }
+    .portal-nav a { padding: .5rem .65rem; font-size: 1rem; }
+    .portal-grid { grid-template-columns: 1fr; }
+    .portal-peta { height: 60vh; }
+    .portal-galeri-jalur { border-radius: 14px; }
+    .portal-maklumat dt { flex-basis: 95px; }
+}

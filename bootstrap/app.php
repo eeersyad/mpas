@@ -17,6 +17,19 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->append(\App\Http\Middleware\HeaderKeselamatan::class);
+
+        // Cloudflare Tunnel: "cloudflared" berjalan pada komputer yang sama dan
+        // menghantar permintaan dari 127.0.0.1 bersama header X-Forwarded-*.
+        // Percayai proksi tempatan sahaja supaya Laravel kenal HTTPS dan IP sebenar
+        // pengguna. Header daripada IP lain tetap diabaikan (tidak boleh dipalsukan).
+        // Boleh ditukar melalui .env: TRUSTED_PROXIES=127.0.0.1,::1,10.0.0.5
+        $middleware->trustProxies(
+            at: array_filter(array_map('trim', explode(',', (string) env('TRUSTED_PROXIES', '127.0.0.1,::1')))),
+            headers: \Illuminate\Http\Request::HEADER_X_FORWARDED_FOR
+                | \Illuminate\Http\Request::HEADER_X_FORWARDED_HOST
+                | \Illuminate\Http\Request::HEADER_X_FORWARDED_PORT
+                | \Illuminate\Http\Request::HEADER_X_FORWARDED_PROTO,
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // Gantikan halaman "419 Page Expired" dengan mesej yang mesra pengguna.

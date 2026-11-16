@@ -26,9 +26,11 @@
     >
 
     @vite(['resources/css/app.css'])
+
+    @stack('kepala')
 </head>
 
-<body class="halaman-awam">
+<body class="halaman-awam @yield('kelas_body')">
     <main class="container py-4 py-md-5">
         @yield('kandungan')
     </main>
@@ -46,5 +48,7 @@
             });
         </script>
     @endif
+
+    @stack('skrip')
 </body>
 </html>
