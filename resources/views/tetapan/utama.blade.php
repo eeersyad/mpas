@@ -6,6 +6,7 @@
     <div class="hero-tetapan mb-4">
         <p class="teks-kecil mb-1 d-none d-md-block">PENGURUSAN SISTEM</p>
         <h1 class="tajuk-halaman mb-2">Tetapan</h1>
+        <p class="teks-penerangan mb-0 d-none d-md-block">Urus konfigurasi dan akses sistem.</p>
     </div>
 
     <div class="row g-4 pusat-tetapan">

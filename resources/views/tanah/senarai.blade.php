@@ -134,7 +134,12 @@
                             aria-label="Lihat butiran {{ $item->asl_lot_no }}"
                         >
                             <td>{{ $tanah->firstItem() + $loop->index }}</td>
-                            <td class="fw-semibold">{{ $item->asl_ref_no }}</td>
+                            <td class="fw-semibold">
+                                {{ $item->asl_ref_no }}
+                                @if ($item->asl_mukim)
+                                    <div class="baris-mukim"><span class="lencana-jadual mukim"><i class="bi bi-pin-map" aria-hidden="true"></i> {{ \App\Support\Paparan::label($item->asl_mukim) }}</span></div>
+                                @endif
+                            </td>
                             <td>{{ $item->asl_lot_no }}</td>
                             <td
                                 class="teks-no-fail"

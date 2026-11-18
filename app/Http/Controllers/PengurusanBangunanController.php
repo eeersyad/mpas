@@ -52,6 +52,7 @@ class PengurusanBangunanController extends Controller
 
         $bangunan = Bangunan::query()
             ->with('penyewaAktif:tnt_id,asb_id,tnt_name')
+            ->withMax('penyelenggaraan as tarikh_pemeriksaan_terkini', 'asm_inspection_date')
             ->withCount([
                 'penyewa as penyewa_aktif_count' => fn ($query) => $query
                     ->where('tnt_status', 'AKTIF'),
@@ -208,7 +209,7 @@ class PengurusanBangunanController extends Controller
 
     public function muatTurunPdf(Bangunan $bangunan, PdfAset $pdfAset)
     {
-        return response($pdfAset->janaMaklumat('bangunan', $bangunan), 200, [
+        return response($pdfAset->janaMaklumat('bangunan', $bangunan, TetapanPenyelenggaraan::bolehLihat(auth()->user())), 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'attachment; filename="Aset-Bangunan-' . $this->namaFailSelamat($bangunan->asb_ref_no) . '.pdf"',
         ]);
@@ -221,7 +222,7 @@ class PengurusanBangunanController extends Controller
     public function muatTurunZip(Bangunan $bangunan, PdfAset $pdfAset)
     {
         try {
-            $laluan = $pdfAset->janaZip('bangunan', $bangunan);
+            $laluan = $pdfAset->janaZip('bangunan', $bangunan, TetapanPenyelenggaraan::bolehLihat(auth()->user()));
         } catch (RuntimeException $ralat) {
             return back()->with('ralat', $ralat->getMessage());
         }

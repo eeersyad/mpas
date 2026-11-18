@@ -8,7 +8,7 @@
 @endpush
 
 @php
-    $pautan = fn (array $ubah) => route('portal.sewa', array_filter(array_merge(['cari' => $cari, 'jenis' => $jenis, 'mukim' => $mukim, 'paparan' => $paparan === 'peta' ? 'peta' : null], $ubah), fn ($v) => $v !== null && $v !== ''));
+    $pautan = fn (array $ubah) => route('portal.sewa', array_filter(array_merge(['cari' => $cari, 'kategori' => $kategori, 'mukim' => $mukim, 'paparan' => $paparan === 'peta' ? 'peta' : null], $ubah), fn ($v) => $v !== null && $v !== ''));
     $asetPeta = $aset->whereNotNull('lat')->values();
 @endphp
 
@@ -17,20 +17,26 @@
 
     <div class="portal-carian-baris" data-portal-melekat>
         <form method="GET" action="{{ route('portal.sewa') }}" class="portal-carian" role="search">
-            @if ($jenis)<input type="hidden" name="jenis" value="{{ $jenis }}">@endif
+            @if ($kategori !== '')<input type="hidden" name="kategori" value="{{ $kategori }}">@endif
             @if ($mukim !== '')<input type="hidden" name="mukim" value="{{ $mukim }}">@endif
             @if ($paparan === 'peta')<input type="hidden" name="paparan" value="peta">@endif
             <i class="bi bi-search"></i>
-            <input type="search" name="cari" value="{{ $cari }}" placeholder="Cari nama, lokasi atau no. lot" enterkeyhint="search" autocomplete="off">
+            <input type="search" name="cari" value="{{ $cari }}" placeholder="Cari nama bangunan, lokasi atau kategori" enterkeyhint="search" autocomplete="off">
             @if ($cari !== '')
                 <a href="{{ $pautan(['cari' => null]) }}" class="portal-carian-padam" aria-label="Padam carian"><i class="bi bi-x-circle-fill"></i></a>
             @endif
         </form>
-        <button type="button" class="portal-butang-penapis d-md-none" data-bs-toggle="offcanvas" data-bs-target="#lembaranPenapis" aria-label="Penapis"><i class="bi bi-sliders"></i>@if ($mukim !== '')<span class="portal-titik-aktif"></span>@endif</button>
-        <form method="GET" action="{{ route('portal.sewa') }}" class="d-none d-md-block">
-            @foreach (['cari' => $cari, 'jenis' => $jenis, 'paparan' => $paparan === 'peta' ? 'peta' : null] as $k => $v)
+        <button type="button" class="portal-butang-penapis d-md-none" data-bs-toggle="offcanvas" data-bs-target="#lembaranPenapis" aria-label="Penapis"><i class="bi bi-sliders"></i>@if ($mukim !== '' || $kategori !== '')<span class="portal-titik-aktif"></span>@endif</button>
+        <form method="GET" action="{{ route('portal.sewa') }}" class="d-none d-md-flex gap-2">
+            @foreach (['cari' => $cari, 'paparan' => $paparan === 'peta' ? 'peta' : null] as $k => $v)
                 @if ($v)<input type="hidden" name="{{ $k }}" value="{{ $v }}">@endif
             @endforeach
+            <select name="kategori" class="form-select portal-pilih-mukim" onchange="this.form.submit()">
+                <option value="">Semua kategori</option>
+                @foreach ($senaraiKategori as $nilai => $label)
+                    <option value="{{ $nilai }}" @selected($kategori === (string) $nilai)>{{ $label }}</option>
+                @endforeach
+            </select>
             <select name="mukim" class="form-select portal-pilih-mukim" onchange="this.form.submit()">
                 <option value="">Semua mukim</option>
                 @foreach ($senaraiMukim as $nilai => $label)
@@ -41,14 +47,8 @@
     </div>
 
     <div class="portal-atas">
-        <nav class="portal-tab">
-            <a href="{{ $pautan(['jenis' => null]) }}" class="{{ ! $jenis ? 'aktif' : '' }}">Semua</a>
-            <a href="{{ $pautan(['jenis' => 'bangunan']) }}" class="{{ $jenis === 'bangunan' ? 'aktif' : '' }}">Bangunan</a>
-            <a href="{{ $pautan(['jenis' => 'tanah']) }}" class="{{ $jenis === 'tanah' ? 'aktif' : '' }}">Tanah</a>
-        </nav>
-
         <div class="portal-kiraan">
-            <span><strong>{{ $aset->count() }}</strong> aset tersedia @if ($mukim !== '')&middot; {{ $senaraiMukim[$mukim] ?? $mukim }} <a href="{{ $pautan(['mukim' => null]) }}" class="portal-buang-penapis" aria-label="Buang penapis mukim"><i class="bi bi-x-circle-fill"></i></a>@endif</span>
+            <span><strong>{{ $aset->count() }}</strong> bangunan tersedia @if ($kategori !== '')&middot; {{ $senaraiKategori[$kategori] ?? $kategori }} <a href="{{ $pautan(['kategori' => null]) }}" class="portal-buang-penapis" aria-label="Buang penapis kategori"><i class="bi bi-x-circle-fill"></i></a>@endif @if ($mukim !== '')&middot; {{ $senaraiMukim[$mukim] ?? $mukim }} <a href="{{ $pautan(['mukim' => null]) }}" class="portal-buang-penapis" aria-label="Buang penapis mukim"><i class="bi bi-x-circle-fill"></i></a>@endif</span>
             <div class="portal-togol d-none d-md-inline-flex">
                 <a href="{{ $pautan(['paparan' => null]) }}" class="{{ $paparan === 'senarai' ? 'aktif' : '' }}"><i class="bi bi-grid"></i> Senarai</a>
                 <a href="{{ $pautan(['paparan' => 'peta']) }}" class="{{ $paparan === 'peta' ? 'aktif' : '' }}"><i class="bi bi-map"></i> Peta</a>
@@ -59,9 +59,9 @@
     @if ($aset->isEmpty())
         <div class="portal-kosong">
             <i class="bi bi-search"></i>
-            <p class="mb-1 fw-bold">Tiada aset dijumpai</p>
+            <p class="mb-1 fw-bold">Tiada bangunan dijumpai</p>
             <small class="text-muted">Cuba ubah carian atau penapis.</small>
-            @if ($cari !== '' || $jenis || $mukim !== '')
+            @if ($cari !== '' || $kategori !== '' || $mukim !== '')
                 <a href="{{ route('portal.sewa', $paparan === 'peta' ? ['paparan' => 'peta'] : []) }}" class="btn btn-tema btn-sm mt-3">Set semula penapis</a>
             @endif
         </div>
@@ -70,7 +70,7 @@
             <div id="petaPortal" class="portal-peta" data-portal-peta data-aset='@json($asetPeta)'></div>
             <button type="button" class="portal-peta-lokasi" data-lokasi-saya aria-label="Lokasi saya"><i class="bi bi-crosshair"></i></button>
             @if ($aset->count() > $asetPeta->count())
-                <span class="portal-nota-peta"><i class="bi bi-info-circle"></i> {{ $aset->count() - $asetPeta->count() }} aset tiada lokasi</span>
+                <span class="portal-nota-peta"><i class="bi bi-info-circle"></i> {{ $aset->count() - $asetPeta->count() }} bangunan tiada lokasi</span>
             @endif
             <div class="portal-pin-kad" data-pin-kad hidden></div>
         </div>
@@ -113,10 +113,21 @@
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Tutup"></button>
         </div>
         <form method="GET" action="{{ route('portal.sewa') }}" class="borang-penapis-mobile">
-            @foreach (['cari' => $cari, 'jenis' => $jenis, 'paparan' => $paparan === 'peta' ? 'peta' : null] as $k => $v)
+            @foreach (['cari' => $cari, 'paparan' => $paparan === 'peta' ? 'peta' : null] as $k => $v)
                 @if ($v)<input type="hidden" name="{{ $k }}" value="{{ $v }}">@endif
             @endforeach
             <div class="offcanvas-body">
+                <fieldset class="kumpulan-pill">
+                    <legend>Kategori</legend>
+                    <div class="senarai-pill">
+                        <input type="radio" class="btn-check" name="kategori" id="ppKategoriSemua" value="" autocomplete="off" @checked($kategori === '')>
+                        <label class="pill-pilihan" for="ppKategoriSemua">Semua</label>
+                        @foreach ($senaraiKategori as $nilai => $label)
+                            <input type="radio" class="btn-check" name="kategori" id="ppKategori{{ $loop->index }}" value="{{ $nilai }}" autocomplete="off" @checked($kategori === (string) $nilai)>
+                            <label class="pill-pilihan" for="ppKategori{{ $loop->index }}">{{ $label }}</label>
+                        @endforeach
+                    </div>
+                </fieldset>
                 <fieldset class="kumpulan-pill">
                     <legend>Mukim</legend>
                     <div class="senarai-pill">
@@ -130,7 +141,7 @@
                 </fieldset>
             </div>
             <div class="kaki-penapis-mobile">
-                <a href="{{ $pautan(['mukim' => null]) }}" class="btn btn-light flex-fill">Set semula</a>
+                <a href="{{ $pautan(['mukim' => null, 'kategori' => null]) }}" class="btn btn-light flex-fill">Set semula</a>
                 <button type="submit" class="btn btn-tema flex-fill">Terapkan</button>
             </div>
         </form>

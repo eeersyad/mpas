@@ -45,11 +45,11 @@ Route::middleware('throttle:60,1')->prefix('awam')->name('portal.')->group(funct
     Route::get('/', [PortalAwamController::class, 'sewa'])->name('sewa');
     Route::redirect('/sewa', '/awam')->name('index');
     Route::get('/bangunan/{bangunan}', [PortalAwamController::class, 'bangunan'])->name('sewa.bangunan');
-    Route::get('/tanah/{tanah}', [PortalAwamController::class, 'tanah'])->name('sewa.tanah');
+    Route::redirect('/tanah/{tanah}', '/awam');
     Route::get('/manifest.webmanifest', [PortalAwamController::class, 'manifest'])->name('manifest');
     Route::get('/sw.js', [PortalAwamController::class, 'serviceWorker'])->name('sw');
     Route::get('/gambar/{jenis}/{dokumen}/{saiz?}', [PortalAwamController::class, 'gambar'])
-        ->whereIn('jenis', ['bangunan', 'tanah'])
+        ->whereIn('jenis', ['bangunan'])
         ->whereNumber('dokumen')
         ->whereIn('saiz', ['kecil', 'besar'])
         ->name('gambar');

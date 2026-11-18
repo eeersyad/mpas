@@ -53,6 +53,9 @@ class Bangunan extends Model
         'asb_satu_acc_no',
         'asb_maintenance_status',
         'asb_premise_status',
+        'asb_advertise',
+        'asb_advertise_start',
+        'asb_advertise_end',
         'asb_collector_name',
         'asb_collector_position',
         'asb_collector_id',
@@ -69,6 +72,9 @@ class Bangunan extends Model
     {
         return [
             'asb_aset_warisan' => 'boolean',
+            'asb_advertise' => 'boolean',
+            'asb_advertise_start' => 'date',
+            'asb_advertise_end' => 'date',
             'asb_size' => 'decimal:2',
             'asb_kos_siap_bina_asal' => 'decimal:2',
             'asb_kos_tambahan' => 'decimal:2',

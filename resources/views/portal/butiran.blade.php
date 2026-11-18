@@ -14,11 +14,11 @@
 
 @php
     $sebelum = url()->previous();
-    $kembali = $sebelum !== url()->current() && str_contains($sebelum, '/awam') && ! str_contains($sebelum, '/awam/bangunan') && ! str_contains($sebelum, '/awam/tanah') ? $sebelum : route('portal.sewa');
+    $kembali = $sebelum !== url()->current() && str_contains($sebelum, '/awam') && ! str_contains($sebelum, '/awam/bangunan') ? $sebelum : route('portal.sewa');
 @endphp
 
 @section('kandungan')
-    @include('portal._kepala', ['butangKembali' => $kembali, 'butangKongsi' => true, 'tajukBar' => $aset['jenis_label']])
+    @include('portal._kepala', ['butangKembali' => $kembali, 'butangKongsi' => true, 'tajukBar' => 'Bangunan'])
 
     <a href="{{ $kembali }}" class="portal-kembali d-none d-md-inline-flex"><i class="bi bi-arrow-left"></i> Kembali ke senarai</a>
 
@@ -113,7 +113,7 @@
                 const satelit = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: 'Esri' });
                 const peta = L.map(el, { layers: [jalan], scrollWheelZoom: false }).setView([lat, lng], 16);
                 L.control.layers({ 'Jalan': jalan, 'Satelit': satelit }).addTo(peta);
-                L.marker([lat, lng], { icon: L.divIcon({ className: 'portal-penanda', html: '<svg viewBox="0 0 32 42" width="32" height="42"><path d="M16 1C7.7 1 1 7.6 1 15.8 1 27 16 41 16 41s15-14 15-25.2C31 7.6 24.3 1 16 1z" fill="{{ $aset['jenis'] === 'tanah' ? '#c77d16' : '#168a7e' }}" stroke="#fff" stroke-width="2"/><circle cx="16" cy="15.5" r="5.5" fill="#fff"/></svg>', iconSize: [32, 42], iconAnchor: [16, 41] }) }).addTo(peta);
+                L.marker([lat, lng], { icon: L.divIcon({ className: 'portal-penanda', html: '<svg viewBox="0 0 32 42" width="32" height="42"><path d="M16 1C7.7 1 1 7.6 1 15.8 1 27 16 41 16 41s15-14 15-25.2C31 7.6 24.3 1 16 1z" fill="#168a7e" stroke="#fff" stroke-width="2"/><circle cx="16" cy="15.5" r="5.5" fill="#fff"/></svg>', iconSize: [32, 42], iconAnchor: [16, 41] }) }).addTo(peta);
             }
 
             const galeri = document.querySelector('[data-galeri]');

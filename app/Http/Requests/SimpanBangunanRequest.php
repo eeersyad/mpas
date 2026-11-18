@@ -41,7 +41,16 @@ class SimpanBangunanRequest extends FormRequest
         $this->merge([
             ...$maklumatTajuk,
             'asb_aset_warisan' => $this->boolean('asb_aset_warisan'),
+            // Hanya premis "Tidak Disewa" boleh diiklankan di Portal Awam
+            'asb_advertise' => $this->input('asb_premise_status') === 'TIDAK_DISEWA'
+                ? (filled($this->input('asb_advertise')) ? $this->boolean('asb_advertise') : null)
+                : false,
         ]);
+
+        // Tiada iklan: kosongkan tempoh iklan
+        if (! $this->input('asb_advertise')) {
+            $this->merge(['asb_advertise_start' => null, 'asb_advertise_end' => null]);
+        }
         
         if (! TetapanPenyelenggaraan::bolehIsi($this->user())) {
             $this->merge([
@@ -87,6 +96,9 @@ class SimpanBangunanRequest extends FormRequest
 
             'asb_size' => ['nullable', 'numeric', 'min:0'],
             'asb_aset_warisan' => ['boolean'],
+            'asb_advertise' => ['required_if:asb_premise_status,TIDAK_DISEWA', 'nullable', 'boolean'],
+            'asb_advertise_start' => ['required_if_accepted:asb_advertise', 'nullable', 'date'],
+            'asb_advertise_end' => ['required_if_accepted:asb_advertise', 'nullable', 'date', 'after_or_equal:asb_advertise_start'],
             'asb_total_block' => ['nullable', 'integer', 'min:0'],
             'asb_total_ext_structure' => ['nullable', 'integer', 'min:0'],
             'asb_tnb_acc_no' => ['nullable', 'string', 'max:100'],
@@ -239,6 +251,10 @@ class SimpanBangunanRequest extends FormRequest
             'asb_gmaps_location.url' => 'Sila masukkan pautan Google Maps yang sah.',
             'asb_maintenance_status.required' => 'Sila pilih status penyelenggaraan.',
             'asb_premise_status.required' => 'Sila pilih status premis.',
+            'asb_advertise.required_if' => 'Sila pilih status pengiklanan.',
+            'asb_advertise_start.required_if_accepted' => 'Sila isi tarikh mula iklan.',
+            'asb_advertise_end.required_if_accepted' => 'Sila isi tarikh tamat iklan.',
+            'asb_advertise_end.after_or_equal' => 'Tarikh tamat iklan mesti sama atau selepas tarikh mula.',
             'penyewa.*.tnt_name.required_with' => 'Sila masukkan nama penyewa.',
             'penyewa.*.tnt_tamat_perjanjian.after_or_equal' =>
                 'Tarikh tamat perjanjian tidak boleh lebih awal daripada tarikh mula perjanjian.',

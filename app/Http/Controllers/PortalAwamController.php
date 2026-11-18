@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Bangunan;
 use App\Models\DokumenBangunan;
-use App\Models\DokumenTanah;
-use App\Models\Tanah;
 use App\Support\Paparan;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -15,7 +13,7 @@ use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Portal Awam: senarai aset bangunan & tanah yang tersedia untuk disewa,
+ * Portal Awam: senarai aset bangunan yang tersedia untuk disewa,
  * peta lokasi dan navigasi. Tiada log masuk.
  */
 class PortalAwamController extends Controller
@@ -25,45 +23,37 @@ class PortalAwamController extends Controller
     public function index(): View
     {
         return view('portal.utama', [
-            'bilTersedia' => $this->queryBangunan()->count() + $this->queryTanah()->count(),
+            'bilTersedia' => $this->queryBangunan()->count(),
             'hubungan' => config('portal.hubungan'),
         ]);
     }
 
     public function sewa(Request $request): View
     {
-        $jenis = in_array($request->query('jenis'), ['bangunan', 'tanah'], true) ? $request->query('jenis') : null;
         $cari = trim((string) $request->query('cari'));
         $mukim = mb_strtoupper(trim((string) $request->query('mukim')));
+        $kategori = mb_strtoupper(trim((string) $request->query('kategori')));
 
-        $bangunan = $jenis === 'tanah' ? collect() : $this->queryBangunan()
+        $aset = $this->queryBangunan()
             ->when($cari !== '', fn (Builder $q) => $q->where(fn (Builder $q) => $q
                 ->where('asb_name', 'like', "%{$cari}%")
                 ->orWhere('asb_add1', 'like', "%{$cari}%")
                 ->orWhere('asb_add2', 'like', "%{$cari}%")
                 ->orWhere('asb_city', 'like', "%{$cari}%")
-                ->orWhere('asb_category', 'like', "%{$cari}%")))
+                ->orWhere('asb_category', 'like', "%{$cari}%")
+                ->orWhere('asb_sub_category', 'like', "%{$cari}%")))
             ->when($mukim !== '', fn (Builder $q) => $q->whereRaw('UPPER(TRIM(asb_mukim)) = ?', [$mukim]))
+            ->when($kategori !== '', fn (Builder $q) => $q->whereRaw('UPPER(TRIM(asb_category)) = ?', [$kategori]))
             ->with(['dokumen' => fn ($q) => $q->where('asbdoc_type', 'GAMBAR')->orderBy('asbdoc_id')])
             ->orderBy('asb_name')
             ->get()
-            ->map(fn (Bangunan $b) => $this->dataBangunan($b));
-
-        $tanah = $jenis === 'bangunan' ? collect() : $this->queryTanah()
-            ->when($cari !== '', fn (Builder $q) => $q->where(fn (Builder $q) => $q
-                ->where('asl_lot_no', 'like', "%{$cari}%")
-                ->orWhere('asl_location', 'like', "%{$cari}%")))
-            ->when($mukim !== '', fn (Builder $q) => $q->whereRaw('UPPER(TRIM(asl_mukim)) = ?', [$mukim]))
-            ->with(['dokumen' => fn ($q) => $q->where('asldoc_type', 'GAMBAR')->orderBy('asldoc_id')])
-            ->orderBy('asl_location')
-            ->get()
-            ->map(fn (Tanah $t) => $this->dataTanah($t));
-
-        $aset = $bangunan->concat($tanah)->values();
+            ->map(fn (Bangunan $b) => $this->dataBangunan($b))
+            ->values();
 
         return view('portal.sewa', [
             'aset' => $aset,
-            'jenis' => $jenis,
+            'kategori' => $kategori,
+            'senaraiKategori' => $this->senaraiKategori(),
             'cari' => $cari,
             'mukim' => $mukim,
             'senaraiMukim' => $this->senaraiMukim(),
@@ -84,18 +74,6 @@ class PortalAwamController extends Controller
         ]);
     }
 
-    public function tanah(Tanah $tanah): View
-    {
-        abort_unless($this->queryTanah()->whereKey($tanah->getKey())->exists(), 404);
-
-        $tanah->load(['dokumen' => fn ($q) => $q->where('asldoc_type', 'GAMBAR')->orderBy('asldoc_id')]);
-
-        return view('portal.butiran', [
-            'aset' => $this->dataTanah($tanah),
-            'hubungan' => config('portal.hubungan'),
-        ]);
-    }
-
     /**
      * Manifest PWA portal awam (boleh "Tambah ke Skrin Utama").
      */
@@ -104,7 +82,7 @@ class PortalAwamController extends Controller
         $data = [
             'name' => 'MPAS Portal Aset Awam',
             'short_name' => 'Aset MDM',
-            'description' => 'Aset bangunan dan tanah Majlis Daerah Marang yang tersedia untuk disewa',
+            'description' => 'Aset bangunan Majlis Daerah Marang yang tersedia untuk disewa',
             'lang' => 'ms',
             'start_url' => '/awam',
             'scope' => '/awam',
@@ -165,11 +143,6 @@ JS;
             abort_unless($rekod->asbdoc_type === 'GAMBAR', 404);
             abort_unless($this->queryBangunan()->whereKey($rekod->asb_id)->exists(), 404);
             $path = $rekod->asbdoc_path;
-        } elseif ($jenis === 'tanah') {
-            $rekod = DokumenTanah::query()->findOrFail($dokumen);
-            abort_unless($rekod->asldoc_type === 'GAMBAR', 404);
-            abort_unless($this->queryTanah()->whereKey($rekod->asl_id)->exists(), 404);
-            $path = $rekod->asldoc_path;
         } else {
             abort(404);
         }
@@ -197,16 +170,12 @@ JS;
 
     private function queryBangunan(): Builder
     {
+        // Hanya bangunan "Tidak Disewa" yang ditanda untuk diiklankan
         return Bangunan::query()
-            ->whereIn('asb_premise_status', config('portal.status_tersedia'))
-            ->where(fn (Builder $q) => $q
-                ->whereNull('asb_maintenance_status')
-                ->orWhereNotIn('asb_maintenance_status', config('portal.penyelenggaraan_dikecualikan')));
-    }
-
-    private function queryTanah(): Builder
-    {
-        return Tanah::query()->whereIn('asl_status_tanah', config('portal.status_tersedia'));
+            ->where('asb_premise_status', 'TIDAK_DISEWA')
+            ->where('asb_advertise', true)
+            ->where(fn (Builder $q) => $q->whereNull('asb_advertise_start')->orWhereDate('asb_advertise_start', '<=', today()))
+            ->where(fn (Builder $q) => $q->whereNull('asb_advertise_end')->orWhereDate('asb_advertise_end', '>=', today()));
     }
 
     private function dataBangunan(Bangunan $b): array
@@ -218,7 +187,7 @@ JS;
 
         return $this->lengkapkan([
             'jenis' => 'bangunan',
-            'jenis_label' => 'Bangunan',
+            'jenis_label' => $b->asb_category ? Paparan::label($b->asb_category) : 'Bangunan',
             'id' => $b->asb_id,
             'tajuk' => $b->asb_name,
             'subtajuk' => collect([$b->asb_category, $b->asb_sub_category])->filter()->map(fn ($k) => Paparan::label($k))->implode(' · '),
@@ -233,28 +202,6 @@ JS;
                 ->map(fn ($d) => $d->asbdoc_id)
                 ->values(),
             'url' => route('portal.sewa.bangunan', $b),
-        ]);
-    }
-
-    private function dataTanah(Tanah $t): array
-    {
-        return $this->lengkapkan([
-            'jenis' => 'tanah',
-            'jenis_label' => 'Tanah',
-            'id' => $t->asl_id,
-            'tajuk' => trim(($t->asl_location ?: 'Tanah') . ($t->asl_lot_no ? ' (Lot ' . $t->asl_lot_no . ')' : '')),
-            'subtajuk' => $t->asl_lot_no ? 'Lot ' . $t->asl_lot_no : null,
-            'status' => Paparan::label($t->asl_status_tanah),
-            'alamat' => $t->asl_location,
-            'mukim' => $t->asl_mukim ? Paparan::label($t->asl_mukim) : null,
-            'keluasan' => $t->asl_land_size,
-            'lat' => $t->asl_latitude,
-            'lng' => $t->asl_longitude,
-            'gambar' => $t->dokumen
-                ->filter(fn ($d) => in_array(strtolower(pathinfo((string) $d->asldoc_path, PATHINFO_EXTENSION)), self::FORMAT_GAMBAR, true))
-                ->map(fn ($d) => $d->asldoc_id)
-                ->values(),
-            'url' => route('portal.sewa.tanah', $t),
         ]);
     }
 
@@ -279,12 +226,21 @@ JS;
     private function senaraiMukim(): Collection
     {
         return $this->queryBangunan()->whereNotNull('asb_mukim')->distinct()->pluck('asb_mukim')
-            ->concat($this->queryTanah()->whereNotNull('asl_mukim')->distinct()->pluck('asl_mukim'))
             ->map(fn ($m) => mb_strtoupper(trim((string) $m)))
             ->filter()
             ->unique()
             ->sort()
             ->mapWithKeys(fn ($m) => [$m => Paparan::label($m)]);
+    }
+
+    private function senaraiKategori(): Collection
+    {
+        return $this->queryBangunan()->whereNotNull('asb_category')->distinct()->pluck('asb_category')
+            ->map(fn ($k) => mb_strtoupper(trim((string) $k)))
+            ->filter()
+            ->unique()
+            ->sort()
+            ->mapWithKeys(fn ($k) => [$k => Paparan::label($k)]);
     }
 
     private function laluanFail(?string $path): ?string

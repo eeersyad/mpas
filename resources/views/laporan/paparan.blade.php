@@ -14,6 +14,7 @@
             'bangunan' => 'sembunyi|sub|tajuk|lencana|lencana|info=Penyewa aktif:',
             'tanah' => 'sembunyi|meta|tajuk=Lot|sub|lencana|lencana|info=Keluasan:',
             'perjanjian_penyewa' => 'sembunyi|tajuk|meta=No. KP:|sub|info=Mula|info=Tamat|lencana',
+            'pemeriksaan' => 'sembunyi|tajuk|sub|lencana|info=Diperiksa:',
             'aduan' => 'sembunyi|info|tajuk|sub|meta=Pengadu:|lencana',
             'penyelenggaraan' => 'sembunyi|info|tajuk|sub|meta=Pengadu:|lencana',
         ][$jenis] ?? '';
@@ -30,6 +31,10 @@
             'perjanjian_penyewa' => [
                 'status_tempoh' => ['label' => 'Status Tempoh', 'pilihan' => ['HAMPIR_TAMAT' => 'Hampir Tamat', 'SUDAH_TAMAT' => 'Sudah Tamat']],
             ],
+            'pemeriksaan' => [
+                'mukim' => ['label' => 'Mukim', 'pilihan' => $pilihanMukim],
+                'julat_tarikh' => ['jenis' => 'tarikh', 'label' => 'Tarikh Pemeriksaan', 'medan' => ['tarikh_mula' => 'Dari', 'tarikh_tamat' => 'Hingga']],
+            ],
             default => [
                 'status' => ['label' => 'Status Aduan', 'pilihan' => ['BARU', 'DITERIMA', 'DALAM_PENYELENGGARAAN', 'SELESAI']],
                 'jenis_pengadu' => ['label' => 'Pengadu', 'pilihan' => ['PENYEWA' => 'Penyewa', 'AWAM' => 'Orang Awam']],
@@ -41,6 +46,7 @@
             'bangunan' => ['rujukan' => 'No. Rujukan', 'nama' => 'Nama', 'status_premis' => 'Status Premis', 'penyelenggaraan' => 'Penyelenggaraan', 'penyewa' => 'Penyewa'],
             'tanah' => ['rujukan' => 'No. Rujukan', 'lot' => 'No. Lot', 'lokasi' => 'Lokasi', 'keluasan' => 'Keluasan'],
             'perjanjian_penyewa' => ['penyewa' => 'Penyewa', 'bangunan' => 'Aset', 'mula' => 'Mula', 'tamat' => 'Tamat'],
+            'pemeriksaan' => ['tarikh' => 'Tarikh Pemeriksaan', 'nama' => 'Nama Bangunan', 'mukim' => 'Mukim'],
             default => ['tarikh' => 'Tarikh', 'aset' => 'Aset', 'kerosakan' => 'Kerosakan', 'status' => 'Status'],
         };
 
@@ -48,6 +54,7 @@
             'bangunan' => 'Cari rujukan, nama atau bandar...',
             'tanah' => 'Cari rujukan, lot atau lokasi...',
             'perjanjian_penyewa' => 'Cari penyewa, no. KP atau aset...',
+            'pemeriksaan' => 'Cari bangunan, rujukan atau alamat...',
             default => 'Cari aset, rujukan atau kerosakan...',
         };
     @endphp
@@ -106,40 +113,23 @@
         </div>
     </div>
 
-    <div class="d-none d-md-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
-        <div>
-            <a href="{{ route('laporan.index') }}" class="btn btn-sm btn-outline-secondary mb-3">
-                <i class="bi bi-arrow-left me-1"></i>Kembali ke Laporan
-            </a>
+    {{-- ===================== DESKTOP: kepala laporan (bar nipis) ===================== --}}
+    <div class="bar-kepala-laporan d-none d-md-flex">
+        <a href="{{ route('laporan.index') }}" class="butang-kembali-laporan" aria-label="Kembali ke menu laporan" title="Kembali ke Laporan"><i class="bi bi-arrow-left" aria-hidden="true"></i></a>
 
-            <p class="teks-kecil mb-1">LAPORAN SISTEM</p>
-            <h1 class="tajuk-halaman mb-2">
-                <i class="bi {{ $konfigurasi['ikon'] }} me-2 text-primary"></i>
-                {{ $konfigurasi['tajuk'] }}
-            </h1>
+        <span class="ikon-bar-laporan"><i class="bi {{ $konfigurasi['ikon'] }}" aria-hidden="true"></i></span>
 
-            <p class="teks-penerangan mb-0">{{ $konfigurasi['penerangan'] }}</p>
+        <div class="teks-bar-laporan">
+            <div class="baris-tajuk-laporan">
+                <h1>{{ $konfigurasi['tajuk'] }}</h1>
+                <span class="kapsul-rekod-laporan">{{ number_format($rekod->total()) }} rekod{{ request()->hasAny(['cari', 'status', 'status_premis', 'status_penyelenggaraan', 'status_hakmilik', 'status_tanah', 'status_tempoh', 'jenis_pengadu', 'mukim', 'tarikh_mula', 'tarikh_tamat']) ? ' ditapis' : '' }}</span>
+            </div>
+            <p>{{ $konfigurasi['penerangan'] }}</p>
         </div>
 
-        <div class="d-flex flex-wrap align-items-center gap-2">
-            <a
-                href="{{ route('laporan.pdf', $parameterEksport) }}"
-                class="btn btn-outline-danger btn-sm"
-            >
-                <i class="bi bi-file-earmark-pdf me-1"></i>Eksport PDF
-            </a>
-
-            <a
-                href="{{ route('laporan.excel', $parameterEksport) }}"
-                class="btn btn-outline-success btn-sm"
-            >
-                <i class="bi bi-file-earmark-excel me-1"></i>Eksport Excel
-            </a>
-
-            <div class="lencana-laporan-utama">
-                <i class="bi bi-table"></i>
-                {{ number_format($rekod->total()) }} rekod
-            </div>
+        <div class="kumpulan-eksport" role="group" aria-label="Eksport laporan">
+            <a href="{{ route('laporan.pdf', $parameterEksport) }}" class="butang-eksport pdf" title="Eksport PDF mengikut carian dan penapis semasa"><i class="bi bi-file-earmark-pdf-fill" aria-hidden="true"></i> PDF</a>
+            <a href="{{ route('laporan.excel', $parameterEksport) }}" class="butang-eksport excel" title="Eksport Excel mengikut carian dan penapis semasa"><i class="bi bi-file-earmark-spreadsheet-fill" aria-hidden="true"></i> Excel</a>
         </div>
     </div>
 
@@ -173,6 +163,11 @@
                         class="form-control kawalan-penapis"
                         placeholder="{{ $jenis === 'bangunan' ? 'Rujukan, nama bangunan atau bandar...' : 'Rujukan, lot, lokasi atau hakmilik...' }}"
                     >
+                </div>
+            @elseif ($jenis === 'pemeriksaan')
+                <div class="col-12 col-xl-4">
+                    <label for="cari" class="label-penapis"><i class="bi bi-search"></i> Carian Bangunan</label>
+                    <input type="search" id="cari" name="cari" value="{{ request('cari') }}" class="form-control kawalan-penapis" placeholder="Nama bangunan, rujukan atau alamat...">
                 </div>
             @elseif (in_array($jenis, ['aduan', 'penyelenggaraan'], true))
                 <div class="col-12 col-xl-4">
@@ -332,6 +327,28 @@
                 </div>
             @endif
 
+            @if ($jenis === 'pemeriksaan')
+                <div class="col-12 col-md-4 col-xl-2">
+                    <label for="mukim" class="label-penapis"><i class="bi bi-pin-map"></i> Mukim</label>
+                    <select id="mukim" name="mukim" class="form-select kawalan-penapis">
+                        <option value="">Semua Mukim</option>
+                        @foreach ($pilihanMukim as $nilaiMukim => $labelMukim)
+                            <option value="{{ $nilaiMukim }}" @selected(request('mukim') === (string) $nilaiMukim)>{{ $labelMukim }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="col-6 col-md-4 col-xl-2">
+                    <label for="tarikhMula" class="label-penapis"><i class="bi bi-calendar-event"></i> Diperiksa Dari</label>
+                    <input type="date" id="tarikhMula" name="tarikh_mula" value="{{ request('tarikh_mula') }}" class="form-control kawalan-penapis">
+                </div>
+
+                <div class="col-6 col-md-4 col-xl-2">
+                    <label for="tarikhTamat" class="label-penapis"><i class="bi bi-calendar-check"></i> Hingga</label>
+                    <input type="date" id="tarikhTamat" name="tarikh_tamat" value="{{ request('tarikh_tamat') }}" class="form-control kawalan-penapis">
+                </div>
+            @endif
+
             @if ($jenis === 'perjanjian_penyewa')
                 <div class="col-12 col-md-6 col-xl-3">
                     <label for="statusTempoh" class="label-penapis">
@@ -388,6 +405,14 @@
                             <th><x-susun medan="status_tanah" label="Status Tanah" /></th>
                             <th><x-susun medan="keluasan" label="Keluasan" /></th>
                         </tr>
+                    @elseif ($jenis === 'pemeriksaan')
+                        <tr>
+                            <th>Bil.</th>
+                            <th><x-susun medan="nama" label="Nama Bangunan" /></th>
+                            <th>Alamat</th>
+                            <th><x-susun medan="mukim" label="Mukim" /></th>
+                            <th><x-susun medan="tarikh" label="Tarikh Pemeriksaan" /></th>
+                        </tr>
                     @elseif ($jenis === 'perjanjian_penyewa')
                         <tr>
                             <th>Bil.</th>
@@ -433,6 +458,23 @@
                                 <td>{{ \App\Support\Paparan::label($item->asl_status_hakmilik) }}</td>
                                 <td>{{ \App\Support\Paparan::label($item->asl_status_tanah) }}</td>
                                 <td>{{ number_format($item->asl_land_size, 2) }} m²</td>
+                            </tr>
+                        @elseif ($jenis === 'pemeriksaan')
+                            <tr>
+                                <td>{{ $rekod->firstItem() + $loop->index }}</td>
+                                <td>
+                                    <strong class="d-block">{{ $item->asb_name }}</strong>
+                                    <small class="text-secondary">{{ $item->asb_ref_no }}</small>
+                                </td>
+                                <td>{{ $item->alamat_penuh }}</td>
+                                <td>
+                                    @if ($item->asb_mukim)
+                                        <span class="lencana-jadual mukim"><i class="bi bi-pin-map" aria-hidden="true"></i> {{ \App\Support\Paparan::label($item->asb_mukim) }}</span>
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td class="fw-semibold">{{ $item->asm_inspection_date?->format('d/m/Y') ?? '-' }}</td>
                             </tr>
                         @elseif ($jenis === 'perjanjian_penyewa')
                             @php

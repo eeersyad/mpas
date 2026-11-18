@@ -7,6 +7,8 @@ use App\Models\Aduan;
 use App\Models\Bangunan;
 use App\Models\Tanah;
 use App\Models\Penyewa;
+use App\Models\Penyelenggaraan;
+use App\Models\TetapanPenyelenggaraan;
 use App\Models\TetapanPenyewa;
 use App\Support\Jadual;
 use App\Support\Paparan;
@@ -35,10 +37,17 @@ class PengurusanLaporanController extends Controller
             ->paginate($had)
             ->withQueryString();
 
+        if ($jenis === 'pemeriksaan') {
+            $rekod->getCollection()->each(fn ($item) => $item->alamat_penuh = $this->alamatBangunan($item));
+        }
+
+        $pilihanMukim = $jenis === 'pemeriksaan' ? $this->pilihanMukim() : [];
+
         return view('laporan.paparan', compact(
             'jenis',
             'konfigurasi',
-            'rekod'
+            'rekod',
+            'pilihanMukim'
         ));
     }
 
@@ -123,7 +132,90 @@ class PengurusanLaporanController extends Controller
             'aduan' => $this->queryAduan($request, false),
             'penyelenggaraan' => $this->queryAduan($request, true),
             'perjanjian_penyewa' => $this->queryPerjanjianPenyewa($request),
+            'pemeriksaan' => $this->queryPemeriksaan($request),
         };
+    }
+
+    /**
+     * Laporan rekod pemeriksaan premis: satu baris bagi setiap rekod pemeriksaan.
+     */
+    private function queryPemeriksaan(Request $request)
+    {
+        $cari = trim((string) $request->input('cari', ''));
+
+        [$kolumSusunan, $arahSusunan] = Susunan::dapatkan(
+            $request,
+            [
+                'nama' => 'assets_building.asb_name',
+                'mukim' => 'assets_building.asb_mukim',
+                'tarikh' => 'asb_maintenance.asm_inspection_date',
+                'terkini' => 'asb_maintenance.asm_inspection_date',
+            ],
+            'terkini'
+        );
+
+        return Penyelenggaraan::query()
+            ->join('assets_building', 'assets_building.asb_id', '=', 'asb_maintenance.asb_id')
+            ->select([
+                'asb_maintenance.asm_id',
+                'asb_maintenance.asb_id',
+                'asb_maintenance.asm_inspection_date',
+                'assets_building.asb_ref_no',
+                'assets_building.asb_name',
+                'assets_building.asb_add1',
+                'assets_building.asb_add2',
+                'assets_building.asb_postcode',
+                'assets_building.asb_city',
+                'assets_building.asb_state',
+                'assets_building.asb_mukim',
+            ])
+            ->when($cari !== '', function ($query) use ($cari): void {
+                $query->where(function ($query) use ($cari): void {
+                    $query->where('assets_building.asb_name', 'like', "%{$cari}%")
+                        ->orWhere('assets_building.asb_ref_no', 'like', "%{$cari}%")
+                        ->orWhere('assets_building.asb_add1', 'like', "%{$cari}%")
+                        ->orWhere('assets_building.asb_add2', 'like', "%{$cari}%")
+                        ->orWhere('assets_building.asb_city', 'like', "%{$cari}%");
+                });
+            })
+            ->when(
+                $request->filled('mukim'),
+                fn ($query) => $query->where('assets_building.asb_mukim', $request->string('mukim')->toString())
+            )
+            ->when(
+                $request->filled('tarikh_mula'),
+                fn ($query) => $query->whereDate('asb_maintenance.asm_inspection_date', '>=', $request->date('tarikh_mula'))
+            )
+            ->when(
+                $request->filled('tarikh_tamat'),
+                fn ($query) => $query->whereDate('asb_maintenance.asm_inspection_date', '<=', $request->date('tarikh_tamat'))
+            )
+            ->orderBy($kolumSusunan, $arahSusunan)
+            ->orderByDesc('asb_maintenance.asm_id');
+    }
+
+    private function alamatBangunan($item): string
+    {
+        $alamat = collect([
+            $item->asb_add1,
+            $item->asb_add2,
+            trim(($item->asb_postcode ?? '') . ' ' . ($item->asb_city ?? '')),
+            $item->asb_state,
+        ])->map(fn ($baris) => trim((string) $baris))->filter()->implode(', ');
+
+        return $alamat !== '' ? $alamat : '-';
+    }
+
+    private function pilihanMukim(): array
+    {
+        return Bangunan::query()
+            ->whereNotNull('asb_mukim')
+            ->where('asb_mukim', '!=', '')
+            ->distinct()
+            ->orderBy('asb_mukim')
+            ->pluck('asb_mukim')
+            ->mapWithKeys(fn ($mukim) => [$mukim => Paparan::label($mukim)])
+            ->all();
     }
 
     private function queryPerjanjianPenyewa(Request $request)
@@ -449,6 +541,25 @@ class PengurusanLaporanController extends Controller
                     ),
                 ])->all(),
             ],
+            'pemeriksaan' => [
+                'kepala' => [
+                    'Bil.',
+                    'No. Rujukan',
+                    'Nama Bangunan',
+                    'Alamat',
+                    'Mukim',
+                    'Tarikh Pemeriksaan',
+                ],
+                'baris' => $rekod->values()->map(fn ($item, $indeks) => [
+                    $indeks + 1,
+                    $item->asb_ref_no,
+                    $item->asb_name,
+                    $this->alamatBangunan($item),
+                    $item->asb_mukim ? Paparan::label($item->asb_mukim) : '-',
+                    $item->asm_inspection_date?->format('d/m/Y') ?? '-',
+                ])->all(),
+            ],
+
             'perjanjian_penyewa' => [
                 'kepala' => [
                     'Bil.',
@@ -529,6 +640,13 @@ class PengurusanLaporanController extends Controller
     {
         $konfigurasi = $this->konfigurasi($jenis);
 
+        // Rekod pemeriksaan: ikut kebenaran lihat pemeriksaan (Tetapan Penyelenggaraan)
+        if ($jenis === 'pemeriksaan') {
+            abort_unless(TetapanPenyelenggaraan::bolehLihat($request->user()), 403);
+
+            return $konfigurasi;
+        }
+
         abort_unless(
             in_array($request->user()->usr_level, $konfigurasi['peranan'], true),
             403
@@ -563,6 +681,12 @@ class PengurusanLaporanController extends Controller
                 'penerangan' => 'Senarai aduan yang telah diterima untuk tindakan penyelenggaraan.',
                 'ikon' => 'bi-tools',
                 'peranan' => ['SYSTEM', 'BPH', 'KJ'],
+            ],
+            'pemeriksaan' => [
+                'tajuk' => 'Laporan Rekod Pemeriksaan Premis',
+                'penerangan' => 'Senarai rekod pemeriksaan penyelenggaraan premis mengikut bangunan, mukim dan tarikh.',
+                'ikon' => 'bi-clipboard2-check-fill',
+                'peranan' => [],
             ],
             'perjanjian_penyewa' => [
                 'tajuk' => 'Laporan Tempoh Perjanjian Penyewa',
@@ -634,6 +758,18 @@ class PengurusanLaporanController extends Controller
                     'DALAM_PENYELENGGARAAN',
                 ])->count(),
                 'label_jumlah' => 'aduan dalam penyelenggaraan',
+            ];
+        }
+
+        if (TetapanPenyelenggaraan::bolehLihat(request()->user())) {
+            $laporan[] = [
+                'kod' => 'pemeriksaan',
+                'tajuk' => 'Laporan Rekod Pemeriksaan Premis',
+                'penerangan' => 'Rekod pemeriksaan penyelenggaraan premis mengikut bangunan, mukim dan tarikh.',
+                'ikon' => 'bi-clipboard2-check-fill',
+                'tema' => 'biru',
+                'jumlah' => Penyelenggaraan::count(),
+                'label_jumlah' => 'rekod pemeriksaan',
             ];
         }
 

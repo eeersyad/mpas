@@ -152,6 +152,10 @@
             word-wrap: break-word;
         }
 
+        .keputusan-baik { color: #146c43; font-weight: bold; }
+        .keputusan-rosak { color: #b02a37; font-weight: bold; }
+        .keputusan-tidak_berkaitan { color: #555555; }
+
         .jadual-penyewa th {
             background: #333333;
             color: #ffffff;
@@ -386,15 +390,27 @@
                     <tbody>
                         <tr>
                             <td class="label">Status Premis</td>
-                            <td class="nilai" colspan="2">
-                                {{ $enum($aset->asb_premise_status) }}
-                            </td>
+                            <td class="nilai">{{ $enum($aset->asb_premise_status) }}</td>
 
                             <td class="label">Status Penyelenggaraan</td>
-                            <td class="nilai" colspan="2">
-                                {{ $enum($aset->asb_maintenance_status) }}
-                            </td>
+                            <td class="nilai">{{ $enum($aset->asb_maintenance_status) }}</td>
+
+                            <td class="label">Status Pengiklanan</td>
+                            <td class="nilai">{{ $aset->asb_advertise ? 'Ya (diiklankan di Portal Awam)' : 'Tidak' }}</td>
                         </tr>
+
+                        @if ($aset->asb_advertise && $aset->asb_advertise_start && $aset->asb_advertise_end)
+                            <tr>
+                                <td class="label">Tarikh Mula Iklan</td>
+                                <td class="nilai">{{ $aset->asb_advertise_start->format('d/m/Y') }}</td>
+
+                                <td class="label">Tarikh Tamat Iklan</td>
+                                <td class="nilai">{{ $aset->asb_advertise_end->format('d/m/Y') }}</td>
+
+                                <td class="label">Tempoh Iklan</td>
+                                <td class="nilai">{{ (int) $aset->asb_advertise_start->diffInDays($aset->asb_advertise_end) + 1 }} hari</td>
+                            </tr>
+                        @endif
 
                         <tr>
                             <td class="label">Nama Pegawai Pengumpul</td>
@@ -480,6 +496,79 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+    @endif
+
+    {{-- Pemeriksaan penyelenggaraan terkini (hanya pengguna yang ada kebenaran) --}}
+    @if ($jenis === 'bangunan' && ($denganPemeriksaan ?? false))
+        <div class="seksyen">
+            <div class="tajuk-seksyen">Pemeriksaan Penyelenggaraan Terkini</div>
+
+            @if ($pemeriksaan)
+                <table class="jadual-butiran">
+                    <tbody>
+                        <tr>
+                            <td class="label">Tarikh Pemeriksaan</td>
+                            <td class="nilai">{{ $tarikhMedan($pemeriksaan->asm_inspection_date) }}</td>
+
+                            <td class="label">Pemeriksa</td>
+                            <td class="nilai">{{ $papar($pemeriksaan->pemeriksa?->usr_name) }}</td>
+                        </tr>
+
+                        <tr>
+                            <td class="label">Ringkasan</td>
+                            <td class="nilai" colspan="3">
+                                @foreach ($ringkasanPemeriksaan as $nilai => $jumlah)
+                                    {{ $enum($nilai) }}: <strong>{{ $jumlah }}</strong>@if (! $loop->last) &nbsp;&middot;&nbsp; @endif
+                                @endforeach
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <table class="jadual-penyewa">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">Bil.</th>
+                            <th style="width: 30%;">Komponen</th>
+                            <th>Item</th>
+                            <th style="width: 18%;">Keputusan</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @forelse ($pemeriksaan->asm_items ?? [] as $komponen)
+                            @foreach ($komponen['item'] ?? [] as $item)
+                                <tr>
+                                    @if ($loop->first)
+                                        <td rowspan="{{ count($komponen['item']) }}">{{ $loop->parent->iteration }}</td>
+                                        <td rowspan="{{ count($komponen['item']) }}">{{ $papar($komponen['nama'] ?? null) }}</td>
+                                    @endif
+                                    <td>{{ $papar($item['nama'] ?? null) }}</td>
+                                    <td class="keputusan-{{ strtolower($item['nilai'] ?? 'tiada') }}">{{ $enum($item['nilai'] ?? null) }}</td>
+                                </tr>
+                            @endforeach
+                        @empty
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: #555555;">Tiada keputusan item direkodkan.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+
+                @if (filled($pemeriksaan->asm_note))
+                    <table class="jadual-butiran" style="margin-top: 6px;">
+                        <tbody>
+                            <tr>
+                                <td class="label" style="width: 18%;">Catatan Keseluruhan</td>
+                                <td class="nilai">{!! nl2br(e($pemeriksaan->asm_note)) !!}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                @endif
+            @else
+                <p style="color: #555555;">Tiada rekod pemeriksaan penyelenggaraan.</p>
+            @endif
         </div>
     @endif
 

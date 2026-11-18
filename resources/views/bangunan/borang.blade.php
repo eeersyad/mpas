@@ -407,7 +407,7 @@
                 </div>
 
                 <div class="row g-3">
-                    <div class="col-12 col-md-6">
+                    <div class="col-12 col-md-4">
                         <label for="asb_maintenance_status" class="form-label">
                             Status Penyelenggaraan <span class="text-danger">*</span>
                         </label>
@@ -434,7 +434,7 @@
                         @enderror
                     </div>
 
-                    <div class="col-12 col-md-6">
+                    <div class="col-12 col-md-4">
                         <label for="asb_premise_status" class="form-label">
                             Status Premis <span class="text-danger">*</span>
                         </label>
@@ -466,6 +466,42 @@
                         @error('asb_premise_status')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <label for="asb_advertise" class="form-label">Status Pengiklanan</label>
+                        @php
+                            $nilaiIklan = (string) old('asb_advertise', $bangunan ? (int) $bangunan->asb_advertise : '');
+                        @endphp
+                        <select id="asb_advertise" name="asb_advertise" class="form-select @error('asb_advertise') is-invalid @enderror" data-pilih-iklan required>
+                            <option value="">-- Pilih Status --</option>
+                            <option value="1" @selected($nilaiIklan === '1')>Ya</option>
+                            <option value="0" @selected($nilaiIklan === '0')>Tidak</option>
+                        </select>
+
+                        @error('asb_advertise')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <div class="form-text" data-nota-iklan>Jika Ya, aset dipaparkan di Portal Awam dalam tempoh iklan. Selepas tarikh tamat, status ditukar kepada Tidak secara automatik.</div>
+                    </div>
+
+                    <div class="col-6 col-md-2 offset-md-8" data-tempoh-iklan>
+                        <label for="asb_advertise_start" class="form-label">Tarikh Mula Iklan</label>
+                        <input type="date" id="asb_advertise_start" name="asb_advertise_start" class="form-control @error('asb_advertise_start') is-invalid @enderror" value="{{ old('asb_advertise_start', $bangunan?->asb_advertise_start?->format('Y-m-d')) }}">
+
+                        @error('asb_advertise_start')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="col-6 col-md-2" data-tempoh-iklan>
+                        <label for="asb_advertise_end" class="form-label">Tarikh Tamat Iklan</label>
+                        <input type="date" id="asb_advertise_end" name="asb_advertise_end" class="form-control @error('asb_advertise_end') is-invalid @enderror" value="{{ old('asb_advertise_end', $bangunan?->asb_advertise_end?->format('Y-m-d')) }}">
+
+                        @error('asb_advertise_end')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        
                     </div>
 
                     {{-- PEMERIKSAAN PENYELENGGARAAN --}}
@@ -1203,6 +1239,53 @@
         @endforeach
     @endif
 </div>
+
+@push('skrip')
+    <script>
+        // Status pengiklanan: hanya boleh dipilih "Ya" bila Status Premis = Tidak Disewa
+        document.addEventListener('DOMContentLoaded', () => {
+            const iklan = document.querySelector('[data-pilih-iklan]');
+            const premis = document.getElementById('asb_premise_status');
+
+            if (! iklan || ! premis) {
+                return;
+            }
+
+            const medanTempoh = document.querySelectorAll('[data-tempoh-iklan]');
+            const mula = document.getElementById('asb_advertise_start');
+            const tamat = document.getElementById('asb_advertise_end');
+
+            const kemaskini = () => {
+                const layak = premis.value === 'TIDAK_DISEWA';
+
+                if (! layak) {
+                    iklan.value = '0';
+                }
+
+                iklan.disabled = ! layak;
+
+                // Tarikh mula & tamat iklan hanya bila Status Pengiklanan = Ya
+                const adaIklan = layak && iklan.value === '1';
+                medanTempoh.forEach((medan) => medan.classList.toggle('d-none', ! adaIklan));
+                [mula, tamat].forEach((input) => {
+                    if (input) {
+                        input.required = adaIklan;
+                        input.disabled = ! adaIklan;
+                    }
+                });
+
+                if (tamat && mula) {
+                    tamat.min = mula.value || '';
+                }
+            };
+
+            premis.addEventListener('change', kemaskini);
+            iklan.addEventListener('change', kemaskini);
+            mula?.addEventListener('change', kemaskini);
+            kemaskini();
+        });
+    </script>
+@endpush
 
 @push('skrip')
     <script>

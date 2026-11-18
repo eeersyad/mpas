@@ -176,7 +176,21 @@
                 </div>
             </header>
 
-            <main class="p-3 p-md-4 p-xl-5">
+            @php
+                // Ikon kepala halaman (desktop) mengikut modul
+                $ikonHalaman = match (true) {
+                    request()->routeIs('bangunan.*') => 'bi-buildings-fill',
+                    request()->routeIs('tanah.*') => 'bi-map-fill',
+                    request()->routeIs('aduan.*') => 'bi-clipboard2-pulse-fill',
+                    request()->routeIs('kodqr.*') => 'bi-qr-code',
+                    request()->routeIs('laporan.*') => 'bi-bar-chart-line-fill',
+                    request()->routeIs('pengguna.*') => 'bi-people-fill',
+                    request()->routeIs('profil.*') => 'bi-person-circle',
+                    request()->routeIs('tetapan.*') => 'bi-gear-fill',
+                    default => '',
+                };
+            @endphp
+            <main class="p-3 p-md-4 p-xl-5" data-ikon-halaman="{{ $ikonHalaman }}" @if ($ikonHalaman) style="--ikon-halaman: url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/{{ \Illuminate\Support\Str::after($ikonHalaman, 'bi-') }}.svg')" @endif>
                 @yield('kandungan')
             </main>
         </div>

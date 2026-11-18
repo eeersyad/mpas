@@ -5,14 +5,24 @@
 
 
 @section('kandungan')
-    <div class="mb-4">
-        <p class="teks-kecil mb-1">SELAMAT DATANG, {{ strtoupper($user->usr_name) }}</p>
+    @php
+        $sekarang = now('Asia/Kuala_Lumpur');
+        $jam = $sekarang->hour;
+        $sapaan = match (true) {
+            $jam < 12 => 'Selamat pagi',
+            $jam < 14 => 'Selamat tengah hari',
+            $jam < 19 => 'Selamat petang',
+            default => 'Selamat malam',
+        };
+    @endphp
 
-        <h1 class="tajuk-halaman mb-2">Dashboard</h1>
+    <div class="kepala-sapaan mb-4">
+        <div>
+            <h1 class="tajuk-halaman tajuk-sapaan mb-1">{{ $sapaan }}, {{ $user->usr_name }}</h1>
+            <p class="teks-penerangan mb-0">Ringkasan maklumat semasa Marang Property Asset System.</p>
+        </div>
 
-        <p class="teks-penerangan mb-0">
-            Ringkasan maklumat semasa Marang Property Asset System.
-        </p>
+        <div class="tarikh-sapaan d-none d-md-flex"><i class="bi bi-calendar3" aria-hidden="true"></i> {{ $sekarang->translatedFormat('l, j F Y') }}</div>
     </div>
 
     <div class="row g-3 g-md-4">

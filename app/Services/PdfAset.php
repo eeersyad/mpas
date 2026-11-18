@@ -25,10 +25,18 @@ class PdfAset
     /**
      * PDF maklumat aset + gambar aset (dokumen jenis GAMBAR). Pulangkan kandungan PDF.
      */
-    public function janaMaklumat(string $jenis, Model $aset): string
+    public function janaMaklumat(string $jenis, Model $aset, bool $denganPemeriksaan = false): string
     {
+        $pemeriksaan = null;
+
         if ($jenis === 'bangunan') {
             $aset->loadMissing('penyewa');
+
+            // Rekod pemeriksaan penyelenggaraan terkini: hanya untuk pengguna yang ada kebenaran
+            if ($denganPemeriksaan) {
+                $aset->loadMissing('penyelenggaraanTerkini.pemeriksa');
+                $pemeriksaan = $aset->penyelenggaraanTerkini;
+            }
         }
 
         try {
@@ -37,6 +45,9 @@ class PdfAset
                 'aset' => $aset,
                 'tarikh' => now(),
                 'gambarAset' => $this->gambarAset($jenis, $aset),
+                'denganPemeriksaan' => $denganPemeriksaan,
+                'pemeriksaan' => $pemeriksaan,
+                'ringkasanPemeriksaan' => $pemeriksaan?->ringkasanNilai() ?? [],
                 'logoMdm' => base64_encode(file_get_contents(public_path('images/logo-mdm.png'))),
                 'logoMpas' => base64_encode(file_get_contents(public_path('images/logo-mpas-2.png'))),
             ])->setPaper('a4', 'landscape');
@@ -59,7 +70,7 @@ class PdfAset
     /**
      * ZIP: "00 - Maklumat Aset.pdf" + semua dokumen asal. Pulangkan laluan fail ZIP sementara.
      */
-    public function janaZip(string $jenis, Model $aset): string
+    public function janaZip(string $jenis, Model $aset, bool $denganPemeriksaan = false): string
     {
         if (! class_exists(ZipArchive::class)) {
             throw new RuntimeException('Sambungan PHP "zip" tidak diaktifkan pada server.');
@@ -75,7 +86,7 @@ class PdfAset
             throw new RuntimeException('Fail ZIP tidak dapat dicipta.');
         }
 
-        $zip->addFromString('00 - Maklumat Aset.pdf', $this->janaMaklumat($jenis, $aset));
+        $zip->addFromString('00 - Maklumat Aset.pdf', $this->janaMaklumat($jenis, $aset, $denganPemeriksaan));
 
         $tiada = [];
 

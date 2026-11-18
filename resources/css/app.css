@@ -5903,7 +5903,7 @@ body.menu-telefon-terbuka {
 
 @media (min-width: 992px) and (max-width: 1399.98px) {
     .kandungan-sistem > main {
-        padding: 1.5rem !important;
+        padding: 1rem !important;
     }
 
     .sidebar {
@@ -10504,4 +10504,102 @@ body:has(.lembaran-muat-turun.showing) .offcanvas-backdrop {
     .portal-bar .portal-bar-ikon { position: absolute; right: .9rem; bottom: .55rem; }
     .portal-bar .portal-jenama, .portal-mod-butiran .portal-bar .portal-jenama { display: block !important; }
     .portal-bar .portal-jenama img { height: 30px; }
+}
+
+/* Status pengiklanan (butiran bangunan) */
+.lencana-iklan { display: inline-flex; align-items: center; gap: .35rem; padding: .2rem .6rem; border-radius: 999px; background: #eef1f1; color: #5d706d; font-size: .78rem; font-weight: 700; }
+.lencana-iklan.aktif { background: #e3f5f2; color: #0d625a; }
+
+/* Lencana mukim di bawah no. rujukan (senarai bangunan & tanah) */
+.baris-mukim { margin-top: .35rem; }
+.lencana-jadual.mukim { gap: .25rem; background: #f3eefe; color: #6941c6; }
+@media (max-width: 767.98px) {
+    .jadual-kad-apl .baris-mukim { display: inline-block; margin: 0 0 0 .35rem; vertical-align: middle; }
+}
+
+/* Ruang kandungan utama: monitor besar (sebelum ini 3rem / 48px) */
+@media (min-width: 1400px) {
+    .kandungan-sistem > main {
+        padding: 1.5rem !important;
+    }
+}
+
+/* Tarikh pemeriksaan terkini di bawah status penyelenggaraan (senarai bangunan) */
+.tarikh-pemeriksaan-jadual { margin-top: .35rem; color: #6b7f7c; font-size: .7rem; font-weight: 600; white-space: nowrap; }
+.tarikh-pemeriksaan-jadual i { color: #168a7e; }
+.tarikh-pemeriksaan-jadual .belum { color: #9aaba8; font-weight: 500; font-style: italic; }
+@media (max-width: 767.98px) {
+    .jadual-kad-apl .tarikh-pemeriksaan-jadual { margin-top: .25rem; font-size: .68rem; }
+}
+
+/* ===================== Kepala halaman laporan: bar nipis (desktop) ===================== */
+.bar-kepala-laporan { align-items: center; gap: .75rem; margin-bottom: 1rem; }
+.butang-kembali-laporan { display: grid; place-items: center; flex: 0 0 auto; width: 36px; height: 36px; border: 1px solid #e3ecea; border-radius: 50%; background: #fff; color: #39505a; text-decoration: none; transition: background-color .15s, color .15s, border-color .15s; }
+.butang-kembali-laporan:hover { border-color: #168a7e; background: #e3f5f2; color: #0d625a; }
+.ikon-bar-laporan { display: grid; place-items: center; flex: 0 0 auto; width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #1aa192, #0d625a); color: #fff; font-size: 1.1rem; box-shadow: 0 6px 14px rgba(13,98,90,.22); }
+.teks-bar-laporan { flex: 1; min-width: 0; }
+.baris-tajuk-laporan { display: flex; align-items: center; gap: .6rem; min-width: 0; }
+.baris-tajuk-laporan h1 { margin: 0; overflow: hidden; color: #10201e; font-size: 1.25rem; font-weight: 800; letter-spacing: -.01em; line-height: 1.25; white-space: nowrap; text-overflow: ellipsis; }
+.kapsul-rekod-laporan { flex: 0 0 auto; padding: .2rem .6rem; border-radius: 999px; background: #e3f5f2; color: #0d625a; font-size: .72rem; font-weight: 700; white-space: nowrap; }
+.teks-bar-laporan p { margin: .1rem 0 0; overflow: hidden; color: #7b8c89; font-size: .8rem; white-space: nowrap; text-overflow: ellipsis; }
+.kumpulan-eksport { display: inline-flex; flex: 0 0 auto; padding: .2rem; border: 1px solid #e3ecea; border-radius: 12px; background: #fff; }
+.butang-eksport { display: inline-flex; align-items: center; gap: .35rem; padding: .4rem .75rem; border-radius: 9px; color: #39505a; font-size: .8rem; font-weight: 700; text-decoration: none; transition: background-color .15s, color .15s; }
+.butang-eksport i { font-size: .95rem; }
+.butang-eksport.pdf i { color: #d63b4b; }
+.butang-eksport.excel i { color: #1f8a4c; }
+.butang-eksport:hover { background: #f1f6f5; color: #10201e; }
+.butang-eksport:active { transform: scale(.97); }
+
+/* ===================== Kepala halaman seragam (desktop) =====================
+   Semua dengan CSS sahaja (tiada JS) supaya tiada kesan "melompat" semasa halaman dimuatkan. */
+.kepala-sapaan { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; }
+@media (min-width: 768px) {
+    .kandungan-sistem > main p.teks-kecil:has(+ .tajuk-halaman) { display: none !important; }
+    .kandungan-sistem > main .mb-4:has(.tajuk-halaman) { margin-bottom: 1rem !important; }
+    .kandungan-sistem > main .tajuk-halaman { display: flex; align-items: center; gap: .6rem; margin-bottom: .1rem !important; font-size: 1.25rem; letter-spacing: -.01em; line-height: 1.25; }
+    .kandungan-sistem > main .tajuk-halaman .lencana-bilangan-tajuk { display: inline-flex !important; height: auto; min-width: 0; margin: 0; padding: .2rem .6rem; border-radius: 999px; background: #e3f5f2; color: #0d625a; font-size: .72rem; font-weight: 700; }
+    .kandungan-sistem > main .tajuk-halaman ~ .teks-penerangan { font-size: .8rem; }
+    .kandungan-sistem > main div:has(> div > .tajuk-halaman) > .btn { padding: .45rem .95rem !important; border-radius: 12px; font-size: .85rem; }
+
+    /* Ikon modul di kiri tajuk */
+    .kandungan-sistem > main[data-ikon-halaman]:not([data-ikon-halaman=""]) div:has(> .tajuk-halaman):not(.kepala-sapaan *) { position: relative; min-height: 44px; padding-left: 52px; }
+    .kandungan-sistem > main[data-ikon-halaman]:not([data-ikon-halaman=""]) div:has(> .tajuk-halaman):not(.kepala-sapaan *)::before { content: ''; position: absolute; left: 0; top: 2px; width: 40px; height: 40px; margin-top: 0; border-radius: 12px; background: linear-gradient(135deg, #1aa192, #0d625a); box-shadow: 0 6px 14px rgba(13,98,90,.22); }
+    .kandungan-sistem > main[data-ikon-halaman]:not([data-ikon-halaman=""]) div:has(> .tajuk-halaman):not(.kepala-sapaan *)::after { content: ''; position: absolute; left: 11px; top: 13px; width: 18px; height: 18px; margin-top: 0; background: #fff; -webkit-mask: var(--ikon-halaman) center / contain no-repeat; mask: var(--ikon-halaman) center / contain no-repeat; }
+
+    .kepala-sapaan { margin-bottom: 1rem !important; }
+    .tajuk-sapaan { font-size: 1.35rem !important; }
+    .tarikh-sapaan { align-items: center; gap: .45rem; padding: .4rem .8rem; border: 1px solid #e3ecea; border-radius: 999px; background: #fff; color: #39505a; font-size: .8rem; font-weight: 600; white-space: nowrap; }
+    .tarikh-sapaan i { color: #168a7e; }
+}
+
+/* ===================== Halaman utama laporan (desktop) ===================== */
+.kumpulan-laporan { margin-bottom: 1.5rem; }
+.kumpulan-laporan:first-of-type { margin-top: 1.75rem; }
+.tajuk-kumpulan-laporan { display: flex; align-items: center; gap: .5rem; margin: 0 0 .75rem; color: #5d706d; font-size: .74rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.tajuk-kumpulan-laporan span { padding: .1rem .5rem; border-radius: 999px; background: #e8efee; color: #5d706d; font-size: .68rem; letter-spacing: 0; }
+.senarai-laporan-baris { overflow: hidden; border: 1px solid #e3ecea; border-radius: 18px; background: #fff; box-shadow: 0 1px 2px rgba(16,32,30,.04); }
+.baris-laporan-desktop { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.1rem; color: #10201e; text-decoration: none; transition: background-color .15s; }
+.baris-laporan-desktop + .baris-laporan-desktop { border-top: 1px solid #edf2f1; }
+.baris-laporan-desktop:hover { background: #f6faf9; color: #10201e; }
+.baris-laporan-desktop .ikon-pilihan-laporan { flex: 0 0 auto; width: 40px; height: 40px; border-radius: 12px; font-size: 1.1rem; }
+.teks-baris-laporan-desktop { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.teks-baris-laporan-desktop strong { font-size: .95rem; font-weight: 700; line-height: 1.3; }
+.teks-baris-laporan-desktop small { overflow: hidden; color: #7b8c89; font-size: .8rem; white-space: nowrap; text-overflow: ellipsis; }
+.nilai-baris-laporan { display: flex; align-items: baseline; justify-content: flex-end; gap: .4rem; flex: 0 0 auto; min-width: 200px; }
+.nilai-baris-laporan strong { color: #10201e; font-size: 1.15rem; font-weight: 800; letter-spacing: -.02em; }
+.nilai-baris-laporan small { color: #7b8c89; font-size: .76rem; font-weight: 600; }
+.nilai-baris-laporan.perlu-tindakan strong { color: #c2620f; }
+.nilai-baris-laporan.perlu-tindakan::before { content: ''; align-self: center; width: 8px; height: 8px; border-radius: 50%; background: #e07b1a; box-shadow: 0 0 0 3px rgba(224,123,26,.18); }
+.anak-panah-baris-laporan { flex: 0 0 auto; color: #b5c4c1; font-size: .85rem; transition: color .15s, transform .15s; }
+.baris-laporan-desktop:hover .anak-panah-baris-laporan { color: #168a7e; transform: translateX(3px); }
+
+/* Tetapan: hero lama diratakan supaya sama gaya dengan kepala halaman lain (desktop) */
+@media (min-width: 768px) {
+    .kandungan-sistem > main .hero-tetapan { padding: 0 0 0 52px !important; overflow: visible; border: 0; border-radius: 0; background: none; box-shadow: none; }
+    .kandungan-sistem > main[data-ikon-halaman]:not([data-ikon-halaman=""]) .hero-tetapan::after { top: 13px; right: auto; border: 0; border-radius: 0; }
+}
+@media (min-width: 768px) {
+    /* Tajuk tanpa penerangan: kekal di tengah sebaris dengan ikon */
+    .kandungan-sistem > main[data-ikon-halaman]:not([data-ikon-halaman=""]) div:has(> .tajuk-halaman):not(.kepala-sapaan *) { display: flex; flex-direction: column; justify-content: center; }
+    .kandungan-sistem > main .hero-tetapan .tajuk-halaman { margin-bottom: 0 !important; }
 }

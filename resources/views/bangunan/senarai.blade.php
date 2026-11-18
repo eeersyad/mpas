@@ -153,7 +153,12 @@
                         <tr class="baris-boleh-klik {{ $statusPerjanjian['kelas'] }}" data-baris-butiran data-url="{{ route('bangunan.butiran', $item) }}" tabindex="0" role="button" aria-label="Lihat butiran {{ $item->asb_name }}" @if ($statusPerjanjian['tajuk']) title="{{ $statusPerjanjian['tajuk'] }}" @endif>
                             <td>{{ $bangunan->firstItem() + $loop->index }}</td>
 
-                            <td class="fw-semibold">{{ $item->asb_ref_no }}</td>
+                            <td class="fw-semibold">
+                                {{ $item->asb_ref_no }}
+                                @if ($item->asb_mukim)
+                                    <div class="baris-mukim"><span class="lencana-jadual mukim"><i class="bi bi-pin-map" aria-hidden="true"></i> {{ \App\Support\Paparan::label($item->asb_mukim) }}</span></div>
+                                @endif
+                            </td>
 
                             <td>
                                 <div class="fw-semibold">{{ $item->asb_name }}</div>
@@ -223,6 +228,14 @@
                                         ? \App\Support\Paparan::label($item->asb_maintenance_status)
                                         : '-' }}
                                 </span>
+
+                                <div class="tarikh-pemeriksaan-jadual" title="Tarikh pemeriksaan penyelenggaraan terkini">
+                                    @if ($item->tarikh_pemeriksaan_terkini)
+                                        Diperiksa: {{ \Illuminate\Support\Carbon::parse($item->tarikh_pemeriksaan_terkini)->format('d/m/Y') }}
+                                    @else
+                                        <span class="belum">Belum diperiksa</span>
+                                    @endif
+                                </div>
                             </td>
 
                             <td>

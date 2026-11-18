@@ -370,6 +370,22 @@
                 </dl>
             </div>
 
+            <div class="col-12 col-md-6">
+                <dl class="butiran-medan">
+                    <dt>Status Pengiklanan</dt>
+                    <dd>
+                        @if ($bangunan->asb_advertise)
+                            <span class="lencana-iklan aktif"><i class="bi bi-megaphone-fill"></i> Diiklankan di Portal Awam</span>
+                            @if ($bangunan->asb_advertise_start || $bangunan->asb_advertise_end)
+                                <small class="d-block text-secondary mt-1">{{ $bangunan->asb_advertise_start?->format('d/m/Y') ?? '-' }} hingga {{ $bangunan->asb_advertise_end?->format('d/m/Y') ?? '-' }}</small>
+                            @endif
+                        @else
+                            <span class="lencana-iklan">Tidak diiklankan</span>
+                        @endif
+                    </dd>
+                </dl>
+            </div>
+
             {{-- REKOD PEMERIKSAAN PENYELENGGARAAN --}}
             @if ($bolehLihatPemeriksaan ?? false)
                 <div class="col-12">
