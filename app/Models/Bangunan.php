@@ -17,7 +17,7 @@ class Bangunan extends Model
     protected $primaryKey = 'asb_id';
 
     // Pilihan poskod Daerah Marang
-    public const SENARAI_POSKOD = ['21400', '21600', '21610'];
+    public const SENARAI_POSKOD = ['21040', '21400', '21600', '21610'];
 
     // Nilai tetap (tidak boleh diubah oleh pengguna dalam borang)
     public const NILAI_TETAP = [
