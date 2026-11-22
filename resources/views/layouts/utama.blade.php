@@ -193,6 +193,35 @@
             <main class="p-3 p-md-4 p-xl-5" data-ikon-halaman="{{ $ikonHalaman }}" @if ($ikonHalaman) style="--ikon-halaman: url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/{{ \Illuminate\Support\Str::after($ikonHalaman, 'bi-') }}.svg')" @endif>
                 @yield('kandungan')
             </main>
+
+            <script>
+                // Sediakan kad jadual telefon SERTA-MERTA (sebelum app.js dimuat) supaya
+                // paparan desktop tidak sempat dilukis dahulu. Logik sama dengan sediakanKadJadual() dalam app.js.
+                document.querySelectorAll('table.jadual-sistem').forEach((jadual) => {
+                    if (jadual.tFoot || jadual.dataset.tanpaKad !== undefined) return;
+                    const baris = jadual.querySelectorAll('tbody tr');
+
+                    if (jadual.dataset.kadApl) {
+                        const peranan = jadual.dataset.kadApl.split('|').map((item) => {
+                            const [nama, ...awalan] = item.split('=');
+                            return { nama: nama.trim(), awalan: awalan.join('=').trim() };
+                        });
+                        jadual.classList.add('jadual-kad-apl');
+                        baris.forEach((tr) => [...tr.children].forEach((sel, i) => {
+                            if (sel.hasAttribute('colspan') || !peranan[i]) return;
+                            sel.dataset.kad = peranan[i].nama;
+                            if (peranan[i].awalan) sel.dataset.awalan = peranan[i].awalan;
+                        }));
+                        return;
+                    }
+
+                    const tajuk = [...jadual.querySelectorAll('thead th')].map((th) => th.innerText.replace(/\s+/g, ' ').trim());
+                    jadual.classList.add('jadual-kad');
+                    baris.forEach((tr) => [...tr.children].forEach((sel, i) => {
+                        if (!sel.hasAttribute('data-label') && !sel.hasAttribute('colspan')) sel.setAttribute('data-label', tajuk[i] ?? '');
+                    }));
+                });
+            </script>
         </div>
     </div>
 

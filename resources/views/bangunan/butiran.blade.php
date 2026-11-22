@@ -45,7 +45,7 @@
             @endif
 
             @if ($bangunan->asb_premise_status)
-                <span class="lencana-jadual premis-{{ str_replace('_', '-', strtolower($bangunan->asb_premise_status)) }}">{{ \App\Support\Paparan::label($bangunan->asb_premise_status) }}</span>
+                <span class="lencana-jadual {{ $senaraiStatusPremis->get($bangunan->asb_premise_status)?->kelasWarna() ?? 'kelabu' }}" style="{{ $senaraiStatusPremis->get($bangunan->asb_premise_status)?->gayaWarna() }}">{{ $senaraiStatusPremis->get($bangunan->asb_premise_status)?->sts_label ?? \App\Support\Paparan::label($bangunan->asb_premise_status) }}</span>
             @endif
 
             @if ($bangunan->asb_maintenance_status)
@@ -366,7 +366,7 @@
             <div class="col-12 col-md-6">
                 <dl class="butiran-medan">
                     <dt>Status Premis</dt>
-                    <dd>{{ $bangunan->asb_premise_status ? \App\Support\Paparan::label($bangunan->asb_premise_status) : '-' }}</dd>
+                    <dd>{{ $bangunan->asb_premise_status ? ($senaraiStatusPremis->get($bangunan->asb_premise_status)?->sts_label ?? \App\Support\Paparan::label($bangunan->asb_premise_status)) : '-' }}</dd>
                 </dl>
             </div>
 
@@ -623,10 +623,7 @@
 
             <div class="kad-qr-butiran">
                 <div class="qr-butiran-imej">
-                    {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')
-                        ->size(180)
-                        ->margin(1)
-                        ->generate($pautanAduan) !!}
+                    {!! \App\Support\KodQr::svg($pautanAduan, 180) !!}
                 </div>
 
                 <div class="qr-butiran-kandungan">

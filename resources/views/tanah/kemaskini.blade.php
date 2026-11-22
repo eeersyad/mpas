@@ -12,7 +12,9 @@
         <span class="tajuk-bar-apl">Kemaskini Aset Tanah</span>
     </div>
 
-    <div class="d-none d-md-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+    <div class="d-none d-md-flex align-items-center gap-3 mb-4">
+        <a href="{{ route('tanah.index') }}" class="butang-kembali-laporan" data-keluar-borang aria-label="Kembali ke senarai aset tanah" title="Kembali ke Senarai"><i class="bi bi-arrow-left" aria-hidden="true"></i></a>
+
         <div>
             <p class="teks-kecil mb-1">PENGURUSAN ASET</p>
             <h1 class="tajuk-halaman mb-2">Kemaskini Aset Tanah</h1>
@@ -20,10 +22,6 @@
                 No. rujukan: <strong>{{ $tanah->asl_ref_no }}</strong>
             </p>
         </div>
-
-        <a href="{{ route('tanah.index') }}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left me-2"></i>Kembali
-        </a>
     </div>
 
     @include('tanah.borang', [

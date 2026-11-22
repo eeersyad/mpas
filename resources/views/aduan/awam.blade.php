@@ -1,6 +1,7 @@
 @extends('layouts.awam')
 
-@section('tajuk', 'Aduan Aset Bangunan')
+@section('tajuk', __('Aduan Aset Bangunan'))
+@section('dwibahasa', true)
 @section('kelas_body', 'halaman-aduan-apl')
 
 @section('kandungan')
@@ -9,16 +10,15 @@
         $jumlahPenyewa = $bangunan->penyewa->count();
 
         $status = [
-            'BARU' => ['label' => 'Aduan Diterima', 'peratus' => 25, 'warna' => 'primary'],
-            'DITERIMA' => ['label' => 'Dalam Tindakan BPH', 'peratus' => 50, 'warna' => 'info'],
-            'DALAM_PENYELENGGARAAN' => ['label' => 'Dalam Penyelenggaraan', 'peratus' => 75, 'warna' => 'warning'],
-            'SELESAI' => ['label' => 'Selesai', 'peratus' => 100, 'warna' => 'success'],
+            'BARU' => ['label' => __('Aduan Diterima'), 'peratus' => 25, 'warna' => 'primary'],
+            'DITERIMA' => ['label' => __('Dalam Tindakan BPH'), 'peratus' => 50, 'warna' => 'info'],
+            'DALAM_PENYELENGGARAAN' => ['label' => __('Dalam Penyelenggaraan'), 'peratus' => 75, 'warna' => 'warning'],
+            'SELESAI' => ['label' => __('Selesai'), 'peratus' => 100, 'warna' => 'success'],
         ];
     @endphp
 
     <div class="bar-aduan-apl d-md-none">
         <img src="{{ asset('images/logo-mpas-2.png') }}" alt="MPAS">
-        <a href="{{ route('aduan.status') }}" aria-label="Semak status aduan"><i class="bi bi-search"></i></a>
     </div>
 
     <header class="awam-hero mb-4">
@@ -36,9 +36,9 @@
                 <i class="bi bi-people-fill"></i>
 
                 @if ($jumlahPenyewa > 0)
-                    {{ $jumlahPenyewa }} Penyewa
+                    {{ __(':bil Penyewa', ['bil' => $jumlahPenyewa]) }}
                 @else
-                    Tiada Penyewa
+                    {{ __('Tiada Penyewa') }}
                 @endif
             </span>
 
@@ -54,7 +54,7 @@
 
             <p class="alamat-aset-awam">
                 <i class="bi bi-geo-alt-fill"></i>
-                <span>{{ $alamatAsetAwam ?: 'Alamat aset belum direkodkan.' }}</span>
+                <span>{{ $alamatAsetAwam ?: __('Alamat aset belum direkodkan.') }}</span>
             </p>
         </div>
     </header>
@@ -63,18 +63,18 @@
         <section class="kad-awam mb-4 rekod-aduan-awam">
             <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
                 <div>
-                    <p class="teks-kecil mb-1">STATUS ADUAN ASET</p>
+                    <p class="teks-kecil mb-1">{{ __('STATUS ADUAN ASET') }}</p>
                     <h2 class="h6 fw-bold mb-1">
                         <i class="bi bi-activity me-2 text-success"></i>
-                        Rekod Aduan Semasa
+                        {{ __('Rekod Aduan Semasa') }}
                     </h2>
                     <p class="text-secondary small mb-0 penerangan-rekod-aduan">
-                        Aduan terbaru dipaparkan di hadapan.
+                        {{ __('Aduan terbaru dipaparkan di hadapan.') }}
                     </p>
                 </div>
 
                 <span class="jumlah-rekod-aduan">
-                    {{ $progressAduan->count() }} rekod
+                    {{ __(':bil rekod', ['bil' => $progressAduan->count()]) }}
                 </span>
             </div>
 
@@ -109,11 +109,11 @@
 
                             <div class="mt-3">
                                 <strong class="d-block tajuk-kad-aduan">
-                                    {{ $item->cmp_damage_type }}
+                                    {{ __(ucwords(strtolower((string) $item->cmp_damage_type))) }}
                                 </strong>
 
                                 <p class="text-secondary small mb-2">
-                                    Aduan direkodkan pada
+                                    {{ __('Aduan direkodkan pada') }}
                                     {{ $item->cmp_received_date?->format('d/m/Y, h:i A') }}
                                 </p>
 
@@ -140,7 +140,7 @@
                             type="button"
                             class="butang-gelongsar-aduan"
                             data-sebelum-aduan
-                            aria-label="Lihat aduan sebelumnya"
+                            aria-label="{{ __('Lihat aduan sebelumnya') }}"
                         >
                             <i class="bi bi-arrow-left"></i>
                         </button>
@@ -151,7 +151,7 @@
                                     type="button"
                                     class="titik-gelongsar-aduan {{ $loop->first ? 'aktif' : '' }}"
                                     data-pilih-aduan="{{ $loop->index }}"
-                                    aria-label="Lihat aduan {{ $loop->iteration }}"
+                                    aria-label="{{ __('Lihat aduan :bil', ['bil' => $loop->iteration]) }}"
                                 ></button>
                             @endforeach
                         </div>
@@ -160,7 +160,7 @@
                             type="button"
                             class="butang-gelongsar-aduan"
                             data-seterusnya-aduan
-                            aria-label="Lihat aduan seterusnya"
+                            aria-label="{{ __('Lihat aduan seterusnya') }}"
                         >
                             <i class="bi bi-arrow-right"></i>
                         </button>
@@ -177,10 +177,10 @@
             </span>
 
             <div>
-                <p class="teks-kecil mb-1">BORANG ADUAN</p>
-                <h2 class="h5 fw-bold mb-1">Buat Aduan Baharu</h2>
+                <p class="teks-kecil mb-1">{{ __('BORANG ADUAN') }}</p>
+                <h2 class="h5 fw-bold mb-1">{{ __('Buat Aduan Baharu') }}</h2>
                 <p class="text-secondary small mb-0">
-                    Lengkapkan maklumat kerosakan untuk tindakan pihak MDM.
+                    {{ __('Lengkapkan maklumat kerosakan untuk tindakan pihak MDM.') }}
                 </p>
             </div>
         </div>
@@ -195,21 +195,21 @@
 
             <div class="mb-3">
                 <label for="jenis_pengadu" class="form-label fw-semibold">
-                    Kategori Pengadu <span class="text-danger">*</span>
+                    {{ __('Kategori Pengadu') }} <span class="text-danger">*</span>
                 </label>
 
                 <div class="pilihan-kad-aduan d-md-none" data-pilih-untuk="#jenis_pengadu">
-                    <button type="button" class="kad-pilihan-aduan" data-nilai="PENYEWA"><i class="bi bi-person-badge"></i><span>Penyewa</span></button>
-                    <button type="button" class="kad-pilihan-aduan" data-nilai="ORANG_AWAM"><i class="bi bi-people"></i><span>Orang Awam</span></button>
+                    <button type="button" class="kad-pilihan-aduan" data-nilai="PENYEWA"><i class="bi bi-person-badge"></i><span>{{ __('Penyewa') }}</span></button>
+                    <button type="button" class="kad-pilihan-aduan" data-nilai="ORANG_AWAM"><i class="bi bi-people"></i><span>{{ __('Orang Awam') }}</span></button>
                 </div>
 
                 <select id="jenis_pengadu" name="jenis_pengadu" class="form-select select-asal-aduan @error('jenis_pengadu') is-invalid @enderror" required>
-                    <option value="">-- Pilih Kategori --</option>
+                    <option value="">{{ __('-- Pilih Kategori --') }}</option>
                     <option value="PENYEWA" @selected(old('jenis_pengadu') === 'PENYEWA')>
-                        Penyewa
+                        {{ __('Penyewa') }}
                     </option>
                     <option value="ORANG_AWAM" @selected(old('jenis_pengadu') === 'ORANG_AWAM')>
-                        Orang Awam
+                        {{ __('Orang Awam') }}
                     </option>
                 </select>
 
@@ -220,11 +220,11 @@
 
             <div id="ruangPenyewa" class="mb-3" hidden>
                 <label for="tnt_id" class="form-label fw-semibold">
-                    Nama Penyewa <span class="text-danger">*</span>
+                    {{ __('Nama Penyewa') }} <span class="text-danger">*</span>
                 </label>
 
-                <select id="tnt_id" name="tnt_id" class="form-select select-asal-aduan @error('tnt_id') is-invalid @enderror" data-lembaran-pilihan="Pilih Nama Penyewa">
-                    <option value="">-- Pilih Nama Penyewa --</option>
+                <select id="tnt_id" name="tnt_id" class="form-select select-asal-aduan @error('tnt_id') is-invalid @enderror" data-lembaran-pilihan="{{ __('Pilih Nama Penyewa') }}">
+                    <option value="">{{ __('-- Pilih Nama Penyewa --') }}</option>
 
                     @foreach ($bangunan->penyewa as $penyewa)
                         <option
@@ -243,7 +243,7 @@
 
             <div id="ruangOrangAwam" class="mb-3" hidden>
                 <label for="cmp_reporter_name" class="form-label fw-semibold">
-                    Nama Pengadu <span class="text-danger">*</span>
+                    {{ __('Nama Pengadu') }} <span class="text-danger">*</span>
                 </label>
 
                 <input
@@ -252,12 +252,12 @@
                     name="cmp_reporter_name"
                     class="form-control @error('cmp_reporter_name') is-invalid @enderror"
                     value="{{ old('cmp_reporter_name') }}"
-                    placeholder="Masukkan nama penuh anda"
+                    placeholder="{{ __('Masukkan nama penuh anda') }}"
                 >
 
                 <div class="mt-3">
                     <label for="cmp_reporter_phone" class="form-label fw-semibold">
-                        Nombor Telefon <span class="text-danger">*</span>
+                        {{ __('Nombor Telefon') }} <span class="text-danger">*</span>
                     </label>
 
                     <input
@@ -268,7 +268,7 @@
                         value="{{ old('cmp_reporter_phone') }}"
                         inputmode="tel"
                         autocomplete="tel"
-                        placeholder="Contoh: 012-3456789"
+                        placeholder="{{ __('Contoh: 012-3456789') }}"
                     >
 
                     @error('cmp_reporter_phone')
@@ -283,14 +283,14 @@
 
             <div class="mb-3">
                 <label for="cmp_reporter_email" class="form-label fw-semibold">
-                    Alamat Emel <span class="text-danger">*</span>
+                    {{ __('Alamat Emel') }} <span class="text-danger">*</span>
                 </label>
 
-                <input id="cmp_reporter_email" type="email" name="cmp_reporter_email" class="form-control @error('cmp_reporter_email') is-invalid @enderror" value="{{ old('cmp_reporter_email') }}" inputmode="email" autocomplete="email" maxlength="150" placeholder="Contoh: nama@email.com" required>
+                <input id="cmp_reporter_email" type="email" name="cmp_reporter_email" class="form-control @error('cmp_reporter_email') is-invalid @enderror" value="{{ old('cmp_reporter_email') }}" inputmode="email" autocomplete="email" maxlength="150" placeholder="{{ __('Contoh: nama@email.com') }}" required>
 
                 <div class="form-text">
                     <i class="bi bi-envelope-check me-1"></i>
-                    No. rujukan dan makluman status aduan akan dihantar ke emel ini. Emel anda tidak digunakan untuk tujuan lain.
+                    {{ __('No. rujukan dan makluman status aduan akan dihantar ke emel ini. Emel anda tidak digunakan untuk tujuan lain.') }}
                 </div>
 
                 @error('cmp_reporter_email')
@@ -300,17 +300,17 @@
 
             <div class="mb-3">
                 <label for="cmp_damage_type" class="form-label fw-semibold">
-                    Jenis Kerosakan <span class="text-danger">*</span>
+                    {{ __('Jenis Kerosakan') }} <span class="text-danger">*</span>
                 </label>
 
                 <div class="grid-kerosakan-aduan d-md-none" data-pilih-untuk="#cmp_damage_type">
-                    @foreach (['STRUKTUR BANGUNAN' => ['bi-bricks', 'Struktur'], 'ELEKTRIK' => ['bi-lightning-charge', 'Elektrik'], 'PAIP DAN SANITARI' => ['bi-droplet', 'Paip & Sanitari'], 'BUMBUNG' => ['bi-house', 'Bumbung'], 'PINTU ATAU TINGKAP' => ['bi-door-open', 'Pintu / Tingkap'], 'KEBERSIHAN' => ['bi-stars', 'Kebersihan'], 'LAIN-LAIN' => ['bi-three-dots', 'Lain-lain']] as $nilaiKerosakan => [$ikonKerosakan, $labelKerosakan])
-                        <button type="button" class="kad-pilihan-aduan" data-nilai="{{ $nilaiKerosakan }}"><i class="bi {{ $ikonKerosakan }}"></i><span>{{ $labelKerosakan }}</span></button>
+                    @foreach (['STRUKTUR BANGUNAN' => ['bi-bricks', 'Struktur'], 'ELEKTRIK' => ['bi-lightning-charge', 'Elektrik'], 'PAIP DAN SANITARI' => ['bi-droplet', 'Paip & Sanitari'], 'BUMBUNG' => ['bi-house', 'Bumbung'], 'PINTU ATAU TINGKAP' => ['bi-door-open', 'Pintu / Tingkap']] as $nilaiKerosakan => [$ikonKerosakan, $labelKerosakan])
+                        <button type="button" class="kad-pilihan-aduan" data-nilai="{{ $nilaiKerosakan }}"><i class="bi {{ $ikonKerosakan }}"></i><span>{{ __($labelKerosakan) }}</span></button>
                     @endforeach
                 </div>
 
                 <select id="cmp_damage_type" name="cmp_damage_type" class="form-select select-asal-aduan @error('cmp_damage_type') is-invalid @enderror" required>
-                    <option value="">-- Pilih Jenis Kerosakan --</option>
+                    <option value="">{{ __('-- Pilih Jenis Kerosakan --') }}</option>
 
                     @foreach ([
                         'STRUKTUR BANGUNAN',
@@ -318,14 +318,12 @@
                         'PAIP DAN SANITARI',
                         'BUMBUNG',
                         'PINTU ATAU TINGKAP',
-                        'KEBERSIHAN',
-                        'LAIN-LAIN',
                     ] as $jenis)
                         <option
                             value="{{ $jenis }}"
                             @selected(old('cmp_damage_type') === $jenis)
                         >
-                            {{ ucwords(strtolower($jenis)) }}
+                            {{ __(ucwords(strtolower($jenis))) }}
                         </option>
                     @endforeach
                 </select>
@@ -337,7 +335,7 @@
 
             <div class="mb-3">
                 <label for="cmp_note" class="form-label fw-semibold">
-                    Keterangan Aduan <span class="text-danger">*</span>
+                    {{ __('Keterangan Aduan') }} <span class="text-danger">*</span>
                 </label>
 
                 <textarea
@@ -345,7 +343,7 @@
                     name="cmp_note"
                     rows="3"
                     class="form-control @error('cmp_note') is-invalid @enderror"
-                    placeholder="Terangkan kerosakan yang berlaku dan lokasi kerosakan."
+                    placeholder="{{ __('Terangkan kerosakan yang berlaku dan lokasi kerosakan.') }}"
                     required
                 >{{ old('cmp_note') }}</textarea>
 
@@ -356,7 +354,7 @@
 
             <div class="mb-4" data-pilihan-gambar-aduan>
                 <label class="form-label fw-semibold">
-                    Gambar Kerosakan
+                    {{ __('Gambar Kerosakan') }}
                 </label>
 
                 <div class="pilihan-gambar-awam">
@@ -368,8 +366,8 @@
                         <i class="bi bi-images"></i>
 
                         <span>
-                            <strong>Pilih dari Galeri</strong>
-                            <small>Pilih sehingga 4 gambar</small>
+                            <strong>{{ __('Pilih dari Galeri') }}</strong>
+                            <small>{{ __('Pilih sehingga 4 gambar') }}</small>
                         </span>
                     </button>
 
@@ -381,8 +379,8 @@
                         <i class="bi bi-camera-fill"></i>
 
                         <span>
-                            <strong>Ambil Gambar</strong>
-                            <small>Guna kamera telefon</small>
+                            <strong>{{ __('Ambil Gambar') }}</strong>
+                            <small>{{ __('Guna kamera telefon') }}</small>
                         </span>
                     </button>
                 </div>
@@ -400,7 +398,7 @@
                 <div data-input-kamera></div>
 
                 <div class="form-text" data-status-gambar>
-                    0 daripada 4 gambar dipilih. Saiz setiap gambar tidak melebihi 5 MB.
+                    {{ __(':jumlah daripada :had gambar dipilih. Saiz setiap gambar tidak melebihi 5 MB.', ['jumlah' => 0, 'had' => 4]) }}
                 </div>
 
                 <div
@@ -421,19 +419,19 @@
             <div class="bar-hantar-aduan">
             <button type="submit" class="btn btn-utama butang-hantar-aduan w-100 py-3">
                 <i class="bi bi-send-fill me-2"></i>
-                Hantar Aduan
+                {{ __('Hantar Aduan') }}
             </button>
             </div>
 
             <p class="text-center small text-secondary mt-3 mb-0">
-                Sudah membuat aduan? <a href="{{ route('aduan.status') }}">Semak status aduan</a>
+                {{ __('Sudah membuat aduan?') }} <a href="{{ route('aduan.status') }}">{{ __('Semak status aduan') }}</a>
             </p>
         </form>
     </section>
 
     <p class="footer-awam text-center small mt-4 mb-0">
         <i class="bi bi-shield-check me-1"></i>
-        MPAS · Sistem Aset Tak Alih Majlis Daerah Marang
+        {{ __('MPAS · Sistem Aset Tak Alih Majlis Daerah Marang') }}
     </p>
 
     <script>
@@ -493,7 +491,7 @@
 
                 const segerak = () => {
                     const dipilih = pilihan.selectedOptions[0];
-                    pemicu.innerHTML = '<span>' + (pilihan.value ? dipilih.textContent.trim() : (pilihan.options[0]?.textContent.trim() || 'Pilih')) + '</span><i class="bi bi-chevron-down"></i>';
+                    pemicu.innerHTML = '<span>' + (pilihan.value ? dipilih.textContent.trim() : (pilihan.options[0]?.textContent.trim() || @json(__('Pilih')))) + '</span><i class="bi bi-chevron-down"></i>';
                     pemicu.classList.toggle('kosong', !pilihan.value);
                 };
 
@@ -517,7 +515,7 @@
                     });
 
                     if (!isi.children.length) {
-                        isi.innerHTML = '<p class="text-secondary small text-center my-3">Tiada pilihan.</p>';
+                        isi.innerHTML = '<p class="text-secondary small text-center my-3">' + @json(__('Tiada pilihan.')) + '</p>';
                     }
 
                     latar.classList.add('buka');
@@ -588,8 +586,8 @@
             const paparRalatHadGambar = () => {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'Had gambar telah dicapai',
-                    text: 'Maksimum empat gambar sahaja boleh dimuat naik bagi satu aduan.',
+                    title: @json(__('Had gambar telah dicapai')),
+                    text: @json(__('Maksimum empat gambar sahaja boleh dimuat naik bagi satu aduan.')),
                     confirmButtonText: 'OK',
                     confirmButtonColor: '#168A7E',
                 });
@@ -628,13 +626,13 @@
 
                     const imej = document.createElement('img');
                     imej.src = URL.createObjectURL(gambar.fail);
-                    imej.alt = `Gambar kerosakan ${indeks + 1}`;
+                    imej.alt = @json(__('Gambar kerosakan')) + ` ${indeks + 1}`;
 
                     const butangPadam = document.createElement('button');
                     butangPadam.type = 'button';
                     butangPadam.className = 'butang-buang-preview';
-                    butangPadam.title = `Buang gambar ${indeks + 1}`;
-                    butangPadam.setAttribute('aria-label', `Buang gambar ${indeks + 1}`);
+                    butangPadam.title = @json(__('Buang gambar')) + ` ${indeks + 1}`;
+                    butangPadam.setAttribute('aria-label', butangPadam.title);
                     butangPadam.innerHTML = '<i class="bi bi-x-lg"></i>';
 
                     butangPadam.addEventListener('click', () => {
@@ -649,9 +647,9 @@
             const kemaskiniPaparanGambar = () => {
                 const jumlah = jumlahGambarDipilih();
 
-                statusGambar.textContent =
-                    `${jumlah} daripada ${hadGambar} gambar dipilih. ` +
-                    'Saiz setiap gambar tidak melebihi 5 MB.';
+                statusGambar.textContent = @json(__(':jumlah daripada :had gambar dipilih. Saiz setiap gambar tidak melebihi 5 MB.'))
+                    .replace(':jumlah', jumlah)
+                    .replace(':had', hadGambar);
 
                 butangKamera.disabled = jumlah >= hadGambar;
                 butangKamera.classList.toggle('disabled', jumlah >= hadGambar);
@@ -732,11 +730,11 @@
 
             Swal.fire({
                 icon: 'question',
-                title: 'Hantar aduan?',
-                text: 'Pastikan maklumat dan gambar yang dimasukkan adalah betul.',
+                title: @json(__('Hantar aduan?')),
+                text: @json(__('Pastikan maklumat dan gambar yang dimasukkan adalah betul.')),
                 showCancelButton: true,
-                confirmButtonText: 'Ya, hantar',
-                cancelButtonText: 'Semak semula',
+                confirmButtonText: @json(__('Ya, hantar')),
+                cancelButtonText: @json(__('Semak semula')),
                 confirmButtonColor: '#168A7E',
                 cancelButtonColor: '#6c757d',
                 reverseButtons: true,

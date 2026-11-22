@@ -11,6 +11,7 @@ use App\Models\Penyelenggaraan;
 use App\Models\TetapanPenyelenggaraan;
 use App\Models\TetapanPenyewa;
 use App\Support\Jadual;
+use App\Models\StatusAset;
 use App\Support\Paparan;
 use App\Support\Susunan;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -484,7 +485,7 @@ class PengurusanLaporanController extends Controller
                     $item->asb_ref_no,
                     $item->asb_name,
                     $item->asb_city ?? '-',
-                    Paparan::label($item->asb_premise_status),
+                    StatusAset::label('BANGUNAN', $item->asb_premise_status),
                     Paparan::label($item->asb_maintenance_status),
                     $item->penyewa_aktif_count,
                 ])->all(),
@@ -506,7 +507,7 @@ class PengurusanLaporanController extends Controller
                     $item->asl_lot_no,
                     $item->asl_location,
                     Paparan::label($item->asl_status_hakmilik),
-                    Paparan::label($item->asl_status_tanah),
+                    StatusAset::label('TANAH', $item->asl_status_tanah),
                     number_format($item->asl_land_size, 2),
                 ])->all(),
             ],

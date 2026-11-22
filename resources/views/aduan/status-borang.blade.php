@@ -1,12 +1,13 @@
 @extends('layouts.awam')
 
-@section('tajuk', 'Semak Status Aduan')
+@section('tajuk', __('Semak Status Aduan'))
+@section('dwibahasa', true)
 @section('kelas_body', 'halaman-aduan-apl')
 
 @section('kandungan')
     <div class="bar-aduan-apl d-md-none">
-        <a href="{{ route('portal.sewa') }}" class="butang-kembali-apl" data-kembali aria-label="Kembali"><i class="bi bi-arrow-left"></i></a>
-        <button type="button" class="butang-kembali-bar" onclick="history.back()" aria-label="Kembali"><i class="bi bi-arrow-left"></i></button>
+        <a href="{{ route('portal.sewa') }}" class="butang-kembali-apl" data-kembali aria-label="{{ __('Kembali') }}"><i class="bi bi-arrow-left"></i></a>
+        <button type="button" class="butang-kembali-bar" onclick="history.back()" aria-label="{{ __('Kembali') }}"><i class="bi bi-arrow-left"></i></button>
         <img src="{{ asset('images/logo-mpas-2.png') }}" alt="MPAS">
     </div>
 
@@ -18,10 +19,10 @@
                 </div>
 
                 <div class="maklumat-aset-awam">
-                    <h1>Semak Status Aduan</h1>
+                    <h1>{{ __('Semak Status Aduan') }}</h1>
                     <p class="alamat-aset-awam">
                         <i class="bi bi-building"></i>
-                        <span>Majlis Daerah Marang · Aduan aset bangunan</span>
+                        <span>{{ __('Majlis Daerah Marang · Aduan aset bangunan') }}</span>
                     </p>
                 </div>
             </header>
@@ -33,9 +34,9 @@
                     </span>
 
                     <div>
-                        <p class="teks-kecil mb-1">SEMAKAN ADUAN</p>
-                        <h2 class="h5 fw-bold mb-1">Maklumat Aduan</h2>
-                        <p class="text-secondary small mb-0">Masukkan no. rujukan dan alamat emel yang digunakan semasa membuat aduan.</p>
+                        <p class="teks-kecil mb-1">{{ __('SEMAKAN ADUAN') }}</p>
+                        <h2 class="h5 fw-bold mb-1">{{ __('Maklumat Aduan') }}</h2>
+                        <p class="text-secondary small mb-0">{{ __('Masukkan no. rujukan dan alamat emel yang digunakan semasa membuat aduan.') }}</p>
                     </div>
                 </div>
 
@@ -43,11 +44,11 @@
                     @csrf
 
                     <div class="mb-3">
-                        <label for="rujukan" class="form-label fw-semibold">No. Rujukan Aduan <span class="text-danger">*</span></label>
+                        <label for="rujukan" class="form-label fw-semibold">{{ __('No. Rujukan Aduan') }} <span class="text-danger">*</span></label>
 
                         <div class="medan-ikon-awam">
                             <i class="bi bi-hash" aria-hidden="true"></i>
-                            <input id="rujukan" type="text" name="rujukan" class="form-control text-uppercase @error('rujukan') is-invalid @enderror" value="{{ old('rujukan') }}" placeholder="Contoh: ADU-2026-00042" maxlength="20" autocomplete="off" autocapitalize="characters" required>
+                            <input id="rujukan" type="text" name="rujukan" class="form-control text-uppercase @error('rujukan') is-invalid @enderror" value="{{ old('rujukan') }}" placeholder="{{ __('Contoh: ADU-2026-00042') }}" maxlength="20" autocomplete="off" autocapitalize="characters" required>
                         </div>
 
                         @error('rujukan')
@@ -58,7 +59,7 @@
                     </div>
 
                     <div class="mb-4">
-                        <label for="emel" class="form-label fw-semibold">Alamat Emel <span class="text-danger">*</span></label>
+                        <label for="emel" class="form-label fw-semibold">{{ __('Alamat Emel') }} <span class="text-danger">*</span></label>
 
                         <div class="medan-ikon-awam">
                             <i class="bi bi-envelope" aria-hidden="true"></i>
@@ -72,7 +73,7 @@
 
                     <div class="bar-hantar-aduan">
                         <button type="submit" class="btn btn-utama w-100 butang-hantar-awam butang-hantar-aduan">
-                            <i class="bi bi-search me-2"></i>Semak Status
+                            <i class="bi bi-search me-2"></i>{{ __('Semak Status') }}
                         </button>
                     </div>
                 </form>
@@ -81,8 +82,8 @@
             <section class="kad-awam mt-4 nota-status-awam">
                 <i class="bi bi-info-circle-fill"></i>
                 <div>
-                    <strong>Di mana no. rujukan aduan?</strong>
-                    <p class="mb-0">No. rujukan dihantar ke emel anda sejurus selepas aduan dibuat. Emel yang sama juga mengandungi pautan terus ke halaman status aduan.</p>
+                    <strong>{{ __('Di mana no. rujukan aduan?') }}</strong>
+                    <p class="mb-0">{{ __('No. rujukan dihantar ke emel anda sejurus selepas aduan dibuat. Emel yang sama juga mengandungi pautan terus ke halaman status aduan.') }}</p>
                 </div>
             </section>
         </div>
@@ -93,7 +94,7 @@
             window.addEventListener('load', () => {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Aduan tidak dijumpai',
+                    title: @json(__('Aduan tidak dijumpai')),
                     text: @json($errors->first('rujukan')),
                     width: 320,
                     confirmButtonText: 'OK',
@@ -124,7 +125,7 @@
                 const butang = borang.querySelector('[type="submit"]');
                 const asalButang = butang.innerHTML;
                 butang.disabled = true;
-                butang.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyemak...';
+                butang.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>' + @json(__('Menyemak...'));
 
                 try {
                     const jawapan = await fetch(borang.action, { method: 'POST', body: new FormData(borang), headers: { 'Accept': 'text/html' }, credentials: 'same-origin' });
@@ -143,8 +144,8 @@
 
                     Swal.fire({
                         icon: 'error',
-                        title: (ralatEmel || ralatRujukan) ? 'Maklumat tidak lengkap' : 'Aduan tidak dijumpai',
-                        text: ralatEmel || ralatRujukan || 'Sila semak no. rujukan dan alamat emel.',
+                        title: (ralatEmel || ralatRujukan) ? @json(__('Maklumat tidak lengkap')) : @json(__('Aduan tidak dijumpai')),
+                        text: ralatEmel || ralatRujukan || @json(__('Sila semak no. rujukan dan alamat emel.')),
                         width: 320,
                         confirmButtonText: 'OK',
                         confirmButtonColor: '#168A7E',

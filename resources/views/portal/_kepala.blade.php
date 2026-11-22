@@ -36,7 +36,9 @@
 
     <div class="laci-bahagian">Hubungi Kami</div>
     <nav class="laci-menu">
-        <a href="tel:{{ preg_replace('/[^0-9+]/', '', $hubunganLaci['telefon']) }}"><span class="laci-ikon"><i class="bi bi-telephone"></i></span><span>{{ $hubunganLaci['telefon'] }}</span><i class="bi bi-chevron-right"></i></a>
+        @foreach ($hubunganLaci['telefon'] as $talian)
+            <a href="tel:{{ $talian['tel'] }}"><span class="laci-ikon"><i class="bi bi-telephone"></i></span><span>{{ $talian['nombor'] }}</span><i class="bi bi-chevron-right"></i></a>
+        @endforeach
         <a href="mailto:{{ $hubunganLaci['emel'] }}"><span class="laci-ikon"><i class="bi bi-envelope"></i></span><span class="text-truncate">{{ $hubunganLaci['emel'] }}</span><i class="bi bi-chevron-right"></i></a>
     </nav>
 

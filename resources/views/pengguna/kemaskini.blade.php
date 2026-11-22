@@ -10,7 +10,9 @@
 
     @include('tetapan._bar-apl', ['tajuk' => 'Kemaskini Pengguna', 'borang' => 'borangPengguna', 'kembali' => route('pengguna.index')])
 
-    <div class="d-none d-md-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+    <div class="d-none d-md-flex align-items-center gap-3 mb-4">
+        <a href="{{ route('pengguna.index') }}" class="butang-kembali-laporan" aria-label="Kembali ke senarai pengguna" title="Kembali ke Senarai"><i class="bi bi-arrow-left" aria-hidden="true"></i></a>
+
         <div>
             <p class="teks-kecil mb-1">PENGURUSAN SISTEM</p>
             <h1 class="tajuk-halaman mb-2">Kemaskini Pengguna</h1>
@@ -18,10 +20,6 @@
                 Urus maklumat akaun dan tahap akses pengguna sistem.
             </p>
         </div>
-
-        <a href="{{ route('pengguna.index') }}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left me-2"></i>Kembali
-        </a>
     </div>
 
     <div class="row g-4 align-items-start">

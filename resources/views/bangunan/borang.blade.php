@@ -438,27 +438,12 @@
                         <label for="asb_premise_status" class="form-label">
                             Status Premis <span class="text-danger">*</span>
                         </label>
-                        <select
-                            id="asb_premise_status"
-                            name="asb_premise_status"
-                            class="form-select @error('asb_premise_status') is-invalid @enderror"
-                            required
-                        >
+                        <select id="asb_premise_status" name="asb_premise_status" class="form-select @error('asb_premise_status') is-invalid @enderror" data-status-iklan='@json($senaraiStatusPremis->filter->sts_boleh_iklan->keys()->values())' required>
                             <option value="">-- Pilih Status --</option>
 
-                            @foreach ([
-                                'SEWA' => 'Sewa',
-                                'TIDAK_DISEWA' => 'Tidak Disewa',
-                                'PAJAK' => 'Pajak',
-                                'TIDAK_DIPAJAK' => 'Tidak Dipajak',
-                                'KEGUNAAN_MDM' => 'Kegunaan MDM',
-                                'DILUPUS' => 'Dilupus',
-                            ] as $nilai => $label)
-                                <option
-                                    value="{{ $nilai }}"
-                                    @selected(old('asb_premise_status', $bangunan?->asb_premise_status) === $nilai)
-                                >
-                                    {{ $label }}
+                            @foreach ($senaraiStatusPremis->filter(fn ($s) => $s->aktif() || $s->sts_kod === $bangunan?->asb_premise_status) as $nilai => $status)
+                                <option value="{{ $nilai }}" @selected(old('asb_premise_status', $bangunan?->asb_premise_status) === $nilai)>
+                                    {{ $status->sts_label }}{{ $status->aktif() ? '' : ' (tidak aktif)' }}
                                 </option>
                             @endforeach
                         </select>
@@ -993,6 +978,7 @@
                                         type="text"
                                         name="penyewa[__INDEX__][tnt_ic_no]"
                                         class="form-control"
+                                        maxlength="50"
                                         required
                                     >
                                 </div>
@@ -1242,7 +1228,7 @@
 
 @push('skrip')
     <script>
-        // Status pengiklanan: hanya boleh dipilih "Ya" bila Status Premis = Tidak Disewa
+        // Status pengiklanan: hanya boleh dipilih "Ya" bila status premis ditanda "Boleh diiklankan" (Tetapan > Status Aset)
         document.addEventListener('DOMContentLoaded', () => {
             const iklan = document.querySelector('[data-pilih-iklan]');
             const premis = document.getElementById('asb_premise_status');
@@ -1255,8 +1241,10 @@
             const mula = document.getElementById('asb_advertise_start');
             const tamat = document.getElementById('asb_advertise_end');
 
+            const statusIklan = JSON.parse(premis.dataset.statusIklan || '[]');
+
             const kemaskini = () => {
-                const layak = premis.value === 'TIDAK_DISEWA';
+                const layak = statusIklan.includes(premis.value);
 
                 if (! layak) {
                     iklan.value = '0';

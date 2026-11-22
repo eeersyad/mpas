@@ -12,7 +12,9 @@
         <span class="tajuk-bar-apl">Kod QR</span>
     </div>
 
-    <div class="d-none d-md-flex flex-column flex-md-row align-items-md-start justify-content-between gap-3 mb-4">
+    <div class="d-none d-md-flex align-items-center gap-3 mb-4">
+        <a href="{{ route('kodqr.index') }}" class="butang-kembali-laporan" aria-label="Kembali ke senarai Kod QR" title="Kembali ke Senarai"><i class="bi bi-arrow-left" aria-hidden="true"></i></a>
+
         <div>
             <p class="teks-kecil mb-1">PENGURUSAN ASET · KOD QR</p>
             <h1 class="tajuk-halaman mb-2">Kod QR Aset Bangunan</h1>
@@ -20,10 +22,6 @@
                 Jana, lihat dan kawal akses aduan awam bagi aset bangunan.
             </p>
         </div>
-
-        <a href="{{ route('kodqr.index') }}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left me-1"></i>Kembali ke Senarai
-        </a>
     </div>
 
     <div class="kad-maklumat-qr mb-4">
@@ -64,10 +62,7 @@
                 </div>
 
                 <div class="bungkus-qr-utama">
-                    {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')
-                        ->size(260)
-                        ->margin(1)
-                        ->generate($pautanAduan) !!}
+                    {!! \App\Support\KodQr::svg($pautanAduan, 260) !!}
                 </div>
 
                 <p class="text-secondary small text-center mt-4 mb-0">

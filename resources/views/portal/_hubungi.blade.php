@@ -1,7 +1,3 @@
-@php
-    $telefon = preg_replace('/[^0-9+]/', '', $hubungan['telefon']);
-@endphp
-
 {{-- Desktop: kad hubungan --}}
 <section class="kad-awam portal-hubungi d-none d-md-block">
     <div class="d-flex align-items-center gap-3 mb-3">
@@ -11,9 +7,11 @@
             <small class="text-muted">Hubungi {{ $hubungan['nama'] }} melalui telefon atau emel untuk urusan sewaan.</small>
         </div>
     </div>
-    <div class="d-flex gap-2">
-        <a href="tel:{{ $telefon }}" class="btn btn-tema flex-fill"><i class="bi bi-telephone-fill me-1"></i> {{ $hubungan['telefon'] }}</a>
-        <a href="mailto:{{ $hubungan['emel'] }}" class="btn btn-outline-tema flex-fill"><i class="bi bi-envelope me-1"></i> {{ $hubungan['emel'] }}</a>
+    <div class="d-flex flex-wrap gap-2">
+        @foreach ($hubungan['telefon'] as $talian)
+            <a href="tel:{{ $talian['tel'] }}" class="btn btn-tema flex-fill" title="{{ $talian['label'] }}"><i class="bi bi-telephone-fill me-1"></i> {{ $talian['nombor'] }}</a>
+        @endforeach
+        <a href="mailto:{{ $hubungan['emel'] }}" class="btn btn-outline-tema w-100"><i class="bi bi-envelope me-1"></i> {{ $hubungan['emel'] }}</a>
     </div>
 </section>
 
@@ -28,11 +26,13 @@
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Tutup"></button>
     </div>
     <div class="offcanvas-body pb-4">
-        <a href="tel:{{ $telefon }}" class="portal-baris-hubungi">
-            <span class="portal-baris-ikon"><i class="bi bi-telephone-fill"></i></span>
-            <span class="flex-fill"><small>Telefon</small><strong>{{ $hubungan['telefon'] }}</strong></span>
-            <i class="bi bi-chevron-right"></i>
-        </a>
+        @foreach ($hubungan['telefon'] as $talian)
+            <a href="tel:{{ $talian['tel'] }}" class="portal-baris-hubungi">
+                <span class="portal-baris-ikon"><i class="bi bi-telephone-fill"></i></span>
+                <span class="flex-fill"><small>{{ $talian['label'] }}</small><strong>{{ $talian['nombor'] }}</strong></span>
+                <i class="bi bi-chevron-right"></i>
+            </a>
+        @endforeach
         <a href="mailto:{{ $hubungan['emel'] }}" class="portal-baris-hubungi">
             <span class="portal-baris-ikon"><i class="bi bi-envelope-fill"></i></span>
             <span class="flex-fill text-truncate"><small>Emel</small><strong>{{ $hubungan['emel'] }}</strong></span>

@@ -590,6 +590,7 @@
                             }
 
                             const nilai =
+                                data.kod?.[indeks] ??
                                 tetapanKlik.nilaiPenapis?.[label] ??
                                 nilaiPenapisStatus[label];
 
@@ -663,7 +664,7 @@
                 binaCartaBar(
                     '#cartaBangunan',
                     dataBangunan,
-                    warnaMengikutStatus(dataBangunan),
+                    dataBangunan.warna ?? warnaMengikutStatus(dataBangunan),
                     {
                         pautan: pautanBangunan,
                         namaPenapis: 'status_premis',
@@ -673,7 +674,7 @@
                 binaCartaBar(
                     '#cartaTanah',
                     dataTanah,
-                    warnaMengikutStatus(dataTanah),
+                    dataTanah.warna ?? warnaMengikutStatus(dataTanah),
                     {
                         pautan: pautanTanah,
                         namaPenapis: 'status_tanah',
@@ -704,7 +705,7 @@
             binaCartaBar(
                 '#cartaStatusTanah',
                 dataStatusTanah,
-                warnaMengikutStatus(dataStatusTanah),
+                dataStatusTanah.warna ?? warnaMengikutStatus(dataStatusTanah),
                 {
                     pautan: pautanTanah,
                     namaPenapis: 'status_tanah',

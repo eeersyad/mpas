@@ -84,7 +84,7 @@ class AduanAwamController extends Controller
 
             if (! $tenantId) {
                 throw ValidationException::withMessages([
-                    'tnt_id' => 'Penyewa yang dipilih tidak sah untuk aset ini.',
+                    'tnt_id' => __('Penyewa yang dipilih tidak sah untuk aset ini.'),
                 ]);
             }
         }
@@ -151,6 +151,6 @@ class AduanAwamController extends Controller
 
         return redirect()
             ->route('aduan.awam.create', $kod)
-            ->with('berjaya', "Aduan anda telah berjaya dihantar. No. rujukan: {$aduan->cmp_ref_no}. Makluman telah dihantar ke emel anda.");
+            ->with('berjaya', __('Aduan anda telah berjaya dihantar. No. rujukan: :rujukan. Makluman telah dihantar ke emel anda.', ['rujukan' => $aduan->cmp_ref_no]));
     }
 }

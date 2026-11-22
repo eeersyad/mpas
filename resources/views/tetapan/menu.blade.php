@@ -67,7 +67,16 @@
 
             <span>
                 <strong>Akses Penyelenggaraan</strong>
-                <small>Peranan boleh lihat dan isi</small>
+                <small>Pengguna boleh lihat dan isi</small>
+            </span>
+        </a>
+
+        <a href="{{ route('tetapan.status-aset') }}" class="tetapan-pautan {{ request()->routeIs('tetapan.status-aset*') ? 'aktif' : '' }}">
+            <i class="bi bi-tags"></i>
+
+            <span>
+                <strong>Status Aset</strong>
+                <small>Status premis dan status tanah</small>
             </span>
         </a>
 

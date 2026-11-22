@@ -161,23 +161,16 @@
     </div>
 
 
-    <div class="d-none d-md-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
-        <div>
-            <a href="{{ route('aduan.index') }}" class="btn btn-sm btn-outline-secondary mb-3">
-                <i class="bi bi-arrow-left me-1"></i>Kembali ke Senarai
-            </a>
+    <div class="d-none d-md-flex align-items-center gap-3 mb-4">
+        <a href="{{ route('aduan.index') }}" class="butang-kembali-laporan" aria-label="Kembali ke senarai aduan" title="Kembali ke Senarai"><i class="bi bi-arrow-left" aria-hidden="true"></i></a>
 
+        <div>
             <p class="teks-kecil mb-1">PENGURUSAN ADUAN</p>
             <h1 class="tajuk-halaman mb-2">Butiran Aduan</h1>
             <p class="teks-penerangan mb-0">
                 Semak maklumat aduan dan rekodkan tindakan yang berkaitan.
             </p>
         </div>
-
-        <span class="lencana-status-aduan besar {{ $statusKelas }}">
-            <i class="bi {{ $statusIkon }}"></i>
-            {{ \App\Support\Paparan::label($aduan->cmp_status) }}
-        </span>
     </div>
 
     <div class="hero-aduan mb-4 d-none d-md-flex">
@@ -199,6 +192,11 @@
 
                 <i class="bi bi-calendar-event me-1"></i>
                 {{ $aduan->cmp_received_date?->format('d/m/Y, h:i A') ?? '-' }}
+
+                <span class="lencana-status-aduan lencana-status-hero {{ $statusKelas }} ms-2 align-middle">
+                    <i class="bi {{ $statusIkon }}"></i>
+                    {{ \App\Support\Paparan::label($aduan->cmp_status) }}
+                </span>
             </p>
         </div>
 

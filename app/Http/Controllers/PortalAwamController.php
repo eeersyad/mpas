@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Bangunan;
+use App\Models\StatusAset;
 use App\Models\DokumenBangunan;
 use App\Support\Paparan;
 use Illuminate\Database\Eloquent\Builder;
@@ -170,9 +171,9 @@ JS;
 
     private function queryBangunan(): Builder
     {
-        // Hanya bangunan "Tidak Disewa" yang ditanda untuk diiklankan
+        // Hanya bangunan dengan status premis "Boleh diiklankan" (Tetapan > Status Aset) yang ditanda untuk diiklankan
         return Bangunan::query()
-            ->where('asb_premise_status', 'TIDAK_DISEWA')
+            ->whereIn('asb_premise_status', StatusAset::kodBolehIklan())
             ->where('asb_advertise', true)
             ->where(fn (Builder $q) => $q->whereNull('asb_advertise_start')->orWhereDate('asb_advertise_start', '<=', today()))
             ->where(fn (Builder $q) => $q->whereNull('asb_advertise_end')->orWhereDate('asb_advertise_end', '>=', today()));
@@ -191,7 +192,7 @@ JS;
             'id' => $b->asb_id,
             'tajuk' => $b->asb_name,
             'subtajuk' => collect([$b->asb_category, $b->asb_sub_category])->filter()->map(fn ($k) => Paparan::label($k))->implode(' · '),
-            'status' => Paparan::label($b->asb_premise_status),
+            'status' => StatusAset::label('BANGUNAN', $b->asb_premise_status),
             'alamat' => $alamat ?: null,
             'mukim' => $b->asb_mukim ? Paparan::label($b->asb_mukim) : null,
             'keluasan' => $b->asb_size,
@@ -201,6 +202,8 @@ JS;
                 ->filter(fn ($d) => in_array(strtolower(pathinfo((string) $d->asbdoc_path, PATHINFO_EXTENSION)), self::FORMAT_GAMBAR, true))
                 ->map(fn ($d) => $d->asbdoc_id)
                 ->values(),
+            'iklan_mula' => $b->asb_advertise_start?->format('d/m/Y'),
+            'iklan_tamat' => $b->asb_advertise_end?->format('d/m/Y'),
             'url' => route('portal.sewa.bangunan', $b),
         ]);
     }

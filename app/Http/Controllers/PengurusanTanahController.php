@@ -29,6 +29,7 @@ class PengurusanTanahController extends Controller
         $cari = trim((string) $request->input('cari', ''));
         $statusHakmilik = $request->input('status_hakmilik');
         $statusTanah = $request->input('status_tanah');
+        $mukim = $request->input('mukim');
 
         [$kolumSusunan, $arahSusunan] = Susunan::dapatkan(
             $request,
@@ -65,11 +66,20 @@ class PengurusanTanahController extends Controller
                 $statusTanah,
                 fn ($query, $status) => $query->where('asl_status_tanah', $status)
             )
+            ->when(
+                $mukim,
+                fn ($query, $mukim) => $query->where('asl_mukim', $mukim)
+            )
             ->orderBy($kolumSusunan, $arahSusunan)
             ->paginate($had)
             ->withQueryString();
 
-        return view('tanah.senarai', compact('tanah'));
+        // Senarai mukim: [kod => label] (sama seperti pilihan dalam borang tanah)
+        $senaraiMukim = collect(Tanah::SENARAI_MUKIM)
+            ->mapWithKeys(fn ($kod) => [$kod => \App\Support\Paparan::label($kod)])
+            ->all();
+
+        return view('tanah.senarai', compact('tanah', 'senaraiMukim'));
     }
 
     public function create(): View

@@ -323,7 +323,7 @@
                     'medan' => [
                         ['Nombor Hakmilik', $papar($aset->asl_hakmilik_no)],
                         ['Status Hakmilik', $enum($aset->asl_status_hakmilik)],
-                        ['Status Tanah', $enum($aset->asl_status_tanah)],
+                        ['Status Tanah', $aset->asl_status_tanah ? ($senaraiStatusTanah->get($aset->asl_status_tanah)?->sts_label ?? $enum($aset->asl_status_tanah)) : '-'],
                         ['Tarikh Terima Hakmilik', $tarikhMedan($aset->asl_tarikh_terima_hakmilik)],
                         ['Tarikh Serah Balik Hakmilik', $tarikhMedan($aset->asl_tarikh_serah_balik_hakmilik)],
                     ],
@@ -390,7 +390,7 @@
                     <tbody>
                         <tr>
                             <td class="label">Status Premis</td>
-                            <td class="nilai">{{ $enum($aset->asb_premise_status) }}</td>
+                            <td class="nilai">{{ $aset->asb_premise_status ? ($senaraiStatusPremis->get($aset->asb_premise_status)?->sts_label ?? $enum($aset->asb_premise_status)) : '-' }}</td>
 
                             <td class="label">Status Penyelenggaraan</td>
                             <td class="nilai">{{ $enum($aset->asb_maintenance_status) }}</td>
@@ -481,9 +481,13 @@
                             <td>{{ $papar($penyewa->tnt_ic_no) }}</td>
                             <td>{{ $papar($penyewa->tnt_acc_no) }}</td>
                             <td>
-                                {{ $tarikhMedan($penyewa->tnt_start_date) }}
-                                hingga
-                                {{ $tarikhMedan($penyewa->tnt_end_date) }}
+                                @if ($penyewa->tnt_mula_perjanjian || $penyewa->tnt_tamat_perjanjian)
+                                    {{ $tarikhMedan($penyewa->tnt_mula_perjanjian) }}
+                                    hingga
+                                    {{ $tarikhMedan($penyewa->tnt_tamat_perjanjian) }}
+                                @else
+                                    -
+                                @endif
                             </td>
                             <td>{{ $enum($penyewa->tnt_status) }}</td>
                         </tr>

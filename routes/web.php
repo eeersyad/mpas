@@ -8,6 +8,8 @@ use App\Http\Controllers\ProfilController;
 use App\Http\Controllers\TetapanController;
 use App\Http\Controllers\TetapanKomponenController;
 use App\Http\Controllers\TetapanPegawaiController;
+use App\Http\Controllers\TetapanAksesPenyelenggaraanController;
+use App\Http\Controllers\TetapanStatusAsetController;
 use App\Http\Controllers\PengurusanTanahController;
 use App\Http\Controllers\PengurusanBangunanController;
 use App\Http\Controllers\PengurusanAduanController;
@@ -32,12 +34,19 @@ Route::middleware('guest')->group(function () {
 });
 
 // Aduan awam melalui kod QR (tanpa log masuk)
+// Tukar bahasa halaman awam aduan (BM / EN)
+Route::get('/bahasa/{kod}', function (string $kod) {
+    session(['bahasa' => $kod]);
+
+    return back();
+})->whereIn('kod', \App\Http\Middleware\TetapkanBahasa::BAHASA)->middleware('throttle:30,1')->name('bahasa');
+
 Route::get('/laporan/{kod}', [AduanAwamController::class, 'create'])
-    ->middleware('throttle:20,1')
+    ->middleware(['throttle:20,1', 'bahasa'])
     ->name('aduan.awam.create');
 
 Route::post('/laporan/{kod}', [AduanAwamController::class, 'store'])
-    ->middleware('throttle:5,10,aduan-awam')
+    ->middleware(['throttle:5,10,aduan-awam', 'bahasa'])
     ->name('aduan.awam.store');
 
 // Portal Awam: aset untuk disewa, peta & navigasi (tanpa log masuk)
@@ -56,7 +65,7 @@ Route::middleware('throttle:60,1')->prefix('awam')->name('portal.')->group(funct
 });
 
 // Semak status aduan (awam, tanpa log masuk)
-Route::middleware('throttle:20,1')->group(function () {
+Route::middleware(['throttle:20,1', 'bahasa'])->group(function () {
     Route::get('/status-aduan', [StatusAduanController::class, 'borang'])
         ->name('aduan.status');
 
@@ -172,11 +181,29 @@ Route::middleware('auth')->group(function () {
         Route::patch('/tetapan/komponen/{komponen}/status', [TetapanKomponenController::class, 'togolStatus'])
             ->name('tetapan.komponen.status');
 
-        Route::get('/tetapan/penyelenggaraan', [TetapanController::class, 'penyelenggaraan'])
+        Route::get('/tetapan/penyelenggaraan', [TetapanAksesPenyelenggaraanController::class, 'index'])
             ->name('tetapan.penyelenggaraan');
 
-        Route::put('/tetapan/penyelenggaraan', [TetapanController::class, 'kemaskiniPenyelenggaraan'])
+        Route::post('/tetapan/penyelenggaraan', [TetapanAksesPenyelenggaraanController::class, 'simpan'])
+            ->name('tetapan.penyelenggaraan.simpan');
+
+        Route::put('/tetapan/penyelenggaraan/{akses}', [TetapanAksesPenyelenggaraanController::class, 'kemaskini'])
             ->name('tetapan.penyelenggaraan.kemaskini');
+
+        Route::patch('/tetapan/penyelenggaraan/{akses}/status', [TetapanAksesPenyelenggaraanController::class, 'togolStatus'])
+            ->name('tetapan.penyelenggaraan.status');
+
+        Route::get('/tetapan/status-aset', [TetapanStatusAsetController::class, 'index'])
+            ->name('tetapan.status-aset');
+
+        Route::post('/tetapan/status-aset', [TetapanStatusAsetController::class, 'simpan'])
+            ->name('tetapan.status-aset.simpan');
+
+        Route::put('/tetapan/status-aset/{status}', [TetapanStatusAsetController::class, 'kemaskini'])
+            ->name('tetapan.status-aset.kemaskini');
+
+        Route::patch('/tetapan/status-aset/{status}/status', [TetapanStatusAsetController::class, 'togolStatus'])
+            ->name('tetapan.status-aset.status');
 
         Route::get('/tetapan/pegawai', [TetapanPegawaiController::class, 'index'])
             ->name('tetapan.pegawai');

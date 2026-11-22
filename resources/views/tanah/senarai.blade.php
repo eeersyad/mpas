@@ -25,7 +25,7 @@
         <input type="hidden" name="had" value="{{ request('had', 15) }}">
 
         <div class="row g-3 align-items-end">
-            <div class="col-12 col-lg-4">
+            <div class="col-12 col-xl">
                 <label for="cariTanah" class="label-penapis">
                     <i class="bi bi-search"></i> Carian Aset
                 </label>
@@ -40,7 +40,7 @@
                 >
             </div>
 
-            <div class="col-12 col-md-6 col-xl-2">
+            <div class="col-12 col-md-4 col-xl-2">
                 <label for="statusHakmilik" class="label-penapis">
                     <i class="bi bi-file-earmark-text"></i> Status Hakmilik
                 </label>
@@ -60,7 +60,7 @@
                 </select>
             </div>
 
-            <div class="col-12 col-md-6 col-xl-2">
+            <div class="col-12 col-md-4 col-xl-2">
                 <label for="statusTanah" class="label-penapis">
                     <i class="bi bi-key"></i> Status Tanah
                 </label>
@@ -72,15 +72,29 @@
                 >
                     <option value="">Semua Status</option>
 
-                    @foreach (['SEWA', 'TIDAK_DISEWA', 'PAJAK', 'TIDAK_DIPAJAK'] as $status)
-                        <option value="{{ $status }}" @selected(request('status_tanah') === $status)>
-                            {{ \App\Support\Paparan::label($status) }}
+                    @foreach ($senaraiStatusTanah->filter->aktif() as $nilai => $status)
+                        <option value="{{ $nilai }}" @selected(request('status_tanah') === $nilai)>
+                            {{ $status->sts_label }}
                         </option>
                     @endforeach
                 </select>
             </div>
 
-            <div class="col-12 col-xl-4">
+            <div class="col-12 col-md-4 col-xl-2">
+                <label for="mukimTanah" class="label-penapis">
+                    <i class="bi bi-geo-alt"></i> Mukim
+                </label>
+
+                <select id="mukimTanah" name="mukim" class="form-select kawalan-penapis">
+                    <option value="">Semua Mukim</option>
+
+                    @foreach ($senaraiMukim as $kodMukim => $namaMukim)
+                        <option value="{{ $kodMukim }}" @selected(request('mukim') === $kodMukim)>{{ $namaMukim }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-12 col-xl-auto">
                 <div class="d-flex gap-2 tindakan-penapis">
                     <a
                         href="{{ route('tanah.index') }}"
@@ -100,7 +114,8 @@
         // Penapis untuk paparan telefon (bottom sheet)
         $penapisMobile = [
             'status_hakmilik' => ['label' => 'Status Hakmilik', 'pilihan' => ['HAKMILIK', 'RIZAB', 'STRATA', 'LAIN_LAIN']],
-            'status_tanah' => ['label' => 'Status Tanah', 'pilihan' => ['SEWA', 'TIDAK_DISEWA', 'PAJAK', 'TIDAK_DIPAJAK']],
+            'status_tanah' => ['label' => 'Status Tanah', 'pilihan' => $senaraiStatusTanah->filter->aktif()->map->sts_label->all()],
+            'mukim' => ['label' => 'Mukim', 'pilihan' => $senaraiMukim],
         ];
     @endphp
 
@@ -156,18 +171,12 @@
                             </td>
 
                             @php
-                                $warnaStatusTanah = match ($item->asl_status_tanah) {
-                                    'SEWA' => 'jenis-sewa',
-                                    'TIDAK_DISEWA' => 'jenis-tidak-disewa',
-                                    'PAJAK' => 'jenis-pajak',
-                                    'TIDAK_DIPAJAK' => 'jenis-tidak-dipajak',
-                                    default => 'kelabu',
-                                };
+                                $statusTanah = $senaraiStatusTanah->get($item->asl_status_tanah);
                             @endphp
 
                             <td>
-                                <span class="lencana-jadual {{ $warnaStatusTanah }}">
-                                    {{ \App\Support\Paparan::label($item->asl_status_tanah) }}
+                                <span class="lencana-jadual {{ $statusTanah?->kelasWarna() ?? 'kelabu' }}" style="{{ $statusTanah?->gayaWarna() }}">
+                                    {{ $statusTanah?->sts_label ?? \App\Support\Paparan::label($item->asl_status_tanah) }}
                                 </span>
                             </td>
                             <td class="text-end">

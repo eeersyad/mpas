@@ -105,8 +105,11 @@
         </div>
     @endif
 
-    {{-- 3. Bottom sheet --}}
-    <div class="offcanvas offcanvas-bottom panel-penapis-mobile" tabindex="-1" id="penapisMobile" aria-labelledby="penapisMobileTajuk">
+</div>
+
+{{-- 3. Bottom sheet: diletak DI LUAR bar melekat. Bar itu guna backdrop-filter bila ditatal,
+     yang menjadikan elemen position:fixed di dalamnya terikat pada bar (bukan skrin). --}}
+<div class="offcanvas offcanvas-bottom panel-penapis-mobile" tabindex="-1" id="penapisMobile" aria-labelledby="penapisMobileTajuk">
         <div class="pemegang-panel" aria-hidden="true"></div>
 
         <div class="offcanvas-header">
@@ -162,4 +165,3 @@
             </div>
         </form>
     </div>
-</div>

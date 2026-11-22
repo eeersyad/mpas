@@ -434,6 +434,25 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
+        // Kemaskini sahaja: tekan penunjuk langkah untuk terus ke bahagian itu
+        if (borangTanah.querySelector('input[name="_method"]')) {
+            penunjuk.forEach((item, indeks) => {
+                item.classList.add('boleh-klik');
+                item.setAttribute('role', 'button');
+                item.setAttribute('tabindex', '0');
+
+                const pergi = () => tukarLangkah(indeks, indeks > langkahSemasa ? 'seterusnya' : 'sebelumnya');
+
+                item.addEventListener('click', pergi);
+                item.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        pergi();
+                    }
+                });
+            });
+        }
+
         // Buka terus langkah tertentu, contoh: /aset-tanah/5/edit?langkah=5
         const langkahUrlTanah = Number(new URLSearchParams(window.location.search).get('langkah'));
 
@@ -1789,6 +1808,28 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Kemaskini sahaja: tekan penunjuk langkah untuk terus ke bahagian itu
+    // (borang daftar kekal ikut turutan supaya tiada maklumat tertinggal)
+    if (borangBangunan.querySelector('input[name="_method"]')) {
+        penunjukBangunan.forEach((item) => {
+            const nombor = Number(item.dataset.penunjukBangunan);
+
+            item.classList.add('boleh-klik');
+            item.setAttribute('role', 'button');
+            item.setAttribute('tabindex', '0');
+
+            const pergi = () => paparkanLangkahBangunan(nombor, nombor > langkahBangunanSemasa ? 'kanan' : 'kiri');
+
+            item.addEventListener('click', pergi);
+            item.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    pergi();
+                }
+            });
+        });
+    }
+
     butangSebelum.forEach((butang) => {
         butang.addEventListener('click', () => {
             if (langkahBangunanSemasa > 1) {
@@ -2486,6 +2527,74 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const langkahAktif = () => langkah.find((seksyen) => seksyen.classList.contains('aktif'));
 
+        // Nama setiap langkah (dari penunjuk langkah desktop)
+        const penunjukWizard = [...borang.querySelectorAll('[data-penunjuk-bangunan], [data-penunjuk-item]')];
+        const namaLangkahWizard = penunjukWizard.map((item) => item.querySelector('strong')?.textContent.trim() ?? '');
+
+        // Kemaskini sahaja: tekan teks langkah → bottom sheet senarai langkah untuk terus ke bahagian lain
+        if (! borangDaftar && penunjukWizard.length === langkah.length) {
+            const teksWizard = kepala.querySelector('[data-wiz-teks]');
+            teksWizard.classList.add('boleh-tekan');
+            teksWizard.setAttribute('role', 'button');
+            teksWizard.setAttribute('tabindex', '0');
+            teksWizard.setAttribute('aria-label', 'Pilih bahagian borang');
+
+            const lembaranLangkah = document.createElement('div');
+            lembaranLangkah.className = 'offcanvas offcanvas-bottom panel-penapis-mobile lembaran-langkah-apl';
+            lembaranLangkah.tabIndex = -1;
+            lembaranLangkah.innerHTML = `
+                <div class="pemegang-panel" aria-hidden="true"></div>
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title">Pergi ke bahagian</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Tutup"></button>
+                </div>
+                <div class="offcanvas-body pt-0">
+                    <div class="senarai-pilihan-apl" data-senarai-langkah></div>
+                </div>
+            `;
+            document.body.appendChild(lembaranLangkah);
+
+            const offcanvasLangkah = bootstrap.Offcanvas.getOrCreateInstance(lembaranLangkah);
+            const senaraiLangkah = lembaranLangkah.querySelector('[data-senarai-langkah]');
+
+            const bukaSenaraiLangkah = () => {
+                const indeksAktif = langkah.indexOf(langkahAktif());
+                senaraiLangkah.innerHTML = '';
+
+                namaLangkahWizard.forEach((nama, indeks) => {
+                    const baris = document.createElement('button');
+                    baris.type = 'button';
+                    baris.className = 'baris-pilihan-apl baris-langkah-apl' + (indeks === indeksAktif ? ' dipilih' : '');
+                    baris.innerHTML = `
+                        <span class="nombor-langkah-apl">${indeks + 1}</span>
+                        <span class="flex-fill text-start"></span>
+                        ${indeks === indeksAktif ? '<small class="label-semasa-apl">Semasa</small>' : ''}
+                    `;
+                    baris.querySelector('.flex-fill').textContent = nama;
+
+                    baris.addEventListener('click', () => {
+                        offcanvasLangkah.hide();
+
+                        if (indeks !== indeksAktif) {
+                            penunjukWizard[indeks].click();
+                        }
+                    });
+
+                    senaraiLangkah.appendChild(baris);
+                });
+
+                offcanvasLangkah.show();
+            };
+
+            teksWizard.addEventListener('click', bukaSenaraiLangkah);
+            teksWizard.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    bukaSenaraiLangkah();
+                }
+            });
+        }
+
         const kemaskiniWizard = () => {
             const aktif = langkahAktif();
 
@@ -2496,7 +2605,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const indeks = langkah.indexOf(aktif);
             const akhir = indeks === langkah.length - 1;
 
-            kepala.querySelector('[data-wiz-teks]').textContent = `Langkah ${indeks + 1} daripada ${langkah.length}`;
+            const teksWizard = kepala.querySelector('[data-wiz-teks]');
+
+            teksWizard.textContent = `Langkah ${indeks + 1} daripada ${langkah.length}`;
+
+            if (! borangDaftar) {
+                teksWizard.insertAdjacentHTML('beforeend', ' <i class="bi bi-chevron-down" aria-hidden="true"></i>');
+            }
             kepala.querySelector('[data-wiz-kemajuan]').style.width = `${((indeks + 1) / langkah.length) * 100}%`;
 
             nav.querySelector('[data-wiz-sebelum]').hidden = indeks === 0;
@@ -3275,7 +3390,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     ? document.querySelector(suis.dataset.modalSasaran)
                     : null;
 
-                modalSasaran?.querySelectorAll('input[type="checkbox"][name="amc_status"], input[type="checkbox"][name="pgw_status"]').forEach((suisModal) => {
+                modalSasaran?.querySelectorAll('input[type="checkbox"][name="amc_status"], input[type="checkbox"][name="pgw_status"], input[type="checkbox"][name="tap_status"], input[type="checkbox"][name="sts_status"]').forEach((suisModal) => {
                     suisModal.checked = aktif;
                     suisModal.defaultChecked = aktif;
                 });

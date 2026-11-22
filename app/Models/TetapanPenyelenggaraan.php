@@ -39,17 +39,31 @@ class TetapanPenyelenggaraan extends Model
         ]);
     }
 
+    /**
+     * Akses ikut pengguna (Tetapan > Akses Penyelenggaraan). SYSTEM sentiasa ada akses penuh.
+     * Disimpan sementara bagi setiap permintaan supaya tidak query berulang kali.
+     */
+    private static array $aksesPengguna = [];
+
+    private static function akses(User $user): ?AksesPenyelenggaraan
+    {
+        if (! array_key_exists($user->usr_id, static::$aksesPengguna)) {
+            static::$aksesPengguna[$user->usr_id] = AksesPenyelenggaraan::query()
+                ->where('usr_id', $user->usr_id)
+                ->where('tap_status', 'ACTIVE')
+                ->first();
+        }
+
+        return static::$aksesPengguna[$user->usr_id];
+    }
+
     public static function bolehLihat(?User $user): bool
     {
         if (! $user) {
             return false;
         }
 
-        if ($user->usr_level === 'SYSTEM' || static::bolehIsi($user)) {
-            return true;
-        }
-
-        return in_array($user->usr_level, static::semasa()->tpn_peranan_lihat ?? [], true);
+        return $user->usr_level === 'SYSTEM' || static::akses($user) !== null;
     }
 
     public static function bolehIsi(?User $user): bool
@@ -58,10 +72,6 @@ class TetapanPenyelenggaraan extends Model
             return false;
         }
 
-        if ($user->usr_level === 'SYSTEM') {
-            return true;
-        }
-
-        return in_array($user->usr_level, static::semasa()->tpn_peranan_isi ?? [], true);
+        return $user->usr_level === 'SYSTEM' || (bool) static::akses($user)?->bolehIsi();
     }
 }

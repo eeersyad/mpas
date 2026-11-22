@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\StatusAset;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use App\Models\Penyelenggaraan;
@@ -41,8 +42,8 @@ class SimpanBangunanRequest extends FormRequest
         $this->merge([
             ...$maklumatTajuk,
             'asb_aset_warisan' => $this->boolean('asb_aset_warisan'),
-            // Hanya premis "Tidak Disewa" boleh diiklankan di Portal Awam
-            'asb_advertise' => $this->input('asb_premise_status') === 'TIDAK_DISEWA'
+            // Hanya status premis yang ditanda "Boleh diiklankan" (Tetapan > Status Aset)
+            'asb_advertise' => in_array($this->input('asb_premise_status'), StatusAset::kodBolehIklan(), true)
                 ? (filled($this->input('asb_advertise')) ? $this->boolean('asb_advertise') : null)
                 : false,
         ]);
@@ -96,7 +97,7 @@ class SimpanBangunanRequest extends FormRequest
 
             'asb_size' => ['nullable', 'numeric', 'min:0'],
             'asb_aset_warisan' => ['boolean'],
-            'asb_advertise' => ['required_if:asb_premise_status,TIDAK_DISEWA', 'nullable', 'boolean'],
+            'asb_advertise' => [Rule::requiredIf(in_array($this->input('asb_premise_status'), StatusAset::kodBolehIklan(), true)), 'nullable', 'boolean'],
             'asb_advertise_start' => ['required_if_accepted:asb_advertise', 'nullable', 'date'],
             'asb_advertise_end' => ['required_if_accepted:asb_advertise', 'nullable', 'date', 'after_or_equal:asb_advertise_start'],
             'asb_total_block' => ['nullable', 'integer', 'min:0'],
@@ -114,7 +115,7 @@ class SimpanBangunanRequest extends FormRequest
             'asb_maintenance_status' => ['required', 'in:RENDAH,SEDERHANA,KRITIKAL'],
             'asb_premise_status' => [
                 'required',
-                'in:SEWA,TIDAK_DISEWA,PAJAK,TIDAK_DIPAJAK,KEGUNAAN_MDM,DILUPUS',
+                Rule::in(StatusAset::kodSah('BANGUNAN', $this->route('bangunan')?->asb_premise_status)),
             ],
             'asb_collector_id' => ['nullable', 'integer', $this->rulePegawai('collector', ['PENGUMPUL', 'KEDUA_DUA'])],
             'asb_collected_at' => ['nullable', 'date'],
@@ -139,7 +140,7 @@ class SimpanBangunanRequest extends FormRequest
                 'nullable',
                 'required_with:penyewa.*.tnt_status',
                 'string',
-                'max:20',
+                'max:50',
             ],
             'penyewa.*.tnt_mula_perjanjian' => ['nullable', 'date'],
             'penyewa.*.tnt_tamat_perjanjian' => [
@@ -251,6 +252,7 @@ class SimpanBangunanRequest extends FormRequest
             'asb_gmaps_location.url' => 'Sila masukkan pautan Google Maps yang sah.',
             'asb_maintenance_status.required' => 'Sila pilih status penyelenggaraan.',
             'asb_premise_status.required' => 'Sila pilih status premis.',
+            'asb_premise_status.in' => 'Status premis yang dipilih tidak sah atau tidak aktif.',
             'asb_advertise.required_if' => 'Sila pilih status pengiklanan.',
             'asb_advertise_start.required_if_accepted' => 'Sila isi tarikh mula iklan.',
             'asb_advertise_end.required_if_accepted' => 'Sila isi tarikh tamat iklan.',
@@ -258,6 +260,7 @@ class SimpanBangunanRequest extends FormRequest
             'penyewa.*.tnt_name.required_with' => 'Sila masukkan nama penyewa.',
             'penyewa.*.tnt_tamat_perjanjian.after_or_equal' =>
                 'Tarikh tamat perjanjian tidak boleh lebih awal daripada tarikh mula perjanjian.',
+            'penyewa.*.tnt_ic_no.max' => 'No. Kad Pengenalan / No. Syarikat penyewa tidak boleh melebihi 50 aksara.',
             'penyewa.*.tnt_ic_no.required_with' =>
                 'Sila masukkan nombor kad pengenalan atau nombor syarikat penyewa.',
             'penyewa.*.tnt_acc_no.required_with' =>
@@ -268,6 +271,7 @@ class SimpanBangunanRequest extends FormRequest
             'dokumen.*.fail.required_with' => 'Sila pilih fail untuk dokumen ini.',
             'dokumen.*.fail.mimes' => 'Dokumen mestilah dalam format PDF, JPG, JPEG, PNG atau WEBP.',
             'dokumen.*.fail.max' => 'Saiz setiap dokumen tidak boleh melebihi 10MB.',
+            'dokumen.*.fail.uploaded' => 'Dokumen gagal dimuat naik. Saiz fail mungkin melebihi had pelayan; sila cuba fail yang lebih kecil atau hubungi pentadbir sistem.',
         ];
     }
 }

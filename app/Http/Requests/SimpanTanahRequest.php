@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\StatusAset;
 use Illuminate\Foundation\Http\FormRequest;
 use App\Models\Tanah;
 use Illuminate\Validation\Rule;
@@ -25,7 +26,7 @@ class SimpanTanahRequest extends FormRequest
 
             'asl_hakmilik_no' => ['nullable', 'string', 'max:100'],
             'asl_status_hakmilik' => ['nullable', 'in:HAKMILIK,RIZAB,STRATA,LAIN_LAIN'],
-            'asl_status_tanah' => ['required', 'in:SEWA,TIDAK_DISEWA,PAJAK,TIDAK_DIPAJAK'],
+            'asl_status_tanah' => ['required', Rule::in(StatusAset::kodSah('TANAH', $this->route('tanah')?->asl_status_tanah))],
             'asl_tarikh_terima_hakmilik' => ['nullable', 'date'],
             'asl_tarikh_serah_balik_hakmilik' => ['nullable', 'date', 'after_or_equal:asl_tarikh_terima_hakmilik'],
 

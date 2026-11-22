@@ -21,12 +21,12 @@
 
         $penapisMobile = match ($jenis) {
             'bangunan' => [
-                'status_premis' => ['label' => 'Status Premis', 'pilihan' => ['SEWA', 'TIDAK_DISEWA', 'PAJAK', 'TIDAK_DIPAJAK', 'KEGUNAAN_MDM', 'DILUPUS']],
+                'status_premis' => ['label' => 'Status Premis', 'pilihan' => $senaraiStatusPremis->filter->aktif()->map->sts_label->all()],
                 'status_penyelenggaraan' => ['label' => 'Penyelenggaraan', 'pilihan' => ['RENDAH', 'SEDERHANA', 'KRITIKAL']],
             ],
             'tanah' => [
                 'status_hakmilik' => ['label' => 'Status Hakmilik', 'pilihan' => ['HAKMILIK', 'RIZAB', 'STRATA', 'LAIN_LAIN']],
-                'status_tanah' => ['label' => 'Status Tanah', 'pilihan' => ['SEWA', 'TIDAK_DISEWA', 'PAJAK', 'TIDAK_DIPAJAK']],
+                'status_tanah' => ['label' => 'Status Tanah', 'pilihan' => $senaraiStatusTanah->filter->aktif()->map->sts_label->all()],
             ],
             'perjanjian_penyewa' => [
                 'status_tempoh' => ['label' => 'Status Tempoh', 'pilihan' => ['HAMPIR_TAMAT' => 'Hampir Tamat', 'SUDAH_TAMAT' => 'Sudah Tamat']],
@@ -210,9 +210,9 @@
                     <select id="statusPremis" name="status_premis" class="form-select kawalan-penapis">
                         <option value="">Semua Status</option>
 
-                        @foreach (['SEWA', 'TIDAK_DISEWA', 'PAJAK', 'TIDAK_DIPAJAK', 'KEGUNAAN_MDM', 'DILUPUS'] as $status)
-                            <option value="{{ $status }}" @selected(request('status_premis') === $status)>
-                                {{ \App\Support\Paparan::label($status) }}
+                        @foreach ($senaraiStatusPremis->filter->aktif() as $nilai => $status)
+                            <option value="{{ $nilai }}" @selected(request('status_premis') === $nilai)>
+                                {{ $status->sts_label }}
                             </option>
                         @endforeach
                     </select>
@@ -260,9 +260,9 @@
                     <select id="statusTanah" name="status_tanah" class="form-select kawalan-penapis">
                         <option value="">Semua Status</option>
 
-                        @foreach (['SEWA', 'TIDAK_DISEWA', 'PAJAK', 'TIDAK_DIPAJAK'] as $status)
-                            <option value="{{ $status }}" @selected(request('status_tanah') === $status)>
-                                {{ \App\Support\Paparan::label($status) }}
+                        @foreach ($senaraiStatusTanah->filter->aktif() as $nilai => $status)
+                            <option value="{{ $nilai }}" @selected(request('status_tanah') === $nilai)>
+                                {{ $status->sts_label }}
                             </option>
                         @endforeach
                     </select>
@@ -445,7 +445,7 @@
                                     <strong class="d-block">{{ $item->asb_name }}</strong>
                                     <small class="text-secondary">{{ $item->asb_city ?? '-' }}</small>
                                 </td>
-                                <td>{{ \App\Support\Paparan::label($item->asb_premise_status) }}</td>
+                                <td>{{ $senaraiStatusPremis->get($item->asb_premise_status)?->sts_label ?? \App\Support\Paparan::label($item->asb_premise_status) }}</td>
                                 <td>{{ \App\Support\Paparan::label($item->asb_maintenance_status) }}</td>
                                 <td>{{ $item->penyewa_aktif_count }}</td>
                             </tr>
@@ -456,7 +456,7 @@
                                 <td>{{ $item->asl_lot_no }}</td>
                                 <td>{{ $item->asl_location }}</td>
                                 <td>{{ \App\Support\Paparan::label($item->asl_status_hakmilik) }}</td>
-                                <td>{{ \App\Support\Paparan::label($item->asl_status_tanah) }}</td>
+                                <td>{{ $senaraiStatusTanah->get($item->asl_status_tanah)?->sts_label ?? \App\Support\Paparan::label($item->asl_status_tanah) }}</td>
                                 <td>{{ number_format($item->asl_land_size, 2) }} m²</td>
                             </tr>
                         @elseif ($jenis === 'pemeriksaan')

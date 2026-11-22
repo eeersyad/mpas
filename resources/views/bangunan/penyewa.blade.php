@@ -42,6 +42,7 @@
                     name="penyewa[{{ $indeks }}][tnt_ic_no]"
                     value="{{ old("penyewa.$indeks.tnt_ic_no", $penyewa?->tnt_ic_no) }}"
                     class="form-control"
+                    maxlength="50"
                     required
                 >
             </div>

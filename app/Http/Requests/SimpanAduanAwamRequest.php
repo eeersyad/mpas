@@ -37,7 +37,7 @@ class SimpanAduanAwamRequest extends FormRequest
 
             'cmp_reporter_email' => ['required', 'email:rfc', 'max:150'],
 
-            'cmp_damage_type' => ['required', 'string', 'max:255'],
+            'cmp_damage_type' => ['required', 'in:STRUKTUR BANGUNAN,ELEKTRIK,PAIP DAN SANITARI,BUMBUNG,PINTU ATAU TINGKAP'],
             'cmp_note' => ['required', 'string', 'max:2000'],
 
             'gambar' => ['nullable', 'array', 'max:4'],
@@ -52,18 +52,19 @@ class SimpanAduanAwamRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'jenis_pengadu.required' => 'Sila pilih kategori pengadu.',
-            'tnt_id.required_if' => 'Sila pilih nama penyewa.',
-            'cmp_damage_type.required' => 'Sila pilih jenis kerosakan.',
-            'cmp_note.required' => 'Sila masukkan keterangan aduan.',
-            'gambar.max' => 'Maksimum empat gambar boleh dimuat naik.',
-            'gambar.*.max' => 'Saiz setiap gambar tidak boleh melebihi 5 MB.',
-            'cmp_reporter_name.required_if' => 'Sila masukkan nama pengadu.',
-            'cmp_reporter_phone.required_if' => 'Sila masukkan nombor telefon pengadu.',
-            'cmp_reporter_phone.regex' => 'Sila masukkan nombor telefon yang sah.',
-            'cmp_reporter_email.required' => 'Sila masukkan alamat emel untuk menerima makluman status aduan.',
-            'cmp_reporter_email.email' => 'Sila masukkan alamat emel yang sah.',
-            'cmp_reporter_email.max' => 'Alamat emel tidak boleh melebihi 150 aksara.',
+            'jenis_pengadu.required' => __('Sila pilih kategori pengadu.'),
+            'tnt_id.required_if' => __('Sila pilih nama penyewa.'),
+            'cmp_damage_type.required' => __('Sila pilih jenis kerosakan.'),
+            'cmp_damage_type.in' => __('Jenis kerosakan tidak sah.'),
+            'cmp_note.required' => __('Sila masukkan keterangan aduan.'),
+            'gambar.max' => __('Maksimum empat gambar boleh dimuat naik.'),
+            'gambar.*.max' => __('Saiz setiap gambar tidak boleh melebihi 5 MB.'),
+            'cmp_reporter_name.required_if' => __('Sila masukkan nama pengadu.'),
+            'cmp_reporter_phone.required_if' => __('Sila masukkan nombor telefon pengadu.'),
+            'cmp_reporter_phone.regex' => __('Sila masukkan nombor telefon yang sah.'),
+            'cmp_reporter_email.required' => __('Sila masukkan alamat emel untuk menerima makluman status aduan.'),
+            'cmp_reporter_email.email' => __('Sila masukkan alamat emel yang sah.'),
+            'cmp_reporter_email.max' => __('Alamat emel tidak boleh melebihi 150 aksara.'),
         ];
     }
 }

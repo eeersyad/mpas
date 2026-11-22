@@ -23,9 +23,9 @@ class StatusAduanController extends Controller
                 'emel' => ['required', 'email:rfc', 'max:150'],
             ],
             [
-                'rujukan.required' => 'Sila masukkan no. rujukan aduan.',
-                'emel.required' => 'Sila masukkan alamat emel yang digunakan semasa membuat aduan.',
-                'emel.email' => 'Sila masukkan alamat emel yang sah.',
+                'rujukan.required' => __('Sila masukkan no. rujukan aduan.'),
+                'emel.required' => __('Sila masukkan alamat emel yang digunakan semasa membuat aduan.'),
+                'emel.email' => __('Sila masukkan alamat emel yang sah.'),
             ]
         );
 
@@ -37,7 +37,7 @@ class StatusAduanController extends Controller
         if (! $aduan) {
             return back()
                 ->withInput()
-                ->withErrors(['rujukan' => 'Aduan tidak dijumpai. Sila semak no. rujukan dan alamat emel.']);
+                ->withErrors(['rujukan' => __('Aduan tidak dijumpai. Sila semak no. rujukan dan alamat emel.')]);
         }
 
         return redirect()->to($aduan->urlStatus());

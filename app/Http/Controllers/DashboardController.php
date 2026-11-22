@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Aduan;
 use App\Models\Bangunan;
+use App\Models\StatusAset;
 use App\Models\Tanah;
 use App\Models\User;
 use Illuminate\View\View;
@@ -66,44 +67,14 @@ class DashboardController extends Controller
                 ->groupBy('asb_premise_status')
                 ->pluck('jumlah', 'asb_premise_status');
 
-            $cartaBangunan = [
-                'label' => [
-                    'Sewa',
-                    'Tidak Disewa',
-                    'Pajak',
-                    'Tidak Dipajak',
-                    'Kegunaan MDM',
-                    'Dilupus',
-                ],
-                'nilai' => [
-                    (int) ($jumlahPremis['SEWA'] ?? 0),
-                    (int) ($jumlahPremis['TIDAK_DISEWA'] ?? 0),
-                    (int) ($jumlahPremis['PAJAK'] ?? 0),
-                    (int) ($jumlahPremis['TIDAK_DIPAJAK'] ?? 0),
-                    (int) ($jumlahPremis['KEGUNAAN_MDM'] ?? 0),
-                    (int) ($jumlahPremis['DILUPUS'] ?? 0),
-                ],
-            ];
+            $cartaBangunan = StatusAset::dataCarta('BANGUNAN', $jumlahPremis);
 
             $jumlahStatusTanah = Tanah::query()
                 ->selectRaw('asl_status_tanah, COUNT(*) as jumlah')
                 ->groupBy('asl_status_tanah')
                 ->pluck('jumlah', 'asl_status_tanah');
 
-            $cartaTanah = [
-                'label' => [
-                    'Sewa',
-                    'Tidak Disewa',
-                    'Pajak',
-                    'Tidak Dipajak',
-                ],
-                'nilai' => [
-                    (int) ($jumlahStatusTanah['SEWA'] ?? 0),
-                    (int) ($jumlahStatusTanah['TIDAK_DISEWA'] ?? 0),
-                    (int) ($jumlahStatusTanah['PAJAK'] ?? 0),
-                    (int) ($jumlahStatusTanah['TIDAK_DIPAJAK'] ?? 0),
-                ],
-            ];
+            $cartaTanah = StatusAset::dataCarta('TANAH', $jumlahStatusTanah);
 
             $jumlahSkor = Bangunan::query()
                 ->selectRaw('asb_maintenance_status, COUNT(*) as jumlah')
@@ -189,20 +160,7 @@ class DashboardController extends Controller
                 ->groupBy('asl_status_tanah')
                 ->pluck('jumlah', 'asl_status_tanah');
 
-            $cartaStatusTanah = [
-                'label' => [
-                    'Sewa',
-                    'Tidak Disewa',
-                    'Pajak',
-                    'Tidak Dipajak',
-                ],
-                'nilai' => [
-                    (int) ($jumlahStatusTanah['SEWA'] ?? 0),
-                    (int) ($jumlahStatusTanah['TIDAK_DISEWA'] ?? 0),
-                    (int) ($jumlahStatusTanah['PAJAK'] ?? 0),
-                    (int) ($jumlahStatusTanah['TIDAK_DIPAJAK'] ?? 0),
-                ],
-            ];
+            $cartaStatusTanah = StatusAset::dataCarta('TANAH', $jumlahStatusTanah);
 
             $lokasiAset = Tanah::query()
                 ->whereNotNull('asl_latitude')

@@ -219,12 +219,9 @@
                         <select class="form-select" id="asl_status_tanah" name="asl_status_tanah">
                             <option value="">-- Pilih Status Tanah --</option>
 
-                            @foreach (['SEWA', 'TIDAK_DISEWA', 'PAJAK', 'TIDAK_DIPAJAK'] as $status)
-                                <option
-                                    value="{{ $status }}"
-                                    @selected(old('asl_status_tanah', $tanah?->asl_status_tanah) === $status)
-                                >
-                                    {{ \App\Support\Paparan::label($status) }}
+                            @foreach ($senaraiStatusTanah->filter(fn ($s) => $s->aktif() || $s->sts_kod === $tanah?->asl_status_tanah) as $nilai => $status)
+                                <option value="{{ $nilai }}" @selected(old('asl_status_tanah', $tanah?->asl_status_tanah) === $nilai)>
+                                    {{ $status->sts_label }}{{ $status->aktif() ? '' : ' (tidak aktif)' }}
                                 </option>
                             @endforeach
                         </select>

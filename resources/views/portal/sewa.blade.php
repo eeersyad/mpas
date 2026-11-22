@@ -92,6 +92,7 @@
                     <div class="portal-kad-badan">
                         <h2>{{ $item['tajuk'] }}</h2>
                         @if ($item['alamat'])<p class="portal-kad-alamat"><i class="bi bi-geo-alt"></i> {{ $item['alamat'] }}</p>@endif
+                        @if ($item['iklan_mula'] && $item['iklan_tamat'])<p class="portal-kad-tempoh"><i class="bi bi-calendar-event"></i> {{ $item['iklan_mula'] }} – {{ $item['iklan_tamat'] }}</p>@endif
                         <div class="portal-kad-kaki">
                             <span class="badge-tersedia"><i class="bi bi-check-circle-fill"></i> Tersedia</span>
                             @if ($item['keluasan_teks'])<small>{{ $item['keluasan_teks'] }}</small>@endif

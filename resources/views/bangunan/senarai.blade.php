@@ -38,7 +38,7 @@
         </div>
 
         <div class="row g-3 align-items-end">
-            <div class="col-12 col-xl-4">
+            <div class="col-12 col-xl">
                 <label for="cariBangunan" class="label-penapis">
                     <i class="bi bi-search"></i> Carian Aset
                 </label>
@@ -53,7 +53,7 @@
                 >
             </div>
 
-            <div class="col-12 col-md-6 col-xl-3">
+            <div class="col-12 col-md-4 col-xl-2">
                 <label for="statusPremis" class="label-penapis">
                     <i class="bi bi-building-check"></i> Status Premis
                 </label>
@@ -65,15 +65,29 @@
                 >
                     <option value="">Semua Status</option>
 
-                    @foreach (['SEWA', 'TIDAK_DISEWA', 'PAJAK', 'TIDAK_DIPAJAK', 'KEGUNAAN_MDM', 'DILUPUS'] as $status)
-                        <option value="{{ $status }}" @selected(request('status_premis') === $status)>
-                            {{ \App\Support\Paparan::label($status) }}
+                    @foreach ($senaraiStatusPremis->filter->aktif() as $nilai => $status)
+                        <option value="{{ $nilai }}" @selected(request('status_premis') === $nilai)>
+                            {{ $status->sts_label }}
                         </option>
                     @endforeach
                 </select>
             </div>
 
-            <div class="col-12 col-md-6 col-xl-3">
+            <div class="col-12 col-md-4 col-xl-2">
+                <label for="mukimBangunan" class="label-penapis">
+                    <i class="bi bi-geo-alt"></i> Mukim
+                </label>
+
+                <select id="mukimBangunan" name="mukim" class="form-select kawalan-penapis">
+                    <option value="">Semua Mukim</option>
+
+                    @foreach ($senaraiMukim as $namaMukim)
+                        <option value="{{ $namaMukim }}" @selected(request('mukim') === $namaMukim)>{{ $namaMukim }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-12 col-md-4 col-xl-2">
                 <label for="statusPenyelenggaraan" class="label-penapis">
                     <i class="bi bi-tools"></i> Penyelenggaraan
                 </label>
@@ -93,7 +107,7 @@
                 </select>
             </div>
 
-            <div class="col-12 col-xl-2">
+            <div class="col-12 col-xl-auto">
                 <div class="d-flex gap-2 tindakan-penapis">
                     <a
                         href="{{ route('bangunan.index') }}"
@@ -111,7 +125,8 @@
     @php
         // Penapis untuk paparan telefon (bottom sheet)
         $penapisMobile = [
-            'status_premis' => ['label' => 'Status Premis', 'pilihan' => ['SEWA', 'TIDAK_DISEWA', 'PAJAK', 'TIDAK_DIPAJAK', 'KEGUNAAN_MDM', 'DILUPUS']],
+            'status_premis' => ['label' => 'Status Premis', 'pilihan' => $senaraiStatusPremis->filter->aktif()->map->sts_label->all()],
+            'mukim' => ['label' => 'Mukim', 'pilihan' => collect($senaraiMukim)->mapWithKeys(fn ($m) => [$m => $m])->all()],
             'status_penyelenggaraan' => ['label' => 'Status Penyelenggaraan', 'pilihan' => ['RENDAH', 'SEDERHANA', 'KRITIKAL']],
             'perjanjian' => ['label' => 'Perjanjian Penyewa', 'pilihan' => ['TAMAT' => 'Telah tamat', 'HAMPIR' => 'Tamat dalam 3 bulan']],
         ];
@@ -181,6 +196,15 @@
                             <td class="teks-no-fail" title="{{ $item->asb_no_file }}">
                                 {{ $item->asb_no_file ?: '-' }}
 
+                                {{-- Telefon: tarikh pemeriksaan terkini di bawah no. fail --}}
+                                <span class="tarikh-pemeriksaan-jadual tarikh-pemeriksaan-kad d-md-none">
+                                    @if ($item->tarikh_pemeriksaan_terkini)
+                                        Diperiksa: {{ \Illuminate\Support\Carbon::parse($item->tarikh_pemeriksaan_terkini)->format('d/m/Y') }}
+                                    @else
+                                        <span class="belum">Belum diperiksa</span>
+                                    @endif
+                                </span>
+
                                 {{-- Telefon: nama penyewa aktif di bawah no. fail --}}
                                 @if ($item->penyewaAktif->isNotEmpty())
                                     <span class="penyewa-kad-apl d-md-none">
@@ -196,20 +220,12 @@
                             
 
                             @php
-                                $warnaPremis = match ($item->asb_premise_status) {
-                                    'SEWA' => 'premis-sewa',
-                                    'TIDAK_DISEWA' => 'premis-tidak-disewa',
-                                    'PAJAK' => 'premis-pajak',
-                                    'TIDAK_DIPAJAK' => 'premis-tidak-dipajak',
-                                    'KEGUNAAN_MDM' => 'premis-kegunaan-mdm',
-                                    'DILUPUS' => 'premis-dilupus',
-                                    default => 'kelabu',
-                                };
+                                $statusPremis = $senaraiStatusPremis->get($item->asb_premise_status);
                             @endphp
 
                             <td>
-                                <span class="lencana-jadual {{ $warnaPremis }}">
-                                    {{ \App\Support\Paparan::label($item->asb_premise_status) }}
+                                <span class="lencana-jadual {{ $statusPremis?->kelasWarna() ?? 'kelabu' }}" style="{{ $statusPremis?->gayaWarna() }}">
+                                    {{ $statusPremis?->sts_label ?? \App\Support\Paparan::label($item->asb_premise_status) }}
                                 </span>
                             </td>
 
@@ -229,7 +245,7 @@
                                         : '-' }}
                                 </span>
 
-                                <div class="tarikh-pemeriksaan-jadual" title="Tarikh pemeriksaan penyelenggaraan terkini">
+                                <div class="tarikh-pemeriksaan-jadual d-none d-md-block" title="Tarikh pemeriksaan penyelenggaraan terkini">
                                     @if ($item->tarikh_pemeriksaan_terkini)
                                         Diperiksa: {{ \Illuminate\Support\Carbon::parse($item->tarikh_pemeriksaan_terkini)->format('d/m/Y') }}
                                     @else

@@ -33,6 +33,7 @@ class PengurusanBangunanController extends Controller
         $cari = trim((string) $request->input('cari', ''));
         $statusPremis = $request->input('status_premis');
         $statusPenyelenggaraan = $request->input('status_penyelenggaraan');
+        $mukim = $request->input('mukim');
         $perjanjian = $request->input('perjanjian');
 
         [$kolumSusunan, $arahSusunan] = Susunan::dapatkan(
@@ -87,6 +88,10 @@ class PengurusanBangunanController extends Controller
                 $statusPenyelenggaraan,
                 fn ($query, $status) => $query->where('asb_maintenance_status', $status)
             )
+            ->when(
+                $mukim,
+                fn ($query, $mukim) => $query->where('asb_mukim', $mukim)
+            )
             // Penapis perjanjian penyewa: TAMAT atau HAMPIR (dalam 3 bulan)
             ->when($perjanjian === 'TAMAT', fn ($query) => $query->whereHas('penyewa', fn ($q) => $q
                 ->where('tnt_status', 'AKTIF')
@@ -100,7 +105,10 @@ class PengurusanBangunanController extends Controller
             ->paginate($had)
             ->withQueryString();
 
-        return view('bangunan.senarai', compact('bangunan'));
+        // Senarai mukim (sama seperti pilihan dalam borang bangunan)
+        $senaraiMukim = ['Alor Limbat', 'Bukit Payung', 'Jerong', 'Merchang', 'Pulau Kerengga', 'Rusila'];
+
+        return view('bangunan.senarai', compact('bangunan', 'senaraiMukim'));
     }
 
     public function create(Pemeriksaan $pemeriksaan): View

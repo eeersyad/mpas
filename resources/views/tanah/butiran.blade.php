@@ -49,7 +49,7 @@
             @endif
 
             @if ($tanah->asl_status_tanah)
-                <span class="lencana-jadual jenis-{{ str_replace('_', '-', strtolower($tanah->asl_status_tanah)) }}">{{ \App\Support\Paparan::label($tanah->asl_status_tanah) }}</span>
+                <span class="lencana-jadual {{ $senaraiStatusTanah->get($tanah->asl_status_tanah)?->kelasWarna() ?? 'kelabu' }}" style="{{ $senaraiStatusTanah->get($tanah->asl_status_tanah)?->gayaWarna() }}">{{ $senaraiStatusTanah->get($tanah->asl_status_tanah)?->sts_label ?? \App\Support\Paparan::label($tanah->asl_status_tanah) }}</span>
             @endif
         </div>
     </div>
@@ -170,7 +170,7 @@
                     <dt>Status Tanah</dt>
                     <dd>
                         {{ $tanah->asl_status_tanah
-                            ? \App\Support\Paparan::label($tanah->asl_status_tanah)
+                            ? ($senaraiStatusTanah->get($tanah->asl_status_tanah)?->sts_label ?? \App\Support\Paparan::label($tanah->asl_status_tanah))
                             : '-' }}
                     </dd>
                 </dl>
