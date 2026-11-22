@@ -202,6 +202,7 @@ JS;
                 ->filter(fn ($d) => in_array(strtolower(pathinfo((string) $d->asbdoc_path, PATHINFO_EXTENSION)), self::FORMAT_GAMBAR, true))
                 ->map(fn ($d) => $d->asbdoc_id)
                 ->values(),
+            'kadar_sewa' => $b->asb_rental_rate !== null ? 'RM ' . number_format((float) $b->asb_rental_rate, 2) : null,
             'iklan_mula' => $b->asb_advertise_start?->format('d/m/Y'),
             'iklan_tamat' => $b->asb_advertise_end?->format('d/m/Y'),
             'url' => route('portal.sewa.bangunan', $b),

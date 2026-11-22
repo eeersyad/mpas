@@ -365,6 +365,13 @@
 
             <div class="col-12 col-md-6">
                 <dl class="butiran-medan">
+                    <dt>Kadar Sewa</dt>
+                    <dd>{{ $bangunan->asb_rental_rate !== null ? 'RM ' . number_format($bangunan->asb_rental_rate, 2) : '-' }}</dd>
+                </dl>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <dl class="butiran-medan">
                     <dt>Status Premis</dt>
                     <dd>{{ $bangunan->asb_premise_status ? ($senaraiStatusPremis->get($bangunan->asb_premise_status)?->sts_label ?? \App\Support\Paparan::label($bangunan->asb_premise_status)) : '-' }}</dd>
                 </dl>

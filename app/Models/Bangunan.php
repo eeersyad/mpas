@@ -16,6 +16,17 @@ class Bangunan extends Model
 
     protected $primaryKey = 'asb_id';
 
+    // Pilihan poskod Daerah Marang
+    public const SENARAI_POSKOD = ['21400', '21600', '21610'];
+
+    // Nilai tetap (tidak boleh diubah oleh pengguna dalam borang)
+    public const NILAI_TETAP = [
+        'asb_city' => 'Bandar Marang',
+        'asb_agency' => 'Pihak Berkuasa Tempatan',
+        'asb_ministry' => 'Pejabat Setiausaha Kerajaan Negeri Terengganu',
+        'asb_dept' => 'Majlis Daerah Marang',
+    ];
+
     protected $fillable = [
         'ast_id',
         'asb_ref_no',
@@ -46,6 +57,7 @@ class Bangunan extends Model
         'asb_financing_source',
         'asb_ptj_code',
         'asb_current_value',
+        'asb_rental_rate',
         'asb_assessment_date',
         'asb_total_block',
         'asb_total_ext_structure',
@@ -80,6 +92,7 @@ class Bangunan extends Model
             'asb_kos_tambahan' => 'decimal:2',
             'asb_total_kos' => 'decimal:2',
             'asb_current_value' => 'decimal:2',
+            'asb_rental_rate' => 'decimal:2',
             'asb_completion_date' => 'date',
             'asb_assessment_date' => 'date',
             'asb_collected_at' => 'datetime',

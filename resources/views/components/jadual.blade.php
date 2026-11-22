@@ -19,7 +19,7 @@
                 name="had"
                 class="form-select form-select-sm"
                 style="width: auto;"
-                onchange="this.form.submit()"
+                onchange="this.form.requestSubmit()"
                 aria-label="Bilangan rekod setiap halaman"
             >
                 @foreach ([15, 30, 50, 100] as $had)

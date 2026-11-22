@@ -344,8 +344,15 @@ document.addEventListener('DOMContentLoaded', () => {
     | Padam pengguna
     |--------------------------------------------------------------------------
     */
-    document.querySelectorAll('[data-padam-pengguna]').forEach((form) => {
-        form.addEventListener('submit', (event) => {
+    // Delegasi: borang mungkin dimuatkan semula melalui carian AJAX
+    document.addEventListener('submit', (event) => {
+        const form = event.target.closest?.('[data-padam-pengguna]');
+
+        if (! form) {
+            return;
+        }
+
+        {
             event.preventDefault();
 
             const namaPengguna = form.dataset.namaPengguna;
@@ -365,7 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     form.submit();
                 }
             });
-        });
+        }
     });
 
     /*
@@ -961,6 +968,10 @@ document.addEventListener('DOMContentLoaded', () => {
         baris.querySelectorAll('[data-buka-butiran-pengguna]').forEach((butang) => {
             butang.addEventListener('click', () => bukaButiranPengguna(butang));
         });
+
+        baris.querySelectorAll('[data-buka-butiran]').forEach((butang) => {
+            butang.addEventListener('click', () => bukaButiranAset(butang.dataset.url));
+        });
     };
 
     /*
@@ -1406,7 +1417,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const hantarCarian = () => {
                 window.clearTimeout(pemasaCarian);
-                borang.submit();
+                borang.requestSubmit();
             };
 
             const medanCarian = borang.querySelector(
@@ -1432,9 +1443,11 @@ document.addEventListener('DOMContentLoaded', () => {
             medanCarian?.addEventListener('input', () => {
                 window.clearTimeout(pemasaCarian);
 
+                // Tunggu 1 saat selepas pengguna berhenti menaip
                 pemasaCarian = window.setTimeout(() => {
-                    borang.submit();
-                }, 400);
+                    borang.dataset.ajaxGanti = '1';
+                    borang.requestSubmit();
+                }, 1000);
             });
 
             medanCarian?.addEventListener('keydown', (event) => {
@@ -2278,8 +2291,14 @@ document.querySelectorAll('table.jadual-sistem').forEach((jadual) => sediakanKad
 
 // Bottom sheet penapis (telefon): tukar pilihan susun kepada sort & direction,
 // dan jangan hantar parameter kosong supaya URL kekal kemas
-document.querySelectorAll('[data-penapis-mobile-borang]').forEach((borang) => {
-    borang.addEventListener('submit', () => {
+document.addEventListener('submit', (event) => {
+    const borang = event.target.closest?.('[data-penapis-mobile-borang]');
+
+    if (! borang) {
+        return;
+    }
+
+    {
         const susun = borang.querySelector('input[name="_susun"]:checked')?.value ?? '';
         const [medan = '', arah = ''] = susun.split('|');
 
@@ -2295,7 +2314,7 @@ document.querySelectorAll('[data-penapis-mobile-borang]').forEach((borang) => {
                 input.disabled = true;
             }
         });
-    });
+    }
 });
 
 // Menu titik tiga pada kad (telefon): "Lihat butiran" = sama seperti tekan kad
@@ -2318,7 +2337,7 @@ document.addEventListener('click', (event) => {
 document.addEventListener('DOMContentLoaded', () => {
     const skrinTelefon = window.matchMedia('(max-width: 767.98px)');
 
-    document.querySelectorAll('[data-muat-lagi]').forEach((bekas) => {
+    const sediakanMuatLagi = (bekas) => {
         const jadual = bekas.closest('.kad-data')?.querySelector('table.jadual-sistem');
         const tbody = jadual?.tBodies[0];
         const butang = bekas.querySelector('[data-muat-lagi-butang]');
@@ -2404,7 +2423,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         kemaskiniPaparan();
-    });
+    };
+
+    window.mpasSediakanMuatLagi = sediakanMuatLagi;
+    document.querySelectorAll('[data-muat-lagi]').forEach(sediakanMuatLagi);
 });
 
 // Tanda bar penapis telefon bila ia sedang melekat (untuk garisan bayang)
@@ -4337,4 +4359,203 @@ document.addEventListener('DOMContentLoaded', () => {
         pautan.addEventListener('click', () => window.setTimeout(() => offcanvas.hide(), 150));
     });
 });
+
+/*
+|--------------------------------------------------------------------------
+| Carian, penapis, susunan & paginasi tanpa muat semula halaman (AJAX)
+|--------------------------------------------------------------------------
+| Halaman yang sama diminta di latar belakang; hanya kawasan berkaitan
+| (senarai, cip penapis, bilangan rekod, pautan eksport) ditukar.
+| Jika apa-apa gagal, halaman dimuat seperti biasa (sandaran).
+*/
+(() => {
+    const ZON = [
+        '.kad-data',
+        '.penapis-mobile',
+        '#penapisMobile',
+        '.lencana-bilangan-tajuk',
+        '.teks-bar-laporan',
+        '.kumpulan-eksport',
+        '#eksportMobile .offcanvas-body',
+        '.portal-carian-baris',
+        '.portal-atas',
+        '[data-zon-hasil]',
+        '#lembaranPenapis',
+    ];
+
+    const KAWASAN_HASIL = '.kad-data, [data-zon-hasil]';
+
+    if (! document.querySelector(KAWASAN_HASIL)) {
+        return;
+    }
+
+    let pengawal = null;
+
+    const lokasiSama = (url) => url.origin === window.location.origin && url.pathname === window.location.pathname;
+
+    // Hidupkan semula skrip pada kandungan baharu
+    const hidupkan = (akar) => {
+        akar.querySelectorAll('table.jadual-sistem').forEach((jadual) => sediakanKadJadual(jadual));
+        akar.querySelectorAll('tr[data-baris-butiran], tr[data-baris-pautan], tr[data-baris-butiran-pengguna]').forEach((baris) => window.mpasPasangBaris?.(baris));
+        akar.querySelectorAll('[data-muat-lagi]').forEach((bekas) => window.mpasSediakanMuatLagi?.(bekas));
+    };
+
+    // Selaraskan borang penapis desktop (tidak ditukar supaya pengguna boleh terus menaip)
+    const selaraskanBorangDesktop = (dokumen) => {
+        const borangBaharu = dokumen.querySelectorAll('form[data-penapis-automatik]');
+
+        document.querySelectorAll('form[data-penapis-automatik]').forEach((borang, indeks) => {
+            const sumber = borangBaharu[indeks];
+
+            if (! sumber) {
+                return;
+            }
+
+            borang.querySelectorAll('input[type="hidden"]').forEach((input) => input.remove());
+            sumber.querySelectorAll('input[type="hidden"]').forEach((input) => borang.prepend(document.importNode(input, true)));
+
+            sumber.querySelectorAll('input[name]:not([type="hidden"]), select[name]').forEach((medanSumber) => {
+                const medan = borang.querySelector(`[name="${medanSumber.name}"]`);
+
+                if (medan && medan !== document.activeElement) {
+                    medan.value = medanSumber.value;
+                }
+            });
+        });
+    };
+
+    const muat = async (alamat, { tolak = true, ganti = false, tatal = false } = {}) => {
+        const url = new URL(alamat, window.location.href);
+
+        pengawal?.abort();
+        pengawal = new AbortController();
+
+        const kawasan = [...document.querySelectorAll(KAWASAN_HASIL)];
+        kawasan.forEach((elemen) => elemen.classList.add('sedang-muat-ajax'));
+
+        try {
+            const respons = await fetch(url, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'text/html' },
+                credentials: 'same-origin',
+                signal: pengawal.signal,
+            });
+
+            // Sesi tamat / dialih ke halaman lain: muat penuh
+            if (! respons.ok || (respons.redirected && ! lokasiSama(new URL(respons.url)))) {
+                throw new Error(`HTTP ${respons.status}`);
+            }
+
+            const dokumen = new DOMParser().parseFromString(await respons.text(), 'text/html');
+
+            // Paparan peta (portal awam) perlu dimuat penuh
+            if (dokumen.querySelector('[data-portal-peta]') || document.querySelector('[data-portal-peta]')) {
+                window.location.href = url.href;
+                return;
+            }
+
+            document.querySelectorAll('.offcanvas.show').forEach((panel) => bootstrap.Offcanvas.getInstance(panel)?.hide());
+
+            ZON.forEach((pemilih) => {
+                const lama = document.querySelectorAll(pemilih);
+                const baharu = dokumen.querySelectorAll(pemilih);
+
+                if (lama.length !== baharu.length) {
+                    return;
+                }
+
+                lama.forEach((elemen, indeks) => {
+                    elemen.innerHTML = baharu[indeks].innerHTML;
+                    hidupkan(elemen);
+                });
+            });
+
+            selaraskanBorangDesktop(dokumen);
+            document.title = dokumen.title || document.title;
+
+            if (tolak) {
+                window.history[ganti ? 'replaceState' : 'pushState']({ mpasAjax: true }, '', url.href);
+            }
+
+            if (tatal) {
+                const atas = document.querySelector(KAWASAN_HASIL)?.getBoundingClientRect().top ?? 0;
+
+                if (atas < 0) {
+                    window.scrollBy({ top: atas - 90, behavior: 'smooth' });
+                }
+            }
+        } catch (ralat) {
+            if (ralat.name === 'AbortError') {
+                return;
+            }
+
+            window.location.href = url.href;
+        } finally {
+            kawasan.forEach((elemen) => elemen.classList.remove('sedang-muat-ajax'));
+        }
+    };
+
+    window.history.replaceState({ mpasAjax: true }, '', window.location.href);
+
+    // Borang GET ke halaman yang sama (carian, penapis, bottom sheet, bilangan rekod)
+    document.addEventListener('submit', (event) => {
+        const borang = event.target;
+
+        if (event.defaultPrevented || ! (borang instanceof HTMLFormElement) || borang.method.toLowerCase() !== 'get' || borang.target) {
+            return;
+        }
+
+        const url = new URL(borang.action || window.location.href, window.location.href);
+
+        if (! lokasiSama(url)) {
+            return;
+        }
+
+        event.preventDefault();
+
+        const data = new FormData(borang, event.submitter ?? undefined);
+        url.search = new URLSearchParams([...data].filter(([, nilai]) => typeof nilai === 'string')).toString();
+
+        const ganti = borang.dataset.ajaxGanti === '1';
+        delete borang.dataset.ajaxGanti;
+
+        // Bottom sheet: pulihkan input yang dimatikan sementara
+        borang.querySelectorAll('input:disabled').forEach((input) => { input.disabled = false; });
+
+        muat(url.href, { ganti });
+    });
+
+    // Pautan ke halaman yang sama (susun lajur, paginasi, cip penapis, set semula)
+    document.addEventListener('click', (event) => {
+        const pautan = event.target.closest('a[href]');
+
+        if (
+            ! pautan
+            || event.defaultPrevented
+            || event.button !== 0
+            || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey
+            || pautan.target
+            || pautan.hasAttribute('download')
+            || pautan.hasAttribute('data-bs-toggle')
+            || pautan.getAttribute('href').startsWith('#')
+        ) {
+            return;
+        }
+
+        const url = new URL(pautan.href, window.location.href);
+
+        if (! lokasiSama(url)) {
+            return;
+        }
+
+        event.preventDefault();
+        muat(url.href, { tatal: Boolean(pautan.closest('.pagination')) });
+    });
+
+    // Butang Back / Forward pelayar
+    window.addEventListener('popstate', (event) => {
+        if (event.state?.mpasAjax) {
+            muat(window.location.href, { tolak: false });
+        }
+    });
+})();
 

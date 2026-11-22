@@ -31,13 +31,13 @@
             @foreach (['cari' => $cari, 'paparan' => $paparan === 'peta' ? 'peta' : null] as $k => $v)
                 @if ($v)<input type="hidden" name="{{ $k }}" value="{{ $v }}">@endif
             @endforeach
-            <select name="kategori" class="form-select portal-pilih-mukim" onchange="this.form.submit()">
+            <select name="kategori" class="form-select portal-pilih-mukim" onchange="this.form.requestSubmit()">
                 <option value="">Semua kategori</option>
                 @foreach ($senaraiKategori as $nilai => $label)
                     <option value="{{ $nilai }}" @selected($kategori === (string) $nilai)>{{ $label }}</option>
                 @endforeach
             </select>
-            <select name="mukim" class="form-select portal-pilih-mukim" onchange="this.form.submit()">
+            <select name="mukim" class="form-select portal-pilih-mukim" onchange="this.form.requestSubmit()">
                 <option value="">Semua mukim</option>
                 @foreach ($senaraiMukim as $nilai => $label)
                     <option value="{{ $nilai }}" @selected($mukim === (string) $nilai)>{{ $label }}</option>
@@ -56,52 +56,54 @@
         </div>
     </div>
 
-    @if ($aset->isEmpty())
-        <div class="portal-kosong">
-            <i class="bi bi-search"></i>
-            <p class="mb-1 fw-bold">Tiada bangunan dijumpai</p>
-            <small class="text-muted">Cuba ubah carian atau penapis.</small>
-            @if ($cari !== '' || $kategori !== '' || $mukim !== '')
-                <a href="{{ route('portal.sewa', $paparan === 'peta' ? ['paparan' => 'peta'] : []) }}" class="btn btn-tema btn-sm mt-3">Set semula penapis</a>
-            @endif
-        </div>
-    @elseif ($paparan === 'peta')
-        <div class="portal-peta-wrap">
-            <div id="petaPortal" class="portal-peta" data-portal-peta data-aset='@json($asetPeta)'></div>
-            <button type="button" class="portal-peta-lokasi" data-lokasi-saya aria-label="Lokasi saya"><i class="bi bi-crosshair"></i></button>
-            @if ($aset->count() > $asetPeta->count())
-                <span class="portal-nota-peta"><i class="bi bi-info-circle"></i> {{ $aset->count() - $asetPeta->count() }} bangunan tiada lokasi</span>
-            @endif
-            <div class="portal-pin-kad" data-pin-kad hidden></div>
-        </div>
-    @else
-        <div class="portal-grid">
-            @foreach ($aset as $item)
-                <a href="{{ $item['url'] }}" class="portal-kad">
-                    <div class="portal-kad-gambar">
-                        @if (count($item['gambar_kecil']))
-                            <img src="{{ $item['gambar_kecil'][0] }}" alt="{{ $item['tajuk'] }}" loading="lazy">
-                        @else
-                            <span class="portal-tiada-gambar"><img src="{{ asset('images/logo-mpas-2.png') }}" alt="MPAS"></span>
-                        @endif
-                        <span class="portal-lencana">{{ $item['jenis_label'] }}</span>
-                        @if (count($item['gambar_kecil']) > 1)
-                            <span class="portal-bil-gambar"><i class="bi bi-images"></i> {{ count($item['gambar_kecil']) }}</span>
-                        @endif
-                    </div>
-                    <div class="portal-kad-badan">
-                        <h2>{{ $item['tajuk'] }}</h2>
-                        @if ($item['alamat'])<p class="portal-kad-alamat"><i class="bi bi-geo-alt"></i> {{ $item['alamat'] }}</p>@endif
-                        @if ($item['iklan_mula'] && $item['iklan_tamat'])<p class="portal-kad-tempoh"><i class="bi bi-calendar-event"></i> {{ $item['iklan_mula'] }} – {{ $item['iklan_tamat'] }}</p>@endif
-                        <div class="portal-kad-kaki">
-                            <span class="badge-tersedia"><i class="bi bi-check-circle-fill"></i> Tersedia</span>
-                            @if ($item['keluasan_teks'])<small>{{ $item['keluasan_teks'] }}</small>@endif
+    <div data-zon-hasil>
+        @if ($aset->isEmpty())
+            <div class="portal-kosong">
+                <i class="bi bi-search"></i>
+                <p class="mb-1 fw-bold">Tiada bangunan dijumpai</p>
+                <small class="text-muted">Cuba ubah carian atau penapis.</small>
+                @if ($cari !== '' || $kategori !== '' || $mukim !== '')
+                    <a href="{{ route('portal.sewa', $paparan === 'peta' ? ['paparan' => 'peta'] : []) }}" class="btn btn-tema btn-sm mt-3">Set semula penapis</a>
+                @endif
+            </div>
+        @elseif ($paparan === 'peta')
+            <div class="portal-peta-wrap">
+                <div id="petaPortal" class="portal-peta" data-portal-peta data-aset='@json($asetPeta)'></div>
+                <button type="button" class="portal-peta-lokasi" data-lokasi-saya aria-label="Lokasi saya"><i class="bi bi-crosshair"></i></button>
+                @if ($aset->count() > $asetPeta->count())
+                    <span class="portal-nota-peta"><i class="bi bi-info-circle"></i> {{ $aset->count() - $asetPeta->count() }} bangunan tiada lokasi</span>
+                @endif
+                <div class="portal-pin-kad" data-pin-kad hidden></div>
+            </div>
+        @else
+            <div class="portal-grid">
+                @foreach ($aset as $item)
+                    <a href="{{ $item['url'] }}" class="portal-kad">
+                        <div class="portal-kad-gambar">
+                            @if (count($item['gambar_kecil']))
+                                <img src="{{ $item['gambar_kecil'][0] }}" alt="{{ $item['tajuk'] }}" loading="lazy">
+                            @else
+                                <span class="portal-tiada-gambar"><img src="{{ asset('images/logo-mpas-2.png') }}" alt="MPAS"></span>
+                            @endif
+                            <span class="portal-lencana">{{ $item['jenis_label'] }}</span>
+                            @if (count($item['gambar_kecil']) > 1)
+                                <span class="portal-bil-gambar"><i class="bi bi-images"></i> {{ count($item['gambar_kecil']) }}</span>
+                            @endif
                         </div>
-                    </div>
-                </a>
-            @endforeach
-        </div>
-    @endif
+                        <div class="portal-kad-badan">
+                            <h2>{{ $item['tajuk'] }}</h2>
+                            @if ($item['alamat'])<p class="portal-kad-alamat"><i class="bi bi-geo-alt"></i> {{ $item['alamat'] }}</p>@endif
+                            @if ($item['iklan_mula'] && $item['iklan_tamat'])<p class="portal-kad-tempoh"><i class="bi bi-calendar-event"></i> {{ $item['iklan_mula'] }} – {{ $item['iklan_tamat'] }}</p>@endif
+                            <div class="portal-kad-kaki">
+                                <span class="badge-tersedia"><i class="bi bi-check-circle-fill"></i> Tersedia</span>
+                                @if ($item['keluasan_teks'])<small>{{ $item['keluasan_teks'] }}</small>@endif
+                            </div>
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        @endif
+    </div>
 
     @include('portal._hubungi')
 
@@ -151,6 +153,68 @@
 
 @push('skrip')
     @include('portal._skrip-asas')
+    <script>
+        // Carian & penapis tanpa muat semula halaman (paparan senarai). Paparan peta dimuat penuh.
+        (() => {
+            const ZON = ['.portal-carian-baris', '.portal-atas', '[data-zon-hasil]', '#lembaranPenapis'];
+            const hasil = document.querySelector('[data-zon-hasil]');
+            if (!hasil || !window.fetch || !window.DOMParser) return;
+
+            let pengawal = null;
+            const sama = (url) => url.origin === location.origin && url.pathname === location.pathname;
+
+            const muat = async (alamat, tolak = true) => {
+                const url = new URL(alamat, location.href);
+                if (url.searchParams.get('paparan') === 'peta' || document.querySelector('[data-portal-peta]')) { location.href = url.href; return; }
+
+                pengawal?.abort();
+                pengawal = new AbortController();
+                hasil.classList.add('sedang-muat-ajax');
+
+                try {
+                    const respons = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'text/html' }, credentials: 'same-origin', signal: pengawal.signal });
+                    if (!respons.ok) throw new Error('HTTP ' + respons.status);
+                    const dokumen = new DOMParser().parseFromString(await respons.text(), 'text/html');
+
+                    document.querySelectorAll('.offcanvas.show').forEach((panel) => bootstrap.Offcanvas.getInstance(panel)?.hide());
+                    ZON.forEach((pemilih) => {
+                        const lama = document.querySelector(pemilih);
+                        const baharu = dokumen.querySelector(pemilih);
+                        if (lama && baharu) lama.innerHTML = baharu.innerHTML;
+                    });
+
+                    if (tolak) history.pushState({ mpasAjax: true }, '', url.href);
+                } catch (ralat) {
+                    if (ralat.name !== 'AbortError') location.href = url.href;
+                } finally {
+                    hasil.classList.remove('sedang-muat-ajax');
+                }
+            };
+
+            history.replaceState({ mpasAjax: true }, '', location.href);
+
+            document.addEventListener('submit', (event) => {
+                const borang = event.target;
+                if (event.defaultPrevented || borang.method.toLowerCase() !== 'get') return;
+                const url = new URL(borang.action || location.href, location.href);
+                if (!sama(url)) return;
+                event.preventDefault();
+                url.search = new URLSearchParams([...new FormData(borang)].filter(([, nilai]) => typeof nilai === 'string')).toString();
+                muat(url.href);
+            });
+
+            document.addEventListener('click', (event) => {
+                const pautan = event.target.closest('a[href]');
+                if (!pautan || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || pautan.target || pautan.getAttribute('href').startsWith('#')) return;
+                const url = new URL(pautan.href, location.href);
+                if (!sama(url)) return;
+                event.preventDefault();
+                muat(url.href);
+            });
+
+            window.addEventListener('popstate', (event) => { if (event.state?.mpasAjax) muat(location.href, false); });
+        })();
+    </script>
     <script>
         (() => {
             const bar = document.querySelector('[data-portal-melekat]');

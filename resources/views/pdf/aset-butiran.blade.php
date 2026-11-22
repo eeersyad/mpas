@@ -174,6 +174,29 @@
             background: #f6f6f6;
         }
 
+        .jadual-tandatangan {
+            border-collapse: collapse;
+            margin-top: 6px;
+            width: 100%;
+        }
+
+        .jadual-tandatangan td {
+            border: 1px solid #c9c9c9;
+            padding: 6px 7px;
+            vertical-align: top;
+            width: 50%;
+        }
+
+        .jadual-tandatangan .ruang-tandatangan {
+            height: 85px;
+        }
+
+        .jadual-tandatangan .baris-tandatangan {
+            color: #333333;
+            font-size: 8px;
+            line-height: 1.9;
+        }
+
         .jadual-pengesahan {
             border-collapse: collapse;
             margin-top: 5px;
@@ -515,17 +538,29 @@
                             <td class="label">Tarikh Pemeriksaan</td>
                             <td class="nilai">{{ $tarikhMedan($pemeriksaan->asm_inspection_date) }}</td>
 
-                            <td class="label">Pemeriksa</td>
-                            <td class="nilai">{{ $papar($pemeriksaan->pemeriksa?->usr_name) }}</td>
-                        </tr>
-
-                        <tr>
                             <td class="label">Ringkasan</td>
-                            <td class="nilai" colspan="3">
+                            <td class="nilai">
                                 @foreach ($ringkasanPemeriksaan as $nilai => $jumlah)
                                     {{ $enum($nilai) }}: <strong>{{ $jumlah }}</strong>@if (! $loop->last) &nbsp;&middot;&nbsp; @endif
                                 @endforeach
                             </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <table class="jadual-tandatangan">
+                    <tbody>
+                        <tr>
+                            <td class="label">Diperiksa oleh</td>
+                            <td class="label">Disemak oleh</td>
+                        </tr>
+                        <tr>
+                            <td class="ruang-tandatangan"></td>
+                            <td class="ruang-tandatangan"></td>
+                        </tr>
+                        <tr>
+                            <td class="baris-tandatangan">Nama:<br>Jawatan:<br>Tarikh:</td>
+                            <td class="baris-tandatangan">Nama:<br>Jawatan:<br>Tarikh:</td>
                         </tr>
                     </tbody>
                 </table>

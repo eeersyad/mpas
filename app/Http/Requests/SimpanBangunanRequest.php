@@ -18,6 +18,9 @@ class SimpanBangunanRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        // Bandar, agensi, kementerian & jabatan: nilai tetap (abaikan apa-apa nilai yang dihantar)
+        $this->merge(\App\Models\Bangunan::NILAI_TETAP);
+
         $medanFormatTajuk = [
             'asb_name',
             'asb_add1',
@@ -69,7 +72,7 @@ class SimpanBangunanRequest extends FormRequest
             'asb_sub_category' => ['nullable', 'string', 'max:255'],
             'asb_add1' => ['required', 'string', 'max:255'],
             'asb_add2' => ['nullable', 'string', 'max:255'],
-            'asb_postcode' => ['nullable', 'string', 'max:10'],
+            'asb_postcode' => ['nullable', Rule::in(array_filter([...\App\Models\Bangunan::SENARAI_POSKOD, $this->route('bangunan')?->asb_postcode]))],
             'asb_distinct' => ['nullable', 'string', 'max:100'],
             'asb_mukim' => [
                 'nullable',
@@ -110,6 +113,7 @@ class SimpanBangunanRequest extends FormRequest
             'asb_completion_date' => ['nullable', 'date'],
             'asb_financing_source' => ['nullable', 'string', 'max:255'],
             'asb_current_value' => ['nullable', 'numeric', 'min:0'],
+            'asb_rental_rate' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
             'asb_assessment_date' => ['nullable', 'date'],
 
             'asb_maintenance_status' => ['required', 'in:RENDAH,SEDERHANA,KRITIKAL'],
@@ -251,6 +255,9 @@ class SimpanBangunanRequest extends FormRequest
             'asb_add1.required' => 'Sila masukkan alamat bangunan.',
             'asb_gmaps_location.url' => 'Sila masukkan pautan Google Maps yang sah.',
             'asb_maintenance_status.required' => 'Sila pilih status penyelenggaraan.',
+            'asb_postcode.in' => 'Poskod yang dipilih tidak sah.',
+            'asb_rental_rate.numeric' => 'Kadar sewa mestilah dalam bentuk nombor.',
+            'asb_rental_rate.min' => 'Kadar sewa tidak boleh bernilai negatif.',
             'asb_premise_status.required' => 'Sila pilih status premis.',
             'asb_premise_status.in' => 'Status premis yang dipilih tidak sah atau tidak aktif.',
             'asb_advertise.required_if' => 'Sila pilih status pengiklanan.',

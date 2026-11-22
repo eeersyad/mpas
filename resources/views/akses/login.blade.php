@@ -9,15 +9,20 @@
             <span aria-hidden="true"></span>
 
             <div class="jenama-login-isi">
-                <p class="jenama-login-label">Majlis Daerah Marang</p>
-                <h2 class="jenama-login-tajuk">Marang Property<br>Asset System</h2>
-                <p class="jenama-login-penerangan">Sistem pengurusan aset tak alih Majlis Daerah Marang: satu platform untuk merekod, memantau dan melapor aset bangunan dan tanah.</p>
 
-                <ul class="jenama-login-ciri">
-                    <li><span><i class="bi bi-buildings"></i></span><div><strong>Aset Bangunan &amp; Tanah</strong><small>Rekod lengkap, dokumen dan lokasi peta</small></div></li>
-                    <li><span><i class="bi bi-tools"></i></span><div><strong>Aduan &amp; Penyelenggaraan</strong><small>Aduan awam melalui kod QR hingga selesai</small></div></li>
-                    <li><span><i class="bi bi-bar-chart-line"></i></span><div><strong>Laporan &amp; Analisis</strong><small>Laporan sedia cetak dan eksport Excel</small></div></li>
-                </ul>
+                <div class="kad-awam-login">
+                    <a href="{{ route('portal.sewa') }}" class="kad-awam-login-item">
+                        <span class="kad-awam-login-ikon"><i class="bi bi-shop"></i></span>
+                        <span class="kad-awam-login-teks"><strong>Portal Awam</strong><small>Lihat aset bangunan MDM yang tersedia untuk disewa</small></span>
+                        <i class="bi bi-arrow-right kad-awam-login-panah" aria-hidden="true"></i>
+                    </a>
+
+                    <a href="{{ route('aduan.status') }}" class="kad-awam-login-item">
+                        <span class="kad-awam-login-ikon"><i class="bi bi-search"></i></span>
+                        <span class="kad-awam-login-teks"><strong>Semak Status Aduan</strong><small>Guna no. rujukan aduan yang dihantar ke emel anda</small></span>
+                        <i class="bi bi-arrow-right kad-awam-login-panah" aria-hidden="true"></i>
+                    </a>
+                </div>
             </div>
 
             <div class="jenama-login-kaki">
@@ -103,11 +108,6 @@
                     </form>
 
                     {{-- Desktop besar: pautan awam & nota keselamatan --}}
-                    <div class="pautan-awam-login d-none d-lg-flex">
-                        <a href="{{ route('portal.sewa') }}"><i class="bi bi-shop"></i> Portal Awam</a>
-                        <span aria-hidden="true">·</span>
-                        <a href="{{ route('aduan.status') }}"><i class="bi bi-search"></i> Semak Status Aduan</a>
-                    </div>
 
                     <p class="nota-keselamatan-login d-none d-lg-flex"><i class="bi bi-shield-lock"></i> Akses terhad kepada kakitangan Majlis Daerah Marang yang diberi kebenaran.</p>
 

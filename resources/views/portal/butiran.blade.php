@@ -60,6 +60,9 @@
                     @if ($aset['mukim'])
                         <div class="portal-maklumat-baris"><span class="portal-baris-ikon"><i class="bi bi-pin-map"></i></span><div><small>Mukim</small><strong>{{ $aset['mukim'] }}</strong></div></div>
                     @endif
+                    @if ($aset['kadar_sewa'])
+                        <div class="portal-maklumat-baris"><span class="portal-baris-ikon"><i class="bi bi-cash-coin"></i></span><div><small>Kadar Sewa</small><strong>{{ $aset['kadar_sewa'] }}</strong></div></div>
+                    @endif
                     @if ($aset['iklan_mula'] && $aset['iklan_tamat'])
                         <div class="portal-maklumat-baris"><span class="portal-baris-ikon"><i class="bi bi-calendar-event"></i></span><div><small>Tempoh Iklan</small><strong>{{ $aset['iklan_mula'] }} hingga {{ $aset['iklan_tamat'] }}</strong></div></div>
                     @endif

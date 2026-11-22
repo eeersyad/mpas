@@ -121,17 +121,26 @@
                             value="{{ old('asb_add2', $bangunan?->asb_add2) }}">
                     </div>
 
-                    <div class="col-12 col-md-6">
-                        <label class="form-label fw-semibold">Poskod</label>
-                        <input
-                            type="text"
-                            name="asb_postcode"
-                            class="form-control"
-                            value="{{ old('asb_postcode', $bangunan?->asb_postcode) }}"
-                        >
+                    <div class="col-12 col-md-4">
+                        <label for="asbPoskod" class="form-label fw-semibold">Poskod</label>
+                        @php
+                            $poskodSemasa = old('asb_postcode', $bangunan?->asb_postcode);
+                            $pilihanPoskod = collect(\App\Models\Bangunan::SENARAI_POSKOD)->when($poskodSemasa && ! in_array($poskodSemasa, \App\Models\Bangunan::SENARAI_POSKOD, true), fn ($c) => $c->push($poskodSemasa));
+                        @endphp
+                        <select id="asbPoskod" name="asb_postcode" class="form-select @error('asb_postcode') is-invalid @enderror">
+                            <option value="">-- Pilih Poskod --</option>
+
+                            @foreach ($pilihanPoskod as $poskod)
+                                <option value="{{ $poskod }}" @selected((string) $poskodSemasa === (string) $poskod)>{{ $poskod }}</option>
+                            @endforeach
+                        </select>
+
+                        @error('asb_postcode')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
 
-                    <div class="col-12 col-md-3">
+                    <div class="col-12 col-md-4">
                         <label class="form-label fw-semibold">Daerah</label>
                         <input
                             type="text"
@@ -143,7 +152,7 @@
                         >
                     </div>
 
-                    <div class="col-12 col-md-3">
+                    <div class="col-12 col-md-4">
                         <label for="asbMukim" class="form-label fw-semibold">Mukim</label>
 
                         <select
@@ -175,13 +184,12 @@
                         @enderror
                     </div>
 
-                    <div class="col-12 col-md-3">
+                    <div class="col-12 col-md-4">
                         <label class="form-label fw-semibold">Bandar</label>
-                        <input type="text" name="asb_city" class="form-control"
-                            value="{{ old('asb_city', $bangunan?->asb_city) }}">
+                        <input type="text" name="asb_city" class="form-control bg-light" value="{{ \App\Models\Bangunan::NILAI_TETAP['asb_city'] }}" readonly aria-readonly="true">
                     </div>
 
-                    <div class="col-12 col-md-3">
+                    <div class="col-12 col-md-4">
                         <label class="form-label fw-semibold">Negeri</label>
                         <input
                             type="text"
@@ -193,7 +201,7 @@
                         >
                     </div>
 
-                    <div class="col-12 col-md-6">
+                    <div class="col-12 col-md-4">
                         <label class="form-label fw-semibold">Negara</label>
                         <input type="text" name="asb_country" class="form-control"
                             value="{{ old('asb_country', $bangunan?->asb_country ?? 'Malaysia') }}">
@@ -241,20 +249,17 @@
 
                     <div class="col-12 col-md-6">
                         <label class="form-label fw-semibold">Agensi</label>
-                        <input type="text" name="asb_agency" class="form-control"
-                            value="{{ old('asb_agency', $bangunan?->asb_agency) }}">
+                        <input type="text" name="asb_agency" class="form-control bg-light" value="{{ \App\Models\Bangunan::NILAI_TETAP['asb_agency'] }}" readonly aria-readonly="true">
                     </div>
 
                     <div class="col-12 col-md-6">
                         <label class="form-label fw-semibold">Kementerian</label>
-                        <input type="text" name="asb_ministry" class="form-control"
-                            value="{{ old('asb_ministry', $bangunan?->asb_ministry) }}">
+                        <input type="text" name="asb_ministry" class="form-control bg-light" value="{{ \App\Models\Bangunan::NILAI_TETAP['asb_ministry'] }}" readonly aria-readonly="true">
                     </div>
 
                     <div class="col-12 col-md-6">
                         <label class="form-label fw-semibold">Jabatan</label>
-                        <input type="text" name="asb_dept" class="form-control"
-                            value="{{ old('asb_dept', $bangunan?->asb_dept) }}">
+                        <input type="text" name="asb_dept" class="form-control bg-light" value="{{ \App\Models\Bangunan::NILAI_TETAP['asb_dept'] }}" readonly aria-readonly="true">
                     </div>
 
                     <div class="col-12 col-md-6">
@@ -432,6 +437,14 @@
                         @error('asb_maintenance_status')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
+
+                        {{-- Kadar sewa: dalam lajur yang sama supaya terus di bawah Status Penyelenggaraan --}}
+                        <label for="asb_rental_rate" class="form-label mt-3">Kadar Sewa (RM)</label>
+                        <input type="number" id="asb_rental_rate" name="asb_rental_rate" min="0" step="0.01" class="form-control @error('asb_rental_rate') is-invalid @enderror" placeholder="0.00" value="{{ old('asb_rental_rate', $bangunan?->asb_rental_rate) }}">
+
+                        @error('asb_rental_rate')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <div class="col-12 col-md-4">
@@ -467,26 +480,27 @@
                         @error('asb_advertise')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                        <div class="form-text" data-nota-iklan>Jika Ya, aset dipaparkan di Portal Awam dalam tempoh iklan. Selepas tarikh tamat, status ditukar kepada Tidak secara automatik.</div>
-                    </div>
 
-                    <div class="col-6 col-md-2 offset-md-8" data-tempoh-iklan>
-                        <label for="asb_advertise_start" class="form-label">Tarikh Mula Iklan</label>
-                        <input type="date" id="asb_advertise_start" name="asb_advertise_start" class="form-control @error('asb_advertise_start') is-invalid @enderror" value="{{ old('asb_advertise_start', $bangunan?->asb_advertise_start?->format('Y-m-d')) }}">
+                        {{-- Tempoh iklan: dalam lajur yang sama supaya terus di bawah Status Pengiklanan --}}
+                        <div class="row g-2 mt-1" data-tempoh-iklan>
+                            <div class="col-6">
+                                <label for="asb_advertise_start" class="form-label mt-2">Tarikh Mula Iklan</label>
+                                <input type="date" id="asb_advertise_start" name="asb_advertise_start" class="form-control @error('asb_advertise_start') is-invalid @enderror" value="{{ old('asb_advertise_start', $bangunan?->asb_advertise_start?->format('Y-m-d')) }}">
 
-                        @error('asb_advertise_start')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+                                @error('asb_advertise_start')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
 
-                    <div class="col-6 col-md-2" data-tempoh-iklan>
-                        <label for="asb_advertise_end" class="form-label">Tarikh Tamat Iklan</label>
-                        <input type="date" id="asb_advertise_end" name="asb_advertise_end" class="form-control @error('asb_advertise_end') is-invalid @enderror" value="{{ old('asb_advertise_end', $bangunan?->asb_advertise_end?->format('Y-m-d')) }}">
+                            <div class="col-6">
+                                <label for="asb_advertise_end" class="form-label mt-2">Tarikh Tamat Iklan</label>
+                                <input type="date" id="asb_advertise_end" name="asb_advertise_end" class="form-control @error('asb_advertise_end') is-invalid @enderror" value="{{ old('asb_advertise_end', $bangunan?->asb_advertise_end?->format('Y-m-d')) }}">
 
-                        @error('asb_advertise_end')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                        
+                                @error('asb_advertise_end')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
                     </div>
 
                     {{-- PEMERIKSAAN PENYELENGGARAAN --}}
