@@ -10842,3 +10842,29 @@ body:has(.halaman-login) { overflow-y: auto !important; }
 
 /* Badge status dalam kad aset (butiran aduan): pill lebih panjang */
 .lencana-status-aduan.lencana-status-hero { padding: 0 .85rem; }
+
+/* Penapis dengan 3 dropdown + carian (cth. aset bangunan / tanah): kekal sebaris pada skrin ≥992px */
+@media (min-width: 992px) {
+    .panel-penapis[data-penapis-automatik]:not(.penapis-laporan-aduan) > .row:has(> [class*="col-"]:nth-child(5)):not(:has(> [class*="col-"]:nth-child(6))) {
+        flex-wrap: nowrap;
+    }
+
+    .panel-penapis[data-penapis-automatik]:not(.penapis-laporan-aduan) > .row:has(> [class*="col-"]:nth-child(5)):not(:has(> [class*="col-"]:nth-child(6))) > [class*="col-"] {
+        flex: 1 1 140px;
+        min-width: 0;
+    }
+
+    .panel-penapis[data-penapis-automatik]:not(.penapis-laporan-aduan) > .row:has(> [class*="col-"]:nth-child(5)):not(:has(> [class*="col-"]:nth-child(6))) > [class*="col-"]:first-child {
+        flex: 1.6 1 220px;
+    }
+
+    .panel-penapis[data-penapis-automatik]:not(.penapis-laporan-aduan) > .row:has(> [class*="col-"]:nth-child(5)):not(:has(> [class*="col-"]:nth-child(6))) > [class*="col-"]:last-child {
+        flex: 0 0 auto;
+    }
+
+    .panel-penapis[data-penapis-automatik]:not(.penapis-laporan-aduan) > .row:has(> [class*="col-"]:nth-child(5)):not(:has(> [class*="col-"]:nth-child(6))) .label-penapis {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
