@@ -202,6 +202,7 @@ class PengurusanBangunanController extends Controller
             $bangunan->load([
                 'penyelenggaraan.pemeriksa',
                 'penyelenggaraan.dikemaskiniOleh',
+                'penyelenggaraan.gambar',
             ]);
         }
 
@@ -276,7 +277,7 @@ class PengurusanBangunanController extends Controller
             'komponenPemeriksaan' => $komponenPemeriksaan,
             'jumlahItemPemeriksaan' => $komponenPemeriksaan->sum(fn ($komponen) => count($komponen->itemAktif())),
             'bolehIsiPemeriksaan' => TetapanPenyelenggaraan::bolehIsi(auth()->user()),
-            'pemeriksaanTerkini' => $bangunan?->penyelenggaraanTerkini,
+            'pemeriksaanTerkini' => $bangunan?->penyelenggaraanTerkini?->load('gambar'),
 
             'idPengumpul' => $idPengumpul,
             'idPengesah' => $idPengesah,

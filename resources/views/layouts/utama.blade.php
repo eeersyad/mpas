@@ -28,6 +28,28 @@
         })();
     </script>
 
+    <script>
+        // Popup (SweetAlert) ditangguh sehingga peralihan halaman (View Transitions) selesai,
+        // supaya latar gelap menutup sidebar dan bar atas dengan betul.
+        window.mpasSelepasPeralihan = new Promise((selesai) => {
+            if (! ('onpagereveal' in window)) {
+                selesai();
+                return;
+            }
+
+            window.addEventListener('pagereveal', (e) => {
+                if (e.viewTransition) {
+                    e.viewTransition.finished.then(selesai, selesai);
+                } else {
+                    selesai();
+                }
+            }, { once: true });
+
+            // Jaminan: jangan tunggu lebih 1.5 saat
+            setTimeout(selesai, 1500);
+        });
+    </script>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
@@ -272,25 +294,25 @@
 
     @if (session('berjaya'))
         <script>
-            Swal.fire({
+            window.mpasSelepasPeralihan.then(() => Swal.fire({
                 icon: 'success',
                 title: 'Berjaya',
                 text: @json(session('berjaya')),
                 confirmButtonText: 'OK',
                 confirmButtonColor: '#168A7E',
-            });
+            }));
         </script>
     @endif
 
     @if (session('ralat'))
         <script>
-            Swal.fire({
+            window.mpasSelepasPeralihan.then(() => Swal.fire({
                 icon: 'error',
                 title: 'Tidak berjaya',
                 text: @json(session('ralat')),
                 confirmButtonText: 'OK',
                 confirmButtonColor: '#168A7E',
-            });
+            }));
         </script>
     @endif
 

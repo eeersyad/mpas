@@ -4559,3 +4559,264 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 })();
 
+
+/*
+|--------------------------------------------------------------------------
+| Gambar pemeriksaan penyelenggaraan (borang: tambah/padam, butiran: lihat)
+|--------------------------------------------------------------------------
+| Gambar dikecilkan di browser (maks 1600px) dan dimuat naik satu per satu,
+| jadi tiada had bilangan dan had php.ini tidak terlibat. Gambar dipautkan
+| kepada pemeriksaan hanya apabila borang aset disimpan.
+*/
+(() => {
+    const SAIZ_MAKS = 1600;
+    const KUALITI = 0.82;
+
+    const tokenCsrf = () => document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+
+    const escHtml = (teks) => String(teks ?? '').replace(/[&<>"']/g, (c) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    }[c]));
+
+    // Swal di dalam modal Bootstrap supaya input boleh ditaip (focus trap)
+    const sasaranSwal = (elemen) => elemen?.closest('.modal') ?? document.body;
+
+    const kecilkanGambar = (fail) => new Promise((selesai) => {
+        if (! fail.type.startsWith('image/') || fail.type === 'image/gif') {
+            selesai(fail);
+            return;
+        }
+
+        const url = URL.createObjectURL(fail);
+        const imej = new Image();
+
+        imej.onload = () => {
+            URL.revokeObjectURL(url);
+
+            const skala = Math.min(1, SAIZ_MAKS / Math.max(imej.width, imej.height));
+
+            if (skala === 1 && fail.size < 1.5 * 1024 * 1024) {
+                selesai(fail);
+                return;
+            }
+
+            const kanvas = document.createElement('canvas');
+            kanvas.width = Math.round(imej.width * skala);
+            kanvas.height = Math.round(imej.height * skala);
+
+            const ctx = kanvas.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, kanvas.width, kanvas.height);
+            ctx.drawImage(imej, 0, 0, kanvas.width, kanvas.height);
+
+            kanvas.toBlob((blob) => {
+                if (! blob) {
+                    selesai(fail);
+                    return;
+                }
+
+                const nama = fail.name.replace(/\.[^.]+$/, '') + '.jpg';
+                selesai(new File([blob], nama, { type: 'image/jpeg' }));
+            }, 'image/jpeg', KUALITI);
+        };
+
+        imej.onerror = () => {
+            URL.revokeObjectURL(url);
+            selesai(fail);
+        };
+
+        imej.src = url;
+    });
+
+    const pilihFail = () => new Promise((selesai) => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/jpeg,image/png,image/webp,image/*';
+        input.multiple = true;
+        input.addEventListener('change', () => selesai([...input.files]));
+        input.click();
+    });
+
+    /* ---------- Borang: tambah gambar (muat naik sementara) ---------- */
+    let indeksGambarBaru = Date.now();
+
+    const kemaskiniTeksTiada = (panel) => {
+        const sediaAda = panel.querySelector('[data-gambar-sedia-ada]');
+        const adaSediaAda = sediaAda && ! sediaAda.disabled && sediaAda.querySelector('[data-baris-gambar-sedia-ada]');
+        const adaBaru = panel.querySelector('[data-baris-gambar-baru]');
+
+        panel.querySelector('[data-teks-tiada-gambar]')?.classList.toggle('d-none', Boolean(adaSediaAda || adaBaru));
+    };
+
+    const muatNaikSementara = async (panel, fail) => {
+        const senarai = panel.querySelector('[data-senarai-gambar-baru]');
+        const indeks = indeksGambarBaru++;
+        const pratonton = URL.createObjectURL(fail);
+
+        const baris = document.createElement('li');
+        baris.className = 'baris-gambar-baru sedang-muat-naik';
+        baris.dataset.barisGambarBaru = '';
+        baris.innerHTML = `
+            <img src="${pratonton}" alt="">
+            <div class="borang-gambar-medan">
+                <input type="hidden" name="pemeriksaan[gambar][${indeks}][token]" data-token disabled>
+                <input type="text" name="pemeriksaan[gambar][${indeks}][nama]" maxlength="150" placeholder="Nama gambar *" required class="form-control form-control-sm">
+                <textarea name="pemeriksaan[gambar][${indeks}][ringkasan]" rows="2" maxlength="1000" placeholder="Ringkasan (pilihan)" class="form-control form-control-sm"></textarea>
+                <div class="progress progress-gambar" role="progressbar"><div class="progress-bar progress-bar-striped progress-bar-animated" style="width:100%"></div></div>
+                <div class="text-danger small" data-ralat-gambar hidden></div>
+            </div>
+            <button type="button" class="btn btn-sm btn-light text-danger" data-buang-gambar-baru title="Buang"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+        `;
+
+        senarai.appendChild(baris);
+        kemaskiniTeksTiada(panel);
+
+        try {
+            const borang = new FormData();
+            borang.append('gambar', await kecilkanGambar(fail));
+
+            const respons = await fetch(panel.dataset.urlMuatNaik, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': tokenCsrf(),
+                    'X-Requested-With': 'XMLHttpRequest',
+                    Accept: 'application/json',
+                },
+                body: borang,
+            });
+
+            const json = await respons.json().catch(() => ({}));
+
+            if (! respons.ok) {
+                throw new Error(json.errors ? Object.values(json.errors).flat()[0] : (json.message || 'Gambar gagal dimuat naik.'));
+            }
+
+            const token = baris.querySelector('[data-token]');
+            token.value = json.token;
+            token.disabled = false;
+            baris.classList.remove('sedang-muat-naik');
+        } catch (ralat) {
+            baris.classList.remove('sedang-muat-naik');
+            baris.classList.add('gagal-muat-naik');
+            baris.querySelectorAll('input, textarea').forEach((el) => { el.disabled = true; });
+
+            const teks = baris.querySelector('[data-ralat-gambar]');
+            teks.textContent = ralat.message === 'Failed to fetch' ? 'Sambungan terputus. Sila buang dan cuba semula.' : ralat.message;
+            teks.hidden = false;
+        }
+    };
+
+    document.addEventListener('mpas:gambar-berubah', (e) => {
+        const panel = e.target.querySelector?.('[data-borang-gambar-pemeriksaan]');
+        if (panel) kemaskiniTeksTiada(panel);
+    }, true);
+
+    // Halang simpan borang semasa gambar masih dimuat naik
+    document.addEventListener('submit', (e) => {
+        const panel = e.target.querySelector?.('[data-borang-gambar-pemeriksaan]');
+
+        if (panel && panel.querySelector('.sedang-muat-naik') && ! panel.closest('fieldset[disabled]')) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            Swal.fire({
+                icon: 'info',
+                title: 'Gambar masih dimuat naik',
+                text: 'Sila tunggu sehingga semua gambar selesai dimuat naik sebelum menyimpan.',
+            });
+        }
+    }, true);
+
+    /* ---------- Lihat gambar (dengan ‹ › ) ---------- */
+    const lihatGambar = (butang) => {
+        const bekas = butang.closest('[data-gambar-pemeriksaan]');
+        const senarai = [...bekas.querySelectorAll('.thumbnail-gambar-pemeriksaan')];
+        let indeks = Math.max(0, senarai.findIndex((b) => b.dataset.src === butang.dataset.src));
+
+        const kandungan = (b) => `
+            <div class="lihat-gambar-pemeriksaan">
+                <img src="${escHtml(b.dataset.src)}" alt="${escHtml(b.dataset.nama)}">
+                ${senarai.length > 1 ? `
+                    <button type="button" class="navigasi-gambar sebelum" data-navigasi="-1" aria-label="Sebelum"><i class="bi bi-chevron-left"></i></button>
+                    <button type="button" class="navigasi-gambar selepas" data-navigasi="1" aria-label="Seterusnya"><i class="bi bi-chevron-right"></i></button>
+                ` : ''}
+            </div>
+            <div class="kapsyen-gambar-pemeriksaan">
+                <strong>${escHtml(b.dataset.nama)}</strong>
+                ${b.dataset.ringkasan ? `<p>${escHtml(b.dataset.ringkasan)}</p>` : ''}
+                ${senarai.length > 1 ? `<small>${indeks + 1} / ${senarai.length}</small>` : ''}
+            </div>
+        `;
+
+        const kemaskini = () => {
+            const popup = Swal.getPopup();
+            if (! popup) return;
+            popup.querySelector('.swal2-html-container').innerHTML = kandungan(senarai[indeks]);
+            popup.querySelector('[data-pautan-muat-turun]')?.setAttribute('href', senarai[indeks].dataset.muatTurun);
+        };
+
+        const kekunci = (e) => {
+            if (senarai.length < 2) return;
+            if (e.key === 'ArrowLeft') { indeks = (indeks - 1 + senarai.length) % senarai.length; kemaskini(); }
+            if (e.key === 'ArrowRight') { indeks = (indeks + 1) % senarai.length; kemaskini(); }
+        };
+
+        Swal.fire({
+            target: sasaranSwal(butang),
+            html: kandungan(senarai[indeks]),
+            width: 860,
+            showCloseButton: true,
+            showConfirmButton: false,
+            footer: `<a href="${escHtml(senarai[indeks].dataset.muatTurun)}" class="btn btn-sm btn-primary" data-pautan-muat-turun><i class="bi bi-download me-1"></i>Muat Turun</a>`,
+            customClass: { popup: 'popup-lihat-gambar' },
+            didOpen: (popup) => {
+                popup.addEventListener('click', (e) => {
+                    const nav = e.target.closest('[data-navigasi]');
+                    if (! nav) return;
+                    indeks = (indeks + Number(nav.dataset.navigasi) + senarai.length) % senarai.length;
+                    kemaskini();
+                });
+                document.addEventListener('keydown', kekunci);
+            },
+            willClose: () => document.removeEventListener('keydown', kekunci),
+        });
+    };
+
+    document.addEventListener('click', async (e) => {
+        const lihat = e.target.closest('[data-lihat-gambar-pemeriksaan]');
+        if (lihat) { e.preventDefault(); lihatGambar(lihat); return; }
+
+        const tambah = e.target.closest('[data-tambah-gambar-borang]');
+        if (tambah) {
+            e.preventDefault();
+            const panel = tambah.closest('[data-borang-gambar-pemeriksaan]');
+            const fail = (await pilihFail()).filter((f) => f.type.startsWith('image/'));
+
+            // Muat naik satu per satu supaya tidak membebankan pelayan
+            for (const f of fail) {
+                await muatNaikSementara(panel, f);
+            }
+            return;
+        }
+
+        const buang = e.target.closest('[data-buang-gambar-baru]');
+        if (buang) {
+            e.preventDefault();
+            const panel = buang.closest('[data-borang-gambar-pemeriksaan]');
+            const baris = buang.closest('[data-baris-gambar-baru]');
+            const img = baris.querySelector('img');
+            if (img?.src.startsWith('blob:')) URL.revokeObjectURL(img.src);
+            baris.remove();
+            kemaskiniTeksTiada(panel);
+            return;
+        }
+
+        const togol = e.target.closest('[data-togol-padam-gambar]');
+        if (togol) {
+            e.preventDefault();
+            const baris = togol.closest('[data-baris-gambar-sedia-ada]');
+            const dipadam = baris.classList.toggle('akan-dipadam');
+            baris.querySelector('[data-input-padam]').disabled = ! dipadam;
+        }
+    });
+})();

@@ -37,6 +37,8 @@
                         @endforeach
                     </div>
                     <span class="portal-hero-bil" data-bil>1 / {{ count($aset['gambar_besar']) }}</span>
+                    <button type="button" class="portal-anak-panah sebelum" data-anak-panah="-1" data-sasaran="[data-galeri]" aria-label="Gambar sebelum"><i class="bi bi-chevron-left"></i></button>
+                    <button type="button" class="portal-anak-panah selepas" data-anak-panah="1" data-sasaran="[data-galeri]" aria-label="Gambar seterusnya"><i class="bi bi-chevron-right"></i></button>
                 @endif
             @else
                 <div class="portal-tiada-gambar besar"><img src="{{ asset('images/logo-mpas-2.png') }}" alt="MPAS"></div>
@@ -104,6 +106,10 @@
                     <div class="portal-lightbox-item"><img src="{{ $url }}" alt="" loading="lazy"></div>
                 @endforeach
             </div>
+            @if (count($aset['gambar_besar']) > 1)
+                <button type="button" class="portal-anak-panah sebelum gelap" data-anak-panah="-1" data-sasaran="[data-lightbox-jalur]" aria-label="Gambar sebelum"><i class="bi bi-chevron-left"></i></button>
+                <button type="button" class="portal-anak-panah selepas gelap" data-anak-panah="1" data-sasaran="[data-lightbox-jalur]" aria-label="Gambar seterusnya"><i class="bi bi-chevron-right"></i></button>
+            @endif
         </div>
     @endif
 @endsection
@@ -133,6 +139,17 @@
                 }, { passive: true });
             }
 
+            // Anak panah kiri/kanan (berpusing ke awal/akhir)
+            document.querySelectorAll('[data-anak-panah]').forEach((b) => b.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const jalur = document.querySelector(b.dataset.sasaran);
+                if (!jalur) return;
+                const jumlah = jalur.children.length;
+                const semasa = Math.round(jalur.scrollLeft / jalur.clientWidth);
+                const seterusnya = (semasa + parseInt(b.dataset.anakPanah, 10) + jumlah) % jumlah;
+                jalur.scrollTo({ left: jalur.clientWidth * seterusnya, behavior: 'smooth' });
+            }));
+
             const panel = document.querySelector('[data-lightbox-panel]');
             if (!panel) return;
             const jalur = panel.querySelector('[data-lightbox-jalur]');
@@ -143,7 +160,12 @@
                 jalur.scrollTo({ left: jalur.clientWidth * parseInt(b.dataset.lightbox, 10), behavior: 'instant' });
             }));
             panel.querySelector('[data-lightbox-tutup]').addEventListener('click', tutup);
-            document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !panel.hidden) tutup(); });
+            document.addEventListener('keydown', (e) => {
+                if (panel.hidden) return;
+                if (e.key === 'Escape') tutup();
+                if (e.key === 'ArrowLeft') panel.querySelector('[data-anak-panah="-1"]')?.click();
+                if (e.key === 'ArrowRight') panel.querySelector('[data-anak-panah="1"]')?.click();
+            });
         })();
     </script>
 @endpush

@@ -18,6 +18,7 @@ use App\Http\Controllers\AduanAwamController;
 use App\Http\Controllers\StatusAduanController;
 use App\Http\Controllers\PengurusanLaporanController;
 use App\Http\Controllers\NotifikasiController;
+use App\Http\Controllers\GambarPemeriksaanController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -291,6 +292,23 @@ Route::middleware('auth')->group(function () {
     // (SYSTEM/BPH, atau peranan yang boleh lihat rekod penyelenggaraan)
     Route::get('/aset-bangunan/{bangunan}/butiran', [PengurusanBangunanController::class, 'butiran'])
         ->name('bangunan.butiran');
+
+    // Gambar pemeriksaan penyelenggaraan: akses disemak dalam controller
+    Route::post('/pemeriksaan/gambar-sementara', [GambarPemeriksaanController::class, 'simpanSementara'])
+        ->middleware('throttle:120,1')
+        ->name('pemeriksaan.gambar.simpan-sementara');
+
+    Route::get('/pemeriksaan/gambar-sementara/{token}', [GambarPemeriksaanController::class, 'lihatSementara'])
+        ->where('token', '[0-9a-f\\-]{36}\\.(jpg|jpeg|png|webp)')
+        ->name('pemeriksaan.gambar.sementara');
+
+    Route::get('/pemeriksaan/{pemeriksaan}/gambar/{gambar}', [GambarPemeriksaanController::class, 'lihat'])
+        ->whereNumber('gambar')
+        ->name('pemeriksaan.gambar.lihat');
+
+    Route::get('/pemeriksaan/{pemeriksaan}/gambar/{gambar}/muat-turun', [GambarPemeriksaanController::class, 'muatTurun'])
+        ->whereNumber('gambar')
+        ->name('pemeriksaan.gambar.muat-turun');
         
     Route::get('/notifikasi', [NotifikasiController::class, 'index'])
         ->name('notifikasi.index');

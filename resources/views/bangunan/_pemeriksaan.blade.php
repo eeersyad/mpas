@@ -65,6 +65,9 @@
     <p class="text-secondary small mb-0">Tiada keputusan item direkodkan.</p>
 @endforelse
 
+{{-- Gambar pemeriksaan --}}
+@include('bangunan._gambar-pemeriksaan', ['rekod' => $rekod])
+
 {{-- Catatan --}}
 @if (filled($rekod->asm_note))
     <dl class="butiran-medan mt-3 mb-0">

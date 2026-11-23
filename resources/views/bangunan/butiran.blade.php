@@ -382,10 +382,35 @@
                     <dt>Status Pengiklanan</dt>
                     <dd>
                         @if ($bangunan->asb_advertise)
-                            <span class="lencana-iklan aktif"><i class="bi bi-megaphone-fill"></i> Diiklankan di Portal Awam</span>
-                            @if ($bangunan->asb_advertise_start || $bangunan->asb_advertise_end)
-                                <small class="d-block text-secondary mt-1">{{ $bangunan->asb_advertise_start?->format('d/m/Y') ?? '-' }} hingga {{ $bangunan->asb_advertise_end?->format('d/m/Y') ?? '-' }}</small>
-                            @endif
+                            @php
+                                $mulaIklan = $bangunan->asb_advertise_start?->copy()->startOfDay();
+                                $tamatIklan = $bangunan->asb_advertise_end?->copy()->startOfDay();
+                                $hariIni = now()->startOfDay();
+
+                                if ($mulaIklan && $hariIni->lt($mulaIklan)) {
+                                    $bakiHari = (int) $hariIni->diffInDays($mulaIklan);
+                                    $statusTempoh = ['akan', 'bi-hourglass-top', 'Bermula dalam ' . $bakiHari . ' hari'];
+                                } elseif ($tamatIklan && $hariIni->gt($tamatIklan)) {
+                                    $statusTempoh = ['tamat', 'bi-x-circle', 'Tempoh tamat'];
+                                } elseif ($tamatIklan) {
+                                    $bakiHari = (int) $hariIni->diffInDays($tamatIklan);
+                                    $statusTempoh = ['aktif', 'bi-clock-history', $bakiHari === 0 ? 'Tamat hari ini' : 'Baki ' . $bakiHari . ' hari'];
+                                } else {
+                                    $statusTempoh = null;
+                                }
+                            @endphp
+
+                            <div class="info-iklan">
+                                <span class="lencana-iklan aktif"><i class="bi bi-megaphone-fill"></i> Diiklankan</span>
+
+                                @if ($mulaIklan || $tamatIklan)
+                                    <span class="tempoh-iklan"><i class="bi bi-calendar-range"></i> {{ $mulaIklan?->format('d/m/Y') ?? '-' }} – {{ $tamatIklan?->format('d/m/Y') ?? '-' }}</span>
+                                @endif
+
+                                @if ($statusTempoh)
+                                    <span class="baki-iklan {{ $statusTempoh[0] }}"><i class="bi {{ $statusTempoh[1] }}"></i> {{ $statusTempoh[2] }}</span>
+                                @endif
+                            </div>
                         @else
                             <span class="lencana-iklan">Tidak diiklankan</span>
                         @endif

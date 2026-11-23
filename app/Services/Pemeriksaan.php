@@ -6,9 +6,14 @@ use App\Models\Bangunan;
 use App\Models\KomponenPenyelenggaraan;
 use App\Models\Penyelenggaraan;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 
 class Pemeriksaan
 {
+    public const FOLDER_SEMENTARA = 'sementara/pemeriksaan';
+
+    public const KUNCI_SESI = 'gambar_pemeriksaan_sementara';
+
     /**
      * Komponen aktif yang ada sekurang-kurangnya satu item aktif.
      */
@@ -52,10 +57,12 @@ class Pemeriksaan
                 'updated_by' => $userId,
             ]);
 
+            $this->simpanGambar($rekod, $data, $userId);
+
             return $rekod;
         }
 
-        return $bangunan->penyelenggaraan()->create([
+        $rekod = $bangunan->penyelenggaraan()->create([
             'asm_inspection_date' => $data['asm_inspection_date'],
             'asm_inspected_by' => $userId,
             'asm_items' => $items,
@@ -63,6 +70,56 @@ class Pemeriksaan
             'created_by' => $userId,
             'updated_by' => $userId,
         ]);
+
+        $this->simpanGambar($rekod, $data, $userId);
+
+        return $rekod;
+    }
+
+    /**
+     * Pautkan gambar sementara (dimuat naik dari borang) kepada rekod,
+     * dan padam gambar sedia ada yang ditanda (mod KEMASKINI sahaja).
+     */
+    private function simpanGambar(Penyelenggaraan $rekod, array $data, int $userId): void
+    {
+        $disk = Storage::disk('local');
+
+        if (($data['mod'] ?? null) === 'KEMASKINI' && ! empty($data['padam_gambar'])) {
+            $rekod->gambar()
+                ->whereIn('asmi_id', array_map('intval', (array) $data['padam_gambar']))
+                ->get()
+                ->each(function ($gambar) use ($disk): void {
+                    $disk->delete($gambar->asmi_path);
+                    $gambar->delete();
+                });
+        }
+
+        $tokenSah = session(self::KUNCI_SESI, []);
+
+        foreach ($data['gambar'] ?? [] as $baris) {
+            $token = $baris['token'] ?? '';
+            $sementara = self::FOLDER_SEMENTARA . '/' . $token;
+
+            if (! in_array($token, $tokenSah, true) || ! $disk->exists($sementara)) {
+                continue;
+            }
+
+            $laluan = 'pemeriksaan/' . $rekod->asm_id . '/' . $token;
+            $disk->move($sementara, $laluan);
+
+            $rekod->gambar()->create([
+                'asmi_name' => trim($baris['nama']),
+                'asmi_summary' => filled($baris['ringkasan'] ?? null) ? trim($baris['ringkasan']) : null,
+                'asmi_path' => $laluan,
+                'asmi_mime' => $disk->mimeType($laluan) ?: null,
+                'asmi_size' => $disk->size($laluan),
+                'uploaded_by' => $userId,
+            ]);
+
+            $tokenSah = array_values(array_diff($tokenSah, [$token]));
+        }
+
+        session([self::KUNCI_SESI => $tokenSah]);
     }
 
     /**

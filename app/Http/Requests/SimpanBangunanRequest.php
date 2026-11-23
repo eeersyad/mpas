@@ -222,6 +222,12 @@ class SimpanBangunanRequest extends FormRequest
                 'required',
                 'array',
             ],
+            'pemeriksaan.gambar' => ['exclude_if:pemeriksaan.mod,TIADA', 'nullable', 'array'],
+            'pemeriksaan.gambar.*.token' => ['exclude_if:pemeriksaan.mod,TIADA', 'required', 'string', 'regex:/^[0-9a-f\-]{36}\.(jpg|jpeg|png|webp)$/'],
+            'pemeriksaan.gambar.*.nama' => ['exclude_if:pemeriksaan.mod,TIADA', 'required', 'string', 'max:150'],
+            'pemeriksaan.gambar.*.ringkasan' => ['exclude_if:pemeriksaan.mod,TIADA', 'nullable', 'string', 'max:1000'],
+            'pemeriksaan.padam_gambar' => ['exclude_unless:pemeriksaan.mod,KEMASKINI', 'nullable', 'array'],
+            'pemeriksaan.padam_gambar.*' => ['exclude_unless:pemeriksaan.mod,KEMASKINI', 'integer'],
         ];
 
         foreach ($komponen as $item) {
@@ -250,6 +256,10 @@ class SimpanBangunanRequest extends FormRequest
             'pemeriksaan.nilai.required' => 'Sila lengkapkan keputusan pemeriksaan.',
             'pemeriksaan.nilai.*.*.required' => 'Sila pilih keputusan bagi setiap item pemeriksaan.',
             'pemeriksaan.nilai.*.*.in' => 'Keputusan pemeriksaan tidak sah.',
+            'pemeriksaan.gambar.*.token.*' => 'Gambar pemeriksaan tidak sah. Sila muat naik semula.',
+            'pemeriksaan.gambar.*.nama.required' => 'Sila isi nama bagi setiap gambar pemeriksaan.',
+            'pemeriksaan.gambar.*.nama.max' => 'Nama gambar tidak boleh melebihi 150 aksara.',
+            'pemeriksaan.gambar.*.ringkasan.max' => 'Ringkasan gambar tidak boleh melebihi 1000 aksara.',
             'asb_name.required' => 'Sila masukkan nama bangunan.',
             'asb_category.required' => 'Sila pilih kategori bangunan.',
             'asb_add1.required' => 'Sila masukkan alamat bangunan.',

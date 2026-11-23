@@ -741,6 +741,8 @@
                                         </div>
                                     @endforeach
 
+                                    @include('bangunan._borang-gambar-pemeriksaan')
+
                                     {{-- Catatan --}}
                                     <div class="panel-pemeriksaan">
                                         <label for="asm_note" class="form-label small fw-semibold">
@@ -1358,6 +1360,15 @@
                 // fieldset disabled: medan tidak disahkan dan tidak dihantar
                 fieldset.disabled = tiada;
                 fieldset.classList.toggle('d-none', tiada);
+
+                // Gambar sedia ada hanya untuk kemas kini rekod terkini
+                const sediaAda = bekas.querySelector('[data-gambar-sedia-ada]');
+
+                if (sediaAda) {
+                    sediaAda.disabled = mod !== 'KEMASKINI';
+                    sediaAda.classList.toggle('d-none', mod !== 'KEMASKINI');
+                    bekas.dispatchEvent(new CustomEvent('mpas:gambar-berubah'));
+                }
 
                 if (! tetapkanNilai) {
                     return;
