@@ -12,8 +12,8 @@ return [
     // Maklumat hubungan yang dipaparkan kepada orang awam
     'hubungan' => [
         'nama' => env('PORTAL_NAMA', 'Bahagian Pengurusan Harta, Majlis Daerah Marang'),
-        // Boleh lebih daripada satu nombor (.env: PORTAL_TELEFON="09-618 2366,09-818 2368")
-        'telefon' => collect(explode(',', (string) env('PORTAL_TELEFON', '09-618 2366,09-818 2368')))
+        // Boleh lebih daripada satu nombor (.env: PORTAL_TELEFON="09-618 2366,09-618 2368")
+        'telefon' => collect(explode(',', (string) env('PORTAL_TELEFON', '09-618 2366,09-618 2368')))
             ->map(fn ($nombor) => trim($nombor))
             ->filter()
             ->values()

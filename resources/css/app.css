@@ -11237,3 +11237,10 @@ body:has(.halaman-login) { overflow-y: auto !important; }
 @media (min-width: 768px) {
     .laman-utama-kaki { padding-top: .8rem; padding-bottom: calc(.8rem + env(safe-area-inset-bottom)); }
 }
+
+/* Laman utama (desktop): logo tengah lebih besar */
+@media (min-width: 768px) {
+    .laman-utama-logo-tengah { gap: 1.4rem; }
+    .laman-utama-logo-tengah img { height: 84px; }
+    .laman-utama-logo-tengah .pemisah-logo { height: 60px; }
+}
