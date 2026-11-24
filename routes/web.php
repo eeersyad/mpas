@@ -21,9 +21,16 @@ use App\Http\Controllers\NotifikasiController;
 use App\Http\Controllers\GambarPemeriksaanController;
 use Illuminate\Support\Facades\Route;
 
+// Laman utama: orang awam nampak pilihan perkhidmatan; kakitangan yang sudah log masuk terus ke Dashboard
 Route::get('/', function () {
-    return redirect()->route('dashboard');
-});
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+
+    return view('laman-utama', [
+        'hubungan' => config('portal.hubungan'),
+    ]);
+})->middleware(['throttle:60,1', 'bahasa'])->name('utama');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'login'])->name('login');
@@ -264,6 +271,9 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/aset-bangunan/{bangunan}/zip', [PengurusanBangunanController::class, 'muatTurunZip'])
             ->name('bangunan.zip');
+
+        Route::get('/aset-bangunan/{bangunan}/pdf-pemeriksaan', [PengurusanBangunanController::class, 'muatTurunPdfPemeriksaan'])
+            ->name('bangunan.pdf-pemeriksaan');
 
         Route::get('/aset-bangunan/daftar', [PengurusanBangunanController::class, 'create'])
             ->name('bangunan.create');

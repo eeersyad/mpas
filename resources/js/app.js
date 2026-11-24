@@ -1821,6 +1821,36 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Kemaskini: butang Simpan pada setiap langkah. Jika ada medan wajib tidak sah
+    // di langkah lain, bawa pengguna ke langkah itu dahulu.
+    borangBangunan.querySelectorAll('[data-simpan-awal]').forEach((butang) => {
+        butang.addEventListener('click', (event) => {
+            const tidakSah = [...borangBangunan.querySelectorAll('input, select, textarea')]
+                .find((item) => ! item.disabled && ! item.checkValidity());
+
+            if (! tidakSah) {
+                return;
+            }
+
+            event.preventDefault();
+
+            const langkah = Number(tidakSah.closest('[data-langkah]')?.dataset.langkah);
+
+            if (langkah && langkah !== langkahBangunanSemasa) {
+                paparkanLangkahBangunan(langkah, langkah > langkahBangunanSemasa ? 'kanan' : 'kiri');
+            }
+
+            window.setTimeout(() => tidakSah.reportValidity(), 520);
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Maklumat belum lengkap',
+                text: 'Sila lengkapkan maklumat wajib sebelum menyimpan.',
+                confirmButtonColor: '#168A7E',
+            });
+        });
+    });
+
     // Kemaskini sahaja: tekan penunjuk langkah untuk terus ke bahagian itu
     // (borang daftar kekal ikut turutan supaya tiada maklumat tertinggal)
     if (borangBangunan.querySelector('input[name="_method"]')) {
@@ -4332,6 +4362,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     </span>
                     <i class="bi bi-chevron-right anak-panah-apl" aria-hidden="true"></i>
                 </a>
+
+                <a href="#" class="baris-laporan-apl" data-pautan-pemeriksaan data-muat-turun-berat hidden>
+                    <span class="ikon-eksport-apl pemeriksaan"><i class="bi bi-clipboard2-check"></i></span>
+                    <span class="teks-baris-laporan">
+                        <strong>Maklumat pemeriksaan (PDF)</strong>
+                        <small>Semua rekod pemeriksaan beserta gambar</small>
+                    </span>
+                    <i class="bi bi-chevron-right anak-panah-apl" aria-hidden="true"></i>
+                </a>
             </div>
         </div>`;
 
@@ -4340,6 +4379,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const offcanvas = bootstrap.Offcanvas.getOrCreateInstance(lembaran);
     const pautanPdf = lembaran.querySelector('[data-pautan-pdf]');
     const pautanZip = lembaran.querySelector('[data-pautan-zip]');
+    const pautanPemeriksaan = lembaran.querySelector('[data-pautan-pemeriksaan]');
 
     // Delegasi: butang mungkin berada dalam kandungan modal yang dimuat kemudian
     document.addEventListener('click', (event) => {
@@ -4352,10 +4392,12 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
         pautanPdf.href = butang.dataset.pdf;
         pautanZip.href = butang.dataset.zip;
+        pautanPemeriksaan.hidden = ! butang.dataset.pemeriksaan;
+        pautanPemeriksaan.href = butang.dataset.pemeriksaan || '#';
         offcanvas.show();
     });
 
-    [pautanPdf, pautanZip].forEach((pautan) => {
+    [pautanPdf, pautanZip, pautanPemeriksaan].forEach((pautan) => {
         pautan.addEventListener('click', () => window.setTimeout(() => offcanvas.hide(), 150));
     });
 });

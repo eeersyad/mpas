@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\StatusAset;
+use App\Models\TetapanPenyelenggaraan;
 use App\Support\MenuSidebar;
 use App\Support\Peranan;
 use Illuminate\Support\Facades\Queue;
@@ -43,6 +44,11 @@ class AppServiceProvider extends ServiceProvider
                 'senaraiStatusPremis' => StatusAset::semua('BANGUNAN'),
                 'senaraiStatusTanah' => StatusAset::semua('TANAH'),
             ]);
+        });
+
+        // Pilihan muat turun: PDF pemeriksaan hanya untuk pengguna yang ada akses penyelenggaraan
+        View::composer(['pdf._pilihan-muat-turun', 'pdf._item-muat-turun-apl'], function ($view): void {
+            $view->with('bolehMuatTurunPemeriksaan', TetapanPenyelenggaraan::bolehLihat(auth()->user()));
         });
 
         // Proses queue berjalan lama: kosongkan cache status sebelum setiap job supaya tetapan terkini digunakan

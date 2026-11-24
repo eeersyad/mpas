@@ -687,7 +687,7 @@
 
 <div class="modal-footer">
     {{-- Telefon: bottom sheet --}}
-    <button type="button" class="btn btn-outline-secondary butang-pdf-apl d-md-none" data-lembaran-muat-turun data-pdf="{{ route('bangunan.pdf', $bangunan) }}" data-zip="{{ route('bangunan.zip', $bangunan) }}">
+    <button type="button" class="btn btn-outline-secondary butang-pdf-apl d-md-none" data-lembaran-muat-turun data-pdf="{{ route('bangunan.pdf', $bangunan) }}" data-zip="{{ route('bangunan.zip', $bangunan) }}" @if ($bolehLihatPemeriksaan ?? false) data-pemeriksaan="{{ route('bangunan.pdf-pemeriksaan', $bangunan) }}" @endif>
         <i class="bi bi-download me-1"></i>Muat Turun
     </button>
 

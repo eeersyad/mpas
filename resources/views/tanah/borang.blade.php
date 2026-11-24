@@ -172,6 +172,10 @@
                 </div>
 
                 <div class="d-flex justify-content-end mt-5">
+                    @if ($tanah)
+                        <button type="submit" class="btn btn-outline-primary ms-auto me-2 px-3 px-sm-4" data-simpan-awal title="Simpan perubahan"><i class="bi bi-floppy me-1 me-sm-2"></i>Simpan</button>
+                    @endif
+
                     <button type="button" class="btn btn-primary px-4" data-seterusnya>
                         Seterusnya <i class="bi bi-arrow-right ms-2"></i>
                     </button>
@@ -261,6 +265,13 @@
                         <i class="bi bi-arrow-left me-2"></i>Sebelumnya
                     </button>
 
+                    @if ($tanah)
+
+                        <button type="submit" class="btn btn-outline-primary ms-auto me-2 px-3 px-sm-4" data-simpan-awal title="Simpan perubahan"><i class="bi bi-floppy me-1 me-sm-2"></i>Simpan</button>
+
+                    @endif
+
+
                     <button type="button" class="btn btn-primary px-4" data-seterusnya>
                         Seterusnya <i class="bi bi-arrow-right ms-2"></i>
                     </button>
@@ -319,6 +330,13 @@
                     <button type="button" class="btn btn-light px-4" data-sebelumnya>
                         <i class="bi bi-arrow-left me-2"></i>Sebelumnya
                     </button>
+
+                    @if ($tanah)
+
+                        <button type="submit" class="btn btn-outline-primary ms-auto me-2 px-3 px-sm-4" data-simpan-awal title="Simpan perubahan"><i class="bi bi-floppy me-1 me-sm-2"></i>Simpan</button>
+
+                    @endif
+
 
                     <button type="button" class="btn btn-primary px-4" data-seterusnya>
                         Seterusnya <i class="bi bi-arrow-right ms-2"></i>
@@ -399,6 +417,13 @@
                     <button type="button" class="btn btn-light px-4" data-sebelumnya>
                         <i class="bi bi-arrow-left me-2"></i>Sebelumnya
                     </button>
+
+                    @if ($tanah)
+
+                        <button type="submit" class="btn btn-outline-primary ms-auto me-2 px-3 px-sm-4" data-simpan-awal title="Simpan perubahan"><i class="bi bi-floppy me-1 me-sm-2"></i>Simpan</button>
+
+                    @endif
+
 
                     <button type="button" class="btn btn-primary px-4" data-seterusnya>
                         Seterusnya <i class="bi bi-arrow-right ms-2"></i>

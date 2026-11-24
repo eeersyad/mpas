@@ -226,6 +226,19 @@ class PengurusanBangunanController extends Controller
 
 
     /**
+     * PDF maklumat pemeriksaan penyelenggaraan (potret) + gambar setiap pemeriksaan.
+     */
+    public function muatTurunPdfPemeriksaan(Bangunan $bangunan, PdfAset $pdfAset)
+    {
+        abort_unless(TetapanPenyelenggaraan::bolehLihat(auth()->user()), 403);
+
+        return response($pdfAset->janaPemeriksaan($bangunan), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="Pemeriksaan-' . $this->namaFailSelamat($bangunan->asb_ref_no) . '.pdf"',
+        ]);
+    }
+
+    /**
      * ZIP: maklumat aset (PDF) + semua dokumen asal.
      */
     public function muatTurunZip(Bangunan $bangunan, PdfAset $pdfAset)

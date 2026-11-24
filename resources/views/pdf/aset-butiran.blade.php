@@ -551,7 +551,7 @@
                 <table class="jadual-tandatangan">
                     <tbody>
                         <tr>
-                            <td class="label">Diperiksa oleh</td>
+                            <td class="label">Disediakan oleh</td>
                             <td class="label">Disemak oleh</td>
                         </tr>
                         <tr>

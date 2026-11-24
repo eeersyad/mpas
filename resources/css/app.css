@@ -11082,3 +11082,138 @@ body:has(.halaman-login) { overflow-y: auto !important; }
 @media (min-width: 768px) {
     .info-iklan { align-items: flex-start; }
 }
+
+/* Borang kemaskini: butang Simpan (warna sama seperti butang Lihat gambar) */
+.btn[data-simpan-awal] { background: #e8f5f3; border: 1px solid #cfe9e4; color: #117066; font-weight: 600; }
+.btn[data-simpan-awal]:hover, .btn[data-simpan-awal]:focus-visible { background: #d4ede8; border-color: #bfe1da; color: #0b5a52; }
+.btn[data-simpan-awal]:active { background: #c6e6df; color: #0b5a52; }
+
+/* =====================================================================
+   Laman utama (landing page awam)
+   ===================================================================== */
+.laman-utama { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; margin: 0; color: #fff; background: linear-gradient(155deg, rgba(10, 92, 83, .9) 0%, rgba(7, 63, 58, .92) 55%, rgba(4, 38, 35, .95) 100%), url('/images/gambar-majlis.png') center / cover no-repeat fixed; }
+.laman-utama-bar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: calc(1rem + env(safe-area-inset-top)) clamp(1rem, 4vw, 3rem) 1rem; }
+.laman-utama-logo { display: inline-flex; align-items: center; gap: .75rem; padding: .5rem .9rem; border-radius: 16px; background: #fff; box-shadow: 0 10px 24px rgba(0, 0, 0, .18); }
+.laman-utama-logo img { display: block; height: 38px; width: auto; }
+.laman-utama-logo .pemisah-logo { width: 1px; height: 28px; background: #d7e3e1; }
+.laman-utama-nav { display: flex; align-items: center; gap: .6rem; }
+.laman-utama-bahasa { display: inline-flex; padding: 3px; border: 1px solid rgba(255, 255, 255, .25); border-radius: 999px; background: rgba(255, 255, 255, .08); }
+.laman-utama-bahasa a { padding: .3rem .7rem; border-radius: 999px; color: rgba(255, 255, 255, .8); font-size: .78rem; font-weight: 700; text-decoration: none; }
+.laman-utama-bahasa a.aktif { background: #fff; color: #0a5c53; }
+.laman-utama-log-masuk { display: inline-flex; align-items: center; gap: .45rem; padding: .5rem .95rem; border: 1px solid rgba(255, 255, 255, .3); border-radius: 999px; color: #fff; font-size: .85rem; font-weight: 600; text-decoration: none; transition: background-color .15s, border-color .15s; }
+.laman-utama-log-masuk:hover { background: rgba(255, 255, 255, .12); border-color: rgba(255, 255, 255, .5); color: #fff; }
+
+.laman-utama-isi { display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center; padding: 2rem clamp(1rem, 4vw, 3rem) 3rem; }
+.laman-utama-tajuk { max-width: 640px; margin-bottom: 2.25rem; text-align: center; animation: laman-utama-timbul .5s ease both; }
+.laman-utama-label { display: inline-block; margin-bottom: .9rem; padding: .3rem .8rem; border-radius: 999px; background: rgba(255, 255, 255, .12); font-size: .7rem; font-weight: 700; letter-spacing: .14em; }
+.laman-utama-tajuk h1 { margin: 0 0 .75rem; font-size: clamp(1.9rem, 4.5vw, 2.9rem); font-weight: 800; letter-spacing: -.02em; }
+.laman-utama-tajuk p { margin: 0; color: rgba(255, 255, 255, .82); font-size: clamp(.95rem, 1.6vw, 1.08rem); }
+
+.laman-utama-kad { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; width: 100%; max-width: 820px; }
+.laman-utama-kad-item { display: flex; flex-direction: column; gap: 1rem; min-height: 190px; padding: 1.6rem; border-radius: 22px; background: #fff; color: #10302c; text-decoration: none; box-shadow: 0 20px 40px rgba(0, 0, 0, .2); transition: transform .2s ease, box-shadow .2s ease; animation: laman-utama-timbul .5s ease both; }
+.laman-utama-kad-item:nth-child(2) { animation-delay: .08s; }
+.laman-utama-kad-item:hover { color: #10302c; transform: translateY(-4px); box-shadow: 0 26px 48px rgba(0, 0, 0, .26); }
+.laman-utama-kad-ikon { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 16px; background: #e8f5f3; color: #117066; font-size: 1.4rem; }
+.laman-utama-kad-teks { display: flex; flex: 1; flex-direction: column; gap: .35rem; }
+.laman-utama-kad-teks strong { font-size: 1.2rem; font-weight: 700; }
+.laman-utama-kad-teks small { color: #5b6f6c; font-size: .9rem; line-height: 1.5; }
+.laman-utama-kad-panah { display: grid; place-items: center; align-self: flex-end; width: 40px; height: 40px; border-radius: 50%; background: #168a7e; color: #fff; transition: transform .2s ease; }
+.laman-utama-kad-item:hover .laman-utama-kad-panah { transform: translateX(4px); }
+
+.laman-utama-kaki { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem 1.5rem; padding: 1.1rem clamp(1rem, 4vw, 3rem) calc(1.1rem + env(safe-area-inset-bottom)); border-top: 1px solid rgba(255, 255, 255, .12); color: rgba(255, 255, 255, .75); font-size: .82rem; }
+.laman-utama-hubungi { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem 1.1rem; }
+.laman-utama-hubungi-tajuk { color: #fff; font-weight: 600; }
+.laman-utama-hubungi a { color: rgba(255, 255, 255, .8); text-decoration: none; }
+.laman-utama-hubungi a:hover { color: #fff; text-decoration: underline; }
+
+@keyframes laman-utama-timbul { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+@media (max-width: 767.98px) {
+    .laman-utama { background-attachment: scroll; }
+    .laman-utama-logo { gap: .5rem; padding: .4rem .65rem; border-radius: 12px; }
+    .laman-utama-logo img { height: 28px; }
+    .laman-utama-logo .pemisah-logo { height: 20px; }
+    .laman-utama-nav { gap: .4rem; }
+    .laman-utama-bahasa a { padding: .25rem .55rem; font-size: .72rem; }
+    .laman-utama-log-masuk { padding: .4rem .7rem; font-size: .78rem; }
+    .laman-utama-isi { justify-content: flex-start; padding-top: 2.5rem; }
+    .laman-utama-tajuk { margin-bottom: 1.75rem; }
+    .laman-utama-kad { grid-template-columns: 1fr; gap: .9rem; }
+    .laman-utama-kad-item { flex-direction: row; align-items: center; min-height: 0; padding: 1.1rem; border-radius: 18px; }
+    .laman-utama-kad-ikon { flex-shrink: 0; width: 46px; height: 46px; border-radius: 14px; font-size: 1.2rem; }
+    .laman-utama-kad-teks strong { font-size: 1.02rem; }
+    .laman-utama-kad-teks small { font-size: .82rem; }
+    .laman-utama-kad-panah { flex-shrink: 0; align-self: center; width: 34px; height: 34px; }
+    .laman-utama-kaki { flex-direction: column; align-items: flex-start; font-size: .78rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .laman-utama-tajuk, .laman-utama-kad-item { animation: none; }
+}
+
+/* Laman utama: susunan desktop (hero = sebahagian aliran biasa) */
+@media (min-width: 768px) {
+    .laman-utama-hero { display: contents; }
+    .laman-utama-tajuk { align-self: center; margin: auto 1rem 2.25rem; padding-top: 2rem; }
+    .laman-utama-isi { flex: 0 0 auto; margin-bottom: auto; padding-top: 0; }
+}
+
+/* Laman utama: telefon gaya aplikasi */
+@media (max-width: 767.98px) {
+    .laman-utama { min-height: 100dvh; background: #f3f6f5; color: #10302c; -webkit-tap-highlight-color: transparent; }
+    .laman-utama-hero { position: relative; padding-bottom: 3.25rem; border-radius: 0 0 28px 28px; color: #fff; background: linear-gradient(160deg, rgba(22, 138, 126, .86), rgba(7, 63, 58, .94)), url('/images/gambar-majlis.png') center / cover no-repeat; overflow: hidden; }
+    .laman-utama-hero::before, .laman-utama-hero::after { content: ''; position: absolute; border-radius: 50%; background: rgba(255, 255, 255, .07); pointer-events: none; }
+    .laman-utama-hero::before { top: -60px; right: -50px; width: 180px; height: 180px; }
+    .laman-utama-hero::after { bottom: -70px; left: -40px; width: 160px; height: 160px; }
+    .laman-utama-bar { position: relative; z-index: 1; padding: calc(.9rem + env(safe-area-inset-top)) 1.1rem .5rem; }
+    .laman-utama-bahasa { border-color: rgba(255, 255, 255, .3); background: rgba(255, 255, 255, .12); }
+    .laman-utama-tajuk { position: relative; z-index: 1; margin: 0; padding: 1.4rem 1.25rem 0; text-align: left; }
+    .laman-utama-label { margin-bottom: .6rem; padding: .22rem .6rem; font-size: .62rem; }
+    .laman-utama-tajuk h1 { margin-bottom: .4rem; font-size: 1.55rem; }
+    .laman-utama-tajuk p { font-size: .88rem; line-height: 1.5; }
+
+    .laman-utama-isi { position: relative; z-index: 2; flex: 1; justify-content: flex-start; align-items: stretch; margin-top: -2rem; padding: 0 1rem 1.25rem; }
+    .laman-utama-seksyen { margin: 1.4rem .35rem .6rem; color: #5b6f6c; font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+
+    .laman-utama-kad { gap: .7rem; }
+    .laman-utama-kad-item { padding: 1rem; border-radius: 20px; box-shadow: 0 10px 24px rgba(16, 48, 44, .1); animation-duration: .4s; }
+    .laman-utama-kad-item:hover { transform: none; box-shadow: 0 10px 24px rgba(16, 48, 44, .1); }
+    .laman-utama-kad-item:active { transform: scale(.98); background: #f7fbfa; }
+    .laman-utama-kad-panah { width: 32px; height: 32px; background: #e8f5f3; color: #117066; font-size: .9rem; }
+
+    .laman-utama-senarai { overflow: hidden; border-radius: 18px; background: #fff; box-shadow: 0 6px 18px rgba(16, 48, 44, .06); }
+    .laman-utama-baris { display: flex; align-items: center; gap: .85rem; padding: .85rem 1rem; color: #10302c; text-decoration: none; }
+    .laman-utama-baris + .laman-utama-baris { border-top: 1px solid #edf1f0; }
+    .laman-utama-baris:active { background: #f3f8f7; }
+    .laman-utama-baris-ikon { display: grid; flex-shrink: 0; place-items: center; width: 36px; height: 36px; border-radius: 11px; background: #e8f5f3; color: #117066; font-size: .95rem; }
+    .laman-utama-baris-teks { display: flex; flex: 1; flex-direction: column; min-width: 0; }
+    .laman-utama-baris-teks small { color: #7a8b88; font-size: .72rem; }
+    .laman-utama-baris-teks strong { overflow: hidden; font-size: .9rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+    .laman-utama-baris > .bi-chevron-right { color: #a9b7b4; font-size: .85rem; }
+
+    .laman-utama-kakitangan { display: flex; align-items: center; justify-content: center; gap: .45rem; margin-top: 1.4rem; padding: .75rem; border: 1px dashed #c9d8d5; border-radius: 14px; color: #5b6f6c; font-size: .82rem; font-weight: 600; text-decoration: none; }
+    .laman-utama-kakitangan:active { background: #eaf1ef; }
+
+    .laman-utama-kaki { justify-content: center; padding: .5rem 1rem calc(1rem + env(safe-area-inset-bottom)); border-top: 0; color: #8a9a97; font-size: .72rem; text-align: center; }
+}
+
+/* Laman utama (telefon): Log Masuk Kakitangan di bar atas */
+@media (max-width: 767.98px) {
+    .laman-utama-log-masuk { gap: .35rem; padding: .35rem .7rem; border-color: rgba(255, 255, 255, .3); background: rgba(255, 255, 255, .12); font-size: .75rem; }
+    .laman-utama-log-masuk:active { background: rgba(255, 255, 255, .22); }
+}
+
+/* Laman utama (telefon): sticky app bar putih */
+@media (max-width: 767.98px) {
+    .laman-utama-bar { position: sticky; top: 0; z-index: 20; padding: calc(.55rem + env(safe-area-inset-top)) 1rem .55rem; background: rgba(255, 255, 255, .96); border-bottom: 1px solid #e6eceb; box-shadow: 0 4px 14px rgba(16, 48, 44, .06); -webkit-backdrop-filter: saturate(160%) blur(10px); backdrop-filter: saturate(160%) blur(10px); }
+    .laman-utama-logo { padding: 0; border-radius: 0; background: transparent; box-shadow: none; }
+    .laman-utama-logo img { height: 30px; }
+    .laman-utama-logo .pemisah-logo { height: 22px; background: #d7e3e1; }
+    .laman-utama-bahasa { border-color: #d7e3e1; background: #f3f6f5; }
+    .laman-utama-bahasa a { color: #5b6f6c; }
+    .laman-utama-bahasa a.aktif { background: #168a7e; color: #fff; }
+    .laman-utama-log-masuk { border-color: #cfe9e4; background: #e8f5f3; color: #117066; }
+    .laman-utama-log-masuk:hover, .laman-utama-log-masuk:active { background: #d4ede8; border-color: #bfe1da; color: #0b5a52; }
+    .laman-utama-hero { border-radius: 0 0 28px 28px; }
+    .laman-utama-tajuk { padding-top: 1.6rem; }
+}

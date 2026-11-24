@@ -1,2 +1,2 @@
 {{-- Item menu (telefon) yang membuka bottom sheet muat turun. $jenis = bangunan|tanah, $aset = model --}}
-<li><button type="button" class="dropdown-item" data-lembaran-muat-turun data-pdf="{{ route($jenis . '.pdf', $aset) }}" data-zip="{{ route($jenis . '.zip', $aset) }}"><i class="bi bi-download" aria-hidden="true"></i>Muat turun</button></li>
+<li><button type="button" class="dropdown-item" data-lembaran-muat-turun data-pdf="{{ route($jenis . '.pdf', $aset) }}" data-zip="{{ route($jenis . '.zip', $aset) }}" @if ($jenis === 'bangunan' && ($bolehMuatTurunPemeriksaan ?? false)) data-pemeriksaan="{{ route('bangunan.pdf-pemeriksaan', $aset) }}" @endif><i class="bi bi-download" aria-hidden="true"></i>Muat turun</button></li>

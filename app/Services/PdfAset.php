@@ -68,6 +68,72 @@ class PdfAset
     }
 
     /**
+     * PDF maklumat pemeriksaan penyelenggaraan (A4 potret): semua rekod pemeriksaan
+     * aset bangunan, terkini dahulu, berserta gambar setiap pemeriksaan.
+     */
+    public function janaPemeriksaan(Model $bangunan): string
+    {
+        @set_time_limit(180);
+
+        $senarai = $bangunan->penyelenggaraan()
+            ->with(['pemeriksa', 'gambar'])
+            ->orderByDesc('asm_inspection_date')
+            ->orderByDesc('asm_id')
+            ->get();
+
+        try {
+            $rekod = $senarai->map(fn ($pemeriksaan) => [
+                'pemeriksaan' => $pemeriksaan,
+                'ringkasan' => $pemeriksaan->ringkasanNilai(),
+                'gambar' => $pemeriksaan->gambar
+                    ->map(function ($gambar) {
+                        $laluan = $this->laluanFail($gambar->asmi_path);
+                        $jpeg = $laluan ? $this->tukarKeJpeg($laluan, 1000) : null;
+
+                        if (! $jpeg) {
+                            return null;
+                        }
+
+                        [$lebar, $tinggi] = getimagesize($jpeg);
+                        $nisbah = min(240 / $lebar, 180 / $tinggi);
+
+                        return [
+                            'data' => base64_encode((string) file_get_contents($jpeg)),
+                            'lebar' => (int) round($lebar * $nisbah),
+                            'tinggi' => (int) round($tinggi * $nisbah),
+                            'nama' => $gambar->asmi_name,
+                            'ringkasan' => $gambar->asmi_summary,
+                        ];
+                    })
+                    ->filter()
+                    ->values()
+                    ->all(),
+            ]);
+
+            $pdf = Pdf::loadView('pdf.pemeriksaan', [
+                'aset' => $bangunan,
+                'tarikh' => now(),
+                'senaraiRekod' => $rekod,
+                'logoMdm' => base64_encode(file_get_contents(public_path('images/logo-mdm.png'))),
+                'logoMpas' => base64_encode(file_get_contents(public_path('images/logo-mpas-2.png'))),
+            ])->setPaper('a4', 'portrait');
+
+            $pdf->render();
+
+            $dompdf = $pdf->getDomPDF();
+            $kanvas = $dompdf->getCanvas();
+            $font = $dompdf->getFontMetrics()->getFont('DejaVu Sans', 'normal');
+
+            $kanvas->page_text(24, 815, 'Dokumen ini dijana oleh MPAS untuk kegunaan rasmi Majlis Daerah Marang.', $font, 7, [0.33, 0.33, 0.33]);
+            $kanvas->page_text(500, 815, 'Halaman {PAGE_NUM} / {PAGE_COUNT}', $font, 7, [0.33, 0.33, 0.33]);
+
+            return $dompdf->output();
+        } finally {
+            $this->bersihkan();
+        }
+    }
+
+    /**
      * ZIP: "00 - Maklumat Aset.pdf" + semua dokumen asal. Pulangkan laluan fail ZIP sementara.
      */
     public function janaZip(string $jenis, Model $aset, bool $denganPemeriksaan = false): string
@@ -207,9 +273,9 @@ class PdfAset
     }
 
     /**
-     * Tukar gambar (JPG/PNG/WEBP) kepada JPEG berlatar putih, maksimum 1600px.
+     * Tukar gambar (JPG/PNG/WEBP) kepada JPEG berlatar putih (lalai maksimum 1600px).
      */
-    private function tukarKeJpeg(string $laluan): ?string
+    private function tukarKeJpeg(string $laluan, int $saizMaks = 1600): ?string
     {
         if (! function_exists('imagecreatefromstring')) {
             return null;
@@ -223,7 +289,7 @@ class PdfAset
 
         $lebar = imagesx($gambar);
         $tinggi = imagesy($gambar);
-        $skala = min(1, 1600 / max($lebar, $tinggi));
+        $skala = min(1, $saizMaks / max($lebar, $tinggi));
         $lebarBaru = max(1, (int) round($lebar * $skala));
         $tinggiBaru = max(1, (int) round($tinggi * $skala));
 
