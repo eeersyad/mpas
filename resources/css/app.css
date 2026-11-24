@@ -11217,3 +11217,23 @@ body:has(.halaman-login) { overflow-y: auto !important; }
     .laman-utama-hero { border-radius: 0 0 28px 28px; }
     .laman-utama-tajuk { padding-top: 1.6rem; }
 }
+
+/* Laman utama (desktop): kandungan kad di tengah */
+@media (min-width: 768px) {
+    .laman-utama-kad-item { align-items: center; text-align: center; }
+    .laman-utama-kad-teks { align-items: center; }
+    .laman-utama-kad-panah { align-self: center; }
+}
+
+/* Laman utama (desktop): logo di tengah tanpa latar putih */
+@media (min-width: 768px) {
+    .laman-utama-nav { margin-left: auto; }
+    .laman-utama-logo-tengah { align-items: center; justify-content: center; gap: 1.1rem; margin-bottom: 1.4rem; }
+    .laman-utama-logo-tengah img { display: block; height: 64px; width: auto; filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .25)); }
+    .laman-utama-logo-tengah .pemisah-logo { width: 1px; height: 46px; background: rgba(255, 255, 255, .35); }
+}
+
+/* Laman utama (desktop): footer lebih rapat sedikit */
+@media (min-width: 768px) {
+    .laman-utama-kaki { padding-top: .8rem; padding-bottom: calc(.8rem + env(safe-area-inset-bottom)); }
+}

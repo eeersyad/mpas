@@ -17,7 +17,7 @@
 
 <body class="laman-utama">
     <header class="laman-utama-bar">
-        <a href="{{ route('utama') }}" class="laman-utama-logo" aria-label="MPAS">
+        <a href="{{ route('utama') }}" class="laman-utama-logo d-md-none" aria-label="MPAS">
             <img src="{{ asset('images/logo-mdm.png') }}" alt="Logo Majlis Daerah Marang">
             <span class="pemisah-logo" aria-hidden="true"></span>
             <img src="{{ asset('images/logo-mpas-2.png') }}" alt="Logo Marang Property Asset System">
@@ -39,7 +39,13 @@
 
     <div class="laman-utama-hero">
         <div class="laman-utama-tajuk">
-            <span class="laman-utama-label">MARANG PROPERTY ASSET SYSTEM</span>
+            <div class="laman-utama-logo-tengah d-none d-md-flex">
+                <img src="{{ asset('images/logo-mdm-2.png') }}" alt="Logo Majlis Daerah Marang">
+                <span class="pemisah-logo" aria-hidden="true"></span>
+                <img src="{{ asset('images/logo-mpas.png') }}" alt="Logo Marang Property Asset System">
+            </div>
+
+            <span class="laman-utama-label d-md-none">MARANG PROPERTY ASSET SYSTEM</span>
             <h1>{{ __('Selamat datang ke MPAS') }}</h1>
             <p>{{ __('Sistem pengurusan aset tak alih Majlis Daerah Marang. Pilih perkhidmatan di bawah untuk bermula.') }}</p>
         </div>
