@@ -11244,3 +11244,31 @@ body:has(.halaman-login) { overflow-y: auto !important; }
     .laman-utama-logo-tengah img { height: 84px; }
     .laman-utama-logo-tengah .pemisah-logo { height: 60px; }
 }
+
+/* Pemilih lokasi: carian lokasi */
+.bungkus-peta-lokasi { position: relative; }
+.carian-peta-lokasi { position: relative; z-index: 1000; padding: .65rem .75rem; border-bottom: 1px solid #e6eceb; background: #fff; }
+.kotak-carian-lokasi { position: relative; display: flex; align-items: center; }
+.kotak-carian-lokasi > .bi-search { position: absolute; left: .85rem; color: #7a8b88; pointer-events: none; }
+.kotak-carian-lokasi .form-control { height: 42px; padding-left: 2.4rem; padding-right: 2.6rem; border-radius: 12px; background: #f3f6f5; border-color: #e1e8e6; font-size: .92rem; }
+.kotak-carian-lokasi .form-control:focus { background: #fff; border-color: #168a7e; box-shadow: 0 0 0 .2rem rgba(22, 138, 126, .15); }
+.kotak-carian-lokasi .form-control::-webkit-search-cancel-button { display: none; }
+.kotak-carian-lokasi .spinner-border, .butang-kosong-carian { position: absolute; right: .85rem; }
+.butang-kosong-carian { padding: 0; border: 0; background: transparent; color: #a9b7b4; font-size: 1rem; line-height: 1; }
+.butang-kosong-carian:hover { color: #5b6f6c; }
+.kotak-carian-lokasi .spinner-border:not([hidden]) ~ .butang-kosong-carian { display: none; }
+.hasil-carian-lokasi { position: absolute; top: calc(100% - .2rem); left: .75rem; right: .75rem; max-height: 300px; margin: 0; padding: .35rem; overflow-y: auto; list-style: none; border: 1px solid #e1e8e6; border-radius: 12px; background: #fff; box-shadow: 0 12px 28px rgba(16, 52, 47, .16); }
+.hasil-carian-lokasi button { display: flex; align-items: flex-start; gap: .65rem; width: 100%; padding: .55rem .6rem; border: 0; border-radius: 9px; background: transparent; color: #173b36; text-align: left; }
+.hasil-carian-lokasi button:hover, .hasil-carian-lokasi button:focus-visible { background: #eef6f4; outline: 0; }
+.hasil-carian-lokasi button > .bi { margin-top: .15rem; color: #168a7e; }
+.hasil-carian-lokasi button span { display: flex; flex-direction: column; min-width: 0; }
+.hasil-carian-lokasi strong { font-size: .88rem; font-weight: 600; }
+.hasil-carian-lokasi small { overflow: hidden; color: #7a8b88; font-size: .76rem; text-overflow: ellipsis; white-space: nowrap; }
+.mesej-carian-lokasi { padding: .6rem .7rem; color: #5b6f6c; font-size: .82rem; }
+
+@media (max-width: 767.98px) {
+    .modal-pilih-lokasi .modal-body { flex-direction: column; }
+    .bungkus-peta-lokasi { display: flex; flex: 1 1 auto; min-height: 0; }
+    .carian-peta-lokasi { padding: .55rem .7rem; }
+    .kotak-carian-lokasi .form-control { font-size: 16px; }
+}

@@ -80,7 +80,7 @@ class HeaderKeselamatan
             "style-src 'self' 'unsafe-inline' {$cdn}",
             "font-src 'self' data: {$cdn}",
             "img-src 'self' data: blob: {$cdn} {$petaTile}",
-            "connect-src 'self' {$cdn} https://cloudflareinsights.com {$reverb}",
+            "connect-src 'self' {$cdn} https://cloudflareinsights.com https://nominatim.openstreetmap.org {$reverb}",
             "frame-src 'self'",
             "worker-src 'self'",
             "manifest-src 'self'",

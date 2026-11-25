@@ -4007,6 +4007,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
 
                 <div class="modal-body p-0 position-relative">
+                    <div class="carian-peta-lokasi">
+                        <div class="kotak-carian-lokasi">
+                            <i class="bi bi-search" aria-hidden="true"></i>
+                            <input type="search" class="form-control" data-carian-lokasi placeholder="Cari lokasi (cth: Pasar Marang, Kampung Rhu Muda)" autocomplete="off" enterkeyhint="search" aria-label="Cari lokasi">
+                            <span class="spinner-border spinner-border-sm text-secondary" data-carian-memuat hidden></span>
+                            <button type="button" class="butang-kosong-carian" data-kosongkan-carian aria-label="Kosongkan carian" hidden><i class="bi bi-x-circle-fill"></i></button>
+                        </div>
+                        <ul class="hasil-carian-lokasi" data-hasil-carian-lokasi role="listbox" hidden></ul>
+                    </div>
+
+                    <div class="bungkus-peta-lokasi">
                     <div class="peta-pilih-lokasi" data-peta-lokasi></div>
 
                     <div class="kawalan-peta-lokasi kiri">
@@ -4023,7 +4034,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
 
                     <div class="petunjuk-peta-lokasi" data-petunjuk-lokasi>
-                        <i class="bi bi-hand-index me-1"></i>Klik pada peta untuk letak pin, atau seret pin untuk ubah kedudukan.
+                        <i class="bi bi-hand-index me-1"></i>Cari lokasi, klik pada peta untuk letak pin, atau seret pin untuk ubah kedudukan.
+                    </div>
                     </div>
                 </div>
 
@@ -4206,6 +4218,165 @@ document.addEventListener('DOMContentLoaded', () => {
             peta.setView(PUSAT_MARANG, 13);
             paparKoordinat();
         }
+    });
+
+    /* Carian lokasi (OpenStreetMap Nominatim), diutamakan kawasan Terengganu */
+    const inputCarian = modal.querySelector('[data-carian-lokasi]');
+    const senaraiHasil = modal.querySelector('[data-hasil-carian-lokasi]');
+    const spinnerCarian = modal.querySelector('[data-carian-memuat]');
+    const butangKosong = modal.querySelector('[data-kosongkan-carian]');
+    const KOTAK_TERENGGANU = '102.35,6.05,103.75,3.85';
+    let pemasaCarian = null;
+    let pengawalCarian = null;
+    let hasilSemasa = [];
+
+    const escTeks = (teks) => String(teks ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+    const tutupHasil = () => {
+        senaraiHasil.hidden = true;
+        senaraiHasil.innerHTML = '';
+    };
+
+    const paparHasil = (senarai, mesej = null) => {
+        hasilSemasa = senarai;
+
+        if (mesej) {
+            senaraiHasil.innerHTML = `<li class="mesej-carian-lokasi">${escTeks(mesej)}</li>`;
+        } else {
+            senaraiHasil.innerHTML = senarai.map((item, i) => {
+                const bahagian = item.display_name.split(',').map((t) => t.trim());
+                const nama = item.name || bahagian[0];
+                const butiran = bahagian.filter((t) => t !== nama).slice(0, 4).join(', ');
+
+                return `<li role="option"><button type="button" data-pilih-hasil="${i}">
+                    <i class="bi bi-geo-alt" aria-hidden="true"></i>
+                    <span><strong>${escTeks(nama)}</strong><small>${escTeks(butiran)}</small></span>
+                </button></li>`;
+            }).join('');
+        }
+
+        senaraiHasil.hidden = false;
+    };
+
+    const cariNominatim = async (kata, isyarat, terhad) => {
+        const param = new URLSearchParams({
+            format: 'jsonv2',
+            q: kata,
+            countrycodes: 'my',
+            limit: '6',
+            'accept-language': 'ms,en',
+            viewbox: KOTAK_TERENGGANU,
+            bounded: terhad ? '1' : '0',
+        });
+
+        const respons = await fetch(`https://nominatim.openstreetmap.org/search?${param}`, {
+            signal: isyarat,
+            headers: { Accept: 'application/json' },
+        });
+
+        if (! respons.ok) {
+            throw new Error('Carian gagal');
+        }
+
+        return respons.json();
+    };
+
+    const jalankanCarian = async () => {
+        const kata = inputCarian.value.trim();
+
+        pengawalCarian?.abort();
+
+        if (kata.length < 3) {
+            tutupHasil();
+            return;
+        }
+
+        pengawalCarian = new AbortController();
+        spinnerCarian.hidden = false;
+
+        try {
+            // Cari dalam Terengganu dahulu; jika tiada, cari seluruh Malaysia
+            let hasil = await cariNominatim(kata, pengawalCarian.signal, true);
+
+            if (! hasil.length) {
+                hasil = await cariNominatim(kata, pengawalCarian.signal, false);
+            }
+
+            paparHasil(hasil, hasil.length ? null : 'Lokasi tidak dijumpai. Cuba nama lain, atau klik terus pada peta.');
+        } catch (ralat) {
+            if (ralat.name !== 'AbortError') {
+                paparHasil([], 'Carian tidak dapat dibuat. Semak sambungan internet dan cuba lagi.');
+            }
+        } finally {
+            spinnerCarian.hidden = true;
+        }
+    };
+
+    const pilihHasil = (indeks) => {
+        const item = hasilSemasa[indeks];
+
+        if (! item) {
+            return;
+        }
+
+        inputCarian.value = item.name || item.display_name.split(',')[0];
+        tutupHasil();
+        letakPin([parseFloat(item.lat), parseFloat(item.lon)], { zum: 17 });
+        inputCarian.blur();
+    };
+
+    inputCarian.addEventListener('input', () => {
+        butangKosong.hidden = inputCarian.value === '';
+        clearTimeout(pemasaCarian);
+        // Tunggu pengguna berhenti menaip (had Nominatim: 1 carian sesaat)
+        pemasaCarian = setTimeout(jalankanCarian, 700);
+    });
+
+    inputCarian.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            clearTimeout(pemasaCarian);
+
+            if (! senaraiHasil.hidden && hasilSemasa.length) {
+                pilihHasil(0);
+            } else {
+                jalankanCarian();
+            }
+        }
+
+        if (event.key === 'Escape' && ! senaraiHasil.hidden) {
+            event.stopPropagation();
+            tutupHasil();
+        }
+    });
+
+    senaraiHasil.addEventListener('click', (event) => {
+        const butang = event.target.closest('[data-pilih-hasil]');
+
+        if (butang) {
+            pilihHasil(Number(butang.dataset.pilihHasil));
+        }
+    });
+
+    butangKosong.addEventListener('click', () => {
+        inputCarian.value = '';
+        butangKosong.hidden = true;
+        pengawalCarian?.abort();
+        tutupHasil();
+        inputCarian.focus();
+    });
+
+    modal.addEventListener('click', (event) => {
+        if (! event.target.closest('.carian-peta-lokasi')) {
+            tutupHasil();
+        }
+    });
+
+    modal.addEventListener('hidden.bs.modal', () => {
+        inputCarian.value = '';
+        butangKosong.hidden = true;
+        pengawalCarian?.abort();
+        tutupHasil();
     });
 
     /* Lokasi semasa pengguna */
