@@ -40,6 +40,14 @@ class HeaderKeselamatan
         $jenis = (string) $response->headers->get('Content-Type');
         $halamanHtml = $jenis === '' || str_contains($jenis, 'text/html');
 
+        // Halaman dalaman tidak boleh disimpan oleh pelayar. Selepas log keluar,
+        // butang "Back" akan meminta semula halaman daripada pelayan (dan dihantar ke log masuk)
+        if ($halamanHtml && $request->user()) {
+            $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0, private');
+            $response->headers->set('Pragma', 'no-cache');
+            $response->headers->set('Expires', '0');
+        }
+
         if ($halamanHtml && config('keselamatan.csp', true) && ! Vite::isRunningHot()) {
             $response->headers->set('Content-Security-Policy', $this->csp());
         }

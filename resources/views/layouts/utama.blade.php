@@ -29,6 +29,16 @@
     </script>
 
     <script>
+        // Jika halaman dipulihkan daripada cache "Back/Forward" pelayar (contoh selepas log keluar),
+        // muat semula supaya pelayan menyemak sesi semula
+        window.addEventListener('pageshow', (e) => {
+            if (e.persisted) {
+                window.location.reload();
+            }
+        });
+    </script>
+
+    <script>
         // Popup (SweetAlert) ditangguh sehingga peralihan halaman (View Transitions) selesai,
         // supaya latar gelap menutup sidebar dan bar atas dengan betul.
         window.mpasSelepasPeralihan = new Promise((selesai) => {
